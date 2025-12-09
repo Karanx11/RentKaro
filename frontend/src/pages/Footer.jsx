@@ -1,8 +1,8 @@
 function Footer() {
   return (
     <footer className="
-      w-full mt-20 
-      bg-white/10 backdrop-blur-lg 
+      w-full mt-0 
+      bg-black/10 backdrop-blur-lg 
       border-t border-white/20 
       shadow-[0_-4px_20px_rgba(0,0,0,0.1)]
       text-gray-800
@@ -13,7 +13,7 @@ function Footer() {
 
         {/* BRAND */}
         <div>
-          <h2 className="text-3xl font-bold text-orange-500">RentKaro</h2>
+          <h2 className="text-3xl font-bold text-black">RentKaro</h2>
           <p className="mt-2 text-gray-600">
             Rent anything. Sell anything.  
             Your trusted marketplace for daily needs.
@@ -22,9 +22,9 @@ function Footer() {
 
         {/* QUICK LINKS */}
         <div>
-          <h3 className="text-xl font-semibold mb-3 text-gray-700">Quick Links</h3>
+          <h3 className="text-xl font-semibold mb-3 text-black">Quick Links</h3>
           <ul className="space-y-2">
-            <li><a href="/" className="hover:text-orange-500">Home</a></li>
+            <li><a href="/" className="hover:text-black">Home</a></li>
             <li><a href="/sell" className="hover:text-orange-500">Sell Items</a></li>
             <li><a href="/rent" className="hover:text-orange-500">Rent Items</a></li>
             <li><a href="/contact" className="hover:text-orange-500">Contact</a></li>
@@ -33,7 +33,7 @@ function Footer() {
 
         {/* SOCIALS */}
         <div>
-          <h3 className="text-xl font-semibold mb-3 text-gray-700">Connect</h3>
+          <h3 className="text-xl font-semibold mb-3 text-black">Connect</h3>
           <ul className="space-y-2">
             <li><a href="#" className="hover:text-orange-500">Instagram</a></li>
             <li><a href="#" className="hover:text-orange-500">Twitter</a></li>
