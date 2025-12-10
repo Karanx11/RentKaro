@@ -5,7 +5,7 @@ import { SiProbot } from "react-icons/si";
 function KokkieBot() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { from: "bot", text: "Hi! I'm Kokkie 🤖 How can I help you today?" }
+    { from: "bot", text: "Hi! I'm Kokkie .... How can I help you today?" }
   ]);
   const [input, setInput] = useState("");
 
@@ -15,7 +15,7 @@ function KokkieBot() {
     setMessages((prev) => [
       ...prev,
       { from: "user", text: input },
-      { from: "bot", text: "Kokkie will soon reply with smart suggestions ✨" }
+      { from: "bot", text: "Kokkie will soon reply with smart suggestions " }
     ]);
 
     setInput("");

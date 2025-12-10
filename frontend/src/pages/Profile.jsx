@@ -34,7 +34,7 @@ function Profile() {
 
             {/* Profile Pic */}
             <img
-              src='https://i.imgur.com/6VBx3io.png'
+              src='./src/assets/boy_pic.png'
               alt="profile"
               className="w-40 h-40 rounded-full border-4 border-white shadow-xl object-cover"
             />

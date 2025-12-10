@@ -1,4 +1,5 @@
 import { IoSearch } from "react-icons/io5";
+import Market from "../pages/Market";
 
 function HomeBody() {
   return (
@@ -95,17 +96,7 @@ function HomeBody() {
             {/* RENT + SELL BUTTONS */}
             <div className="flex gap-6 mt-8 flex-wrap justify-center lg:justify-start">
 
-              <a
-                href="/rent"
-                className="
-                  bg-black hover:bg-gray-800
-                  text-white hover:text-[#C76A46]
-                  px-10 py-3 rounded-xl
-                  text-lg font-semibold shadow-lg
-                "
-              >
-                Rent
-              </a>
+              
 
               <a
                 href="/sell"
@@ -116,10 +107,10 @@ function HomeBody() {
                   text-lg font-semibold shadow-lg
                 "
               >
-                Sell
+                Rent/Sell
               </a>
                <a
-                href="/location"
+                href="/market"
                 className="
                   bg-black hover:bg-gray-800
                   text-white hover:text-[#C76A46]
@@ -127,8 +118,19 @@ function HomeBody() {
                   text-lg font-semibold shadow-lg
                 "
               >
-                Location
-              </a> 
+                Market
+              </a>
+              <a
+                href="/about"
+                className="
+                  bg-black hover:bg-gray-800
+                  text-white hover:text-[#C76A46]
+                  px-10 py-3 rounded-xl
+                  text-lg font-semibold shadow-lg
+                "
+              >
+                About
+              </a>
             </div>
 
           </div>

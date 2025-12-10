@@ -49,7 +49,7 @@ function EditProfile() {
             <div className="flex flex-col items-center gap-4">
               <div className="w-32 h-32 rounded-full overflow-hidden shadow-lg border-4 border-white">
                 <img
-                  src={image || "https://i.imgur.com/6VBx3io.png"}
+                  src={image || "./src/assets/boy_pic.png"}
                   className="w-full h-full object-cover"
                 />
               </div>
