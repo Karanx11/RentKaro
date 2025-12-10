@@ -5,6 +5,7 @@ import Sell from "./pages/Sell";
 import Profile from "./pages/Profile";
 import ChatScreen from "./pages/ChatScreen";
 import ChatBot from "./pages/ChatBot"; 
+import Login from "./pages/Login";
 import Market from "./pages/Market";
 import EditProfile from "./components/EditProfile";
 import ProductDetails from "./components/ProductDetails"
@@ -28,6 +29,7 @@ function App() {
         <Route path="/market" element={<Market />} />
         <Route path="/product/:id" element={<ProductDetails />} />
         <Route path="/about" element={<About />} />
+        <Route path="/login" element={<Login />} />
       </Routes>
 
     </BrowserRouter>
