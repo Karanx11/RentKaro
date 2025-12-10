@@ -4,6 +4,8 @@ function Login() {
     return (
         <>
         <NavBar />
+        This is a login Page
+        
         </>
     );
 }
