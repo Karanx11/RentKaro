@@ -21,8 +21,9 @@ function NavBar() {
         {/* CENTER MENU */}
         <ul className="flex gap-10 text-white font-medium text-lg">
           <li><Link to="/" className="hover:text-[#C76A46]">Home</Link></li>
-          <li><Link to="/sell" className="hover:text-[#C76A46]">Sell</Link></li>
-          <li><Link to="/rent" className="hover:text-[#C76A46]">Rent</Link></li>
+          <li><Link to="/sell" className="hover:text-[#C76A46]">Rent/Sell</Link></li>
+          <li><Link to="/market" className="hover:text-[#C76A46]">Market</Link></li>
+          <li><Link to="/chat" className="hover:text-[#C76A46]">Chat</Link></li>
           <li><Link to="/contact" className="hover:text-[#C76A46]">Contact</Link></li>
         </ul>
 
@@ -73,9 +74,9 @@ function NavBar() {
           </div>
 
           <Link to="/" className="text-white hover:text-[#C76A46] text-lg">Home</Link>
-          <Link to="/sell" className="text-white hover:text-[#C76A46] text-lg">Sell</Link>
-          <Link to="/rent" className="text-white hover:text-[#C76A46] text-lg">Rent</Link>
-          <Link to="/inbox" className="text-white hover:text-[#C76A46] text-lg">Inbox</Link>
+          <Link to="/sell" className="text-white hover:text-[#C76A46] text-lg">Rent/Sell</Link>
+          <Link to="/market" className="text-white hover:text-[#C76A46] text-lg">Market</Link>
+          <Link to="/chat" className="text-white hover:text-[#C76A46] text-lg">Chat</Link>
 
           <hr className="border-white/40" />
 
