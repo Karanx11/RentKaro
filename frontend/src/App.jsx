@@ -11,12 +11,14 @@ import EditProfile from "./components/EditProfile";
 import ProductDetails from "./components/ProductDetails"
 import KokkieBot from "./components/KokkieBot";
 import About from "./pages/About";
+import Signup from "./pages/Signup"
+import ForgotPassword from "./pages/ForgotPassword"
 
 function App() {
   return (
     <BrowserRouter>
 
-      {/* 🔥 Floating chatbot visible everywhere */}
+      {/* Floating chatbot visible everywhere */}
       <KokkieBot />
 
       <Routes>
@@ -30,6 +32,8 @@ function App() {
         <Route path="/product/:id" element={<ProductDetails />} />
         <Route path="/about" element={<About />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />}/>
+        <Route path="/forgot" element={<ForgotPassword />} />
       </Routes>
 
     </BrowserRouter>
