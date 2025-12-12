@@ -40,7 +40,7 @@ function NavBar() {
         {/* RIGHT PROFILE + LOGIN */}
         <div className="flex items-center gap-6 text-lg font-medium text-white">
           <Link to="/profile" className="hover:text-[#C76A46]">Profile</Link>
-          <Link to="/login" className="hover:text-[#C76A46]">Login</Link>
+          <Link to="/login" className="hover:text-[#C76A46]">Logout</Link>
         </div>
 
       </div>
@@ -82,7 +82,7 @@ function NavBar() {
           <hr className="border-white/40" />
 
           <Link to="/profile" className="text-white hover:text-[#C76A46] text-lg">Profile</Link>
-          <Link to="/login" className="text-white hover:text-[#C76A46] text-lg">Login</Link>
+          <Link to="/login" className="text-white hover:text-[#C76A46] text-lg">Logout</Link>
         </div>
       )}
 

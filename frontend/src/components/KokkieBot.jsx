@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { IoClose, IoSend } from "react-icons/io5";
-import { SiProbot } from "react-icons/si";
 
 function KokkieBot() {
   const [open, setOpen] = useState(false);
@@ -28,14 +27,17 @@ function KokkieBot() {
         onClick={() => setOpen(true)}
         className="
           fixed bottom-6 right-6 z-50
-          w-16 h-16 rounded-full
-          bg-black text-white
+          w-16 h-16 rounded-full overflow-hidden
+          bg-black shadow-xl
           flex items-center justify-center
-          shadow-xl hover:bg-gray-800
-          transition
+          hover:scale-105 transition
         "
       >
-        <SiProbot />
+        <img
+          src="/src/assets/ChatBot.png"
+          alt="Kokkie"
+          className="w-full h-full object-cover"
+        />
       </button>
 
       {/* CHATBOT PANEL */}
@@ -53,8 +55,11 @@ function KokkieBot() {
         >
           {/* HEADER */}
           <div className="bg-black text-white px-5 py-4 flex justify-between items-center">
-            <h2 className="text-xl font-bold">Kokkie Bot 🤖</h2>
-            <IoClose className="text-2xl cursor-pointer" onClick={() => setOpen(false)} />
+            <h2 className="text-xl font-bold">Kokkie Bot</h2>
+            <IoClose
+              className="text-2xl cursor-pointer"
+              onClick={() => setOpen(false)}
+            />
           </div>
 
           {/* MESSAGE AREA */}
@@ -64,9 +69,11 @@ function KokkieBot() {
                 key={index}
                 className={`
                   max-w-[80%] px-4 py-3 rounded-xl
-                  ${msg.from === "bot"
-                    ? "bg-white text-black border border-gray-300"
-                    : "bg-black text-white ml-auto"}
+                  ${
+                    msg.from === "bot"
+                      ? "bg-white text-black border border-gray-300"
+                      : "bg-black text-white ml-auto"
+                  }
                 `}
               >
                 {msg.text}

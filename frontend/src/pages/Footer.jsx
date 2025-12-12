@@ -1,53 +1,66 @@
 function Footer() {
   return (
-    <footer className="
-      w-full mt-0 
-      bg-black/10 backdrop-blur-lg 
-      border-t border-white/20 
-      shadow-[0_-4px_20px_rgba(0,0,0,0.1)]
-      text-gray-800
-    ">
-      
-      {/* MAIN FOOTER */}
-      <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 md:grid-cols-3 gap-10">
+    <footer
+      className="
+        w-full mt-0 
+        bg-black/10 backdrop-blur-lg 
+        border-t border-white/20 
+        shadow-[0_-4px_20px_rgba(0,0,0,0.1)]
+        text-gray-800
+      "
+    >
+      {/* MAIN FOOTER CONTENT */}
+      <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-2 gap-10">
 
         {/* BRAND */}
         <div>
-          <h2 className="text-3xl font-bold text-black">RentKaro</h2>
-          <p className="mt-2 text-gray-600">
-            Rent anything. Sell anything.  
-            Your trusted marketplace for daily needs.
+          <h2 className="text-3xl font-extrabold text-black tracking-wide">
+            RentKaro
+          </h2>
+          <p className="mt-3 text-gray-600 max-w-md leading-relaxed">
+            Bringing smarter renting & selling right to your fingertips.  
+            Hassle-free, trusted, and community-driven.
           </p>
         </div>
 
         {/* QUICK LINKS */}
         <div>
-          <h3 className="text-xl font-semibold mb-3 text-black">Quick Links</h3>
-          <ul className="space-y-2">
-            <li><a href="/" className="hover:text-black">Home</a></li>
-            <li><a href="/sell" className="hover:text-orange-500">Sell Items</a></li>
-            <li><a href="/rent" className="hover:text-orange-500">Rent Items</a></li>
-            <li><a href="/contact" className="hover:text-orange-500">Contact</a></li>
+          <h3 className="text-xl font-semibold mb-4 text-black">
+            Quick Links
+          </h3>
+
+          <ul className="space-y-2 text-gray-700">
+            <li>
+              <a href="/" className="hover:text-black transition">Home</a>
+            </li>
+            <li>
+              <a href="/market" className="hover:text-[#C76A46] transition">Market</a>
+            </li>
+            <li>
+              <a href="/sell" className="hover:text-[#C76A46] transition">Rent/Sell</a>
+            </li>
+            <li>
+              <a href="/chat" className="hover:text-[#C76A46] transition">Chat</a>
+            </li>
+            <li>
+              <a href="/about" className="hover:text-[#C76A46] transition">About</a>
+            </li>
           </ul>
         </div>
-
-        {/* SOCIALS */}
-        <div>
-          <h3 className="text-xl font-semibold mb-3 text-black">Connect</h3>
-          <ul className="space-y-2">
-            <li><a href="#" className="hover:text-orange-500">Instagram</a></li>
-            <li><a href="#" className="hover:text-orange-500">Twitter</a></li>
-            <li><a href="#" className="hover:text-orange-500">LinkedIn</a></li>
-          </ul>
-        </div>
-
       </div>
 
       {/* COPYRIGHT BAR */}
-      <div className="bg-white/20 backdrop-blur-md border-t border-white/20 py-4 text-center text-gray-700">
-        © {new Date().getFullYear()} <span className="font-semibold text-orange-500">RentKaro</span> — All Rights Reserved.
+      <div
+        className="
+          bg-white/20 backdrop-blur-md 
+          border-t border-white/20 
+          py-4 text-center text-gray-700 text-sm
+        "
+      >
+        © {new Date().getFullYear()}  
+        <span className="font-semibold text-[#C76A46]"> RentKaro</span>  
+        — Smarter Renting Starts Here.
       </div>
-
     </footer>
   );
 }
