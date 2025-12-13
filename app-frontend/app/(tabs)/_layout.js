@@ -1,6 +1,5 @@
 import { Tabs } from "expo-router";
-import { BlurView } from "expo-blur";
-import { StyleSheet } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function TabLayout() {
@@ -8,19 +7,23 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
+        tabBarShowLabel: true,
+        tabBarActiveTintColor: "#C76A46",
+        tabBarInactiveTintColor: "#fff",
+        tabBarLabelStyle: {
+          fontSize: 11,
+          marginBottom: 6,
+          
+        },
         tabBarStyle: styles.tabBar,
-        tabBarBackground: () => (
-          <BlurView intensity={40} tint="light" style={StyleSheet.absoluteFill} />
-        ),
-        tabBarActiveTintColor: "#000",
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
           title: "Home",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home-outline" size={size} color={color} />
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="home-outline" size={22} color={color} />
           ),
         }}
       />
@@ -29,28 +32,41 @@ export default function TabLayout() {
         name="chats"
         options={{
           title: "Chats",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="chatbubble-outline" size={size} color={color} />
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="chatbubble-outline" size={22} color={color} />
           ),
         }}
       />
 
+      {/* CENTER PLUS BUTTON */}
       <Tabs.Screen
-        name="sell"
-        options={{
-          title: "Sell",
-          tabBarIcon: ({ size }) => (
-            <Ionicons name="add-circle" size={42} color="black" />
-          ),
-        }}
-      />
+  name="sell"
+  options={{
+    title: "",
+    tabBarIcon: ({ focused }) => (
+      <View
+        style={[
+          styles.centerButton,
+          focused && styles.centerButtonActive,
+        ]}
+      >
+        <Ionicons
+          name="add"
+          size={32}
+          color={focused ? "#000" : "#b0b0b0"}
+        />
+      </View>
+    ),
+  }}
+/>
+
 
       <Tabs.Screen
         name="profile"
         options={{
           title: "Profile",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person-outline" size={size} color={color} />
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="person-outline" size={22} color={color} />
           ),
         }}
       />
@@ -59,8 +75,8 @@ export default function TabLayout() {
         name="settings"
         options={{
           title: "Settings",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="settings-outline" size={size} color={color} />
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="settings-outline" size={22} color={color} />
           ),
         }}
       />
@@ -71,8 +87,21 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   tabBar: {
     position: "absolute",
-    height: 70,
+    height: 78,
+    paddingBottom: 10,
+    paddingTop: 8,
     borderTopWidth: 0,
-    backgroundColor: "rgba(200,200,200,0.4)",
+    backgroundColor: "#000", // PURE BLACK
+  },
+
+  centerButton: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: "#1a1a1a", // dark grey base
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 26, // lifts the + button
+    elevation: 10,
   },
 });

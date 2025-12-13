@@ -1,41 +1,80 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { BlurView } from "expo-blur";
 import { Ionicons } from "@expo/vector-icons";
+import { usePathname } from "expo-router";
 
-export default function TopBar({ title = "RentKaro", onLogout }) {
+export default function TopBar({ onLogout }) {
+  const pathname = usePathname();
+
+  // 🔁 Route → Title mapping
+  const getTitleFromRoute = () => {
+    if (pathname === "/") return "Market";
+    if (pathname.startsWith("/chats")) return "Chats";
+    if (pathname.startsWith("/sell")) return "Sell";
+    if (pathname.startsWith("/profile")) return "Profile";
+    if (pathname.startsWith("/settings")) return "Settings";
+    if (pathname.startsWith("/product")) return "Product";
+
+    return "RentKaro";
+  };
+
   return (
-    <BlurView intensity={40} tint="light" style={styles.container}>
-      <TouchableOpacity onPress={onLogout} style={styles.left}>
-        <Ionicons name="log-out-outline" size={24} color="#000" />
-      </TouchableOpacity>
+    <View style={styles.container}>
+      {/* LEFT : BRAND */}
+      <View style={styles.side}>
+        <Text style={styles.brand}>RentKaro</Text>
+      </View>
 
-      <Text style={styles.title}>{title}</Text>
+      {/* CENTER : AUTO PAGE TITLE */}
+      <View style={styles.center}>
+        <Text style={styles.title}>{getTitleFromRoute()}</Text>
+      </View>
 
-      {/* Right spacer to keep title centered */}
-      <View style={styles.right} />
-    </BlurView>
+      {/* RIGHT : LOGOUT */}
+      <View style={styles.sideRight}>
+        <TouchableOpacity onPress={onLogout}>
+          <Ionicons name="log-out-outline" size={24} color="#fff" />
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     height: 80,
-    paddingTop: 30,
+    paddingTop: 32,
     paddingHorizontal: 16,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: "rgba(200,200,200,0.35)",
+    backgroundColor: "#000",
   },
-  left: {
-    width: 40,
+
+  side: {
+    width: 100,
+    justifyContent: "center",
   },
-  right: {
-    width: 40,
+
+  sideRight: {
+    width: 100,
+    alignItems: "flex-end",
+    justifyContent: "center",
   },
-  title: {
+
+  center: {
+    flex: 1,
+    alignItems: "center",
+  },
+
+  brand: {
+    color: "#C76A46",
     fontSize: 22,
-    fontWeight: "800",
-    color: "#000",
+    fontWeight: "900",
+    letterSpacing: 1.2,
+  },
+
+  title: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "700",
   },
 });
