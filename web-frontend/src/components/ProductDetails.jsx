@@ -1,7 +1,7 @@
 import { IoLocationOutline } from "react-icons/io5";
 import { FiMessageSquare } from "react-icons/fi";
 import { FiShoppingBag } from "react-icons/fi";
-import NavBar from "../components/NavBar";
+import NavBar from "./NavBar";
 import { useState } from "react";
 
 function ProductDetails() {
