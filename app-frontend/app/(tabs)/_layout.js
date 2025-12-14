@@ -4,6 +4,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import { isAuthenticated } from "../../src/utils/auth";
+import KokkieButton from "../../src/components/KokkieButton";
+
 
 export default function TabLayout() {
   const router = useRouter();
@@ -50,6 +52,7 @@ export default function TabLayout() {
   }
 
   return (
+  <View style={{ flex: 1 }}>
     <Tabs
       screenOptions={{
         headerShown: false,
@@ -83,7 +86,6 @@ export default function TabLayout() {
         }}
       />
 
-      {/* CENTER PLUS BUTTON */}
       <Tabs.Screen
         name="sell"
         options={{
@@ -125,7 +127,12 @@ export default function TabLayout() {
         }}
       />
     </Tabs>
-  );
+
+    {/* 🤖 AI BOT — ONLY AFTER LOGIN */}
+    <KokkieButton />
+  </View>
+);
+
 }
 
 const styles = StyleSheet.create({

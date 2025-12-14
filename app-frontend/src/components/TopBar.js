@@ -1,44 +1,85 @@
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { usePathname } from "expo-router";
+import { usePathname, useRouter } from "expo-router";
+import { logout } from "../utils/auth";
 
-export default function TopBar({ onLogout }) {
+export default function TopBar() {
   const pathname = usePathname();
+  const router = useRouter();
 
-  // 🔁 Route → Title mapping
+  const isHome =
+    pathname === "/" ||
+    pathname === "/index";
+
+  // 🔁 Route → Page Title
   const getTitleFromRoute = () => {
-    if (pathname === "/") return "Market";
+    if (isHome) return "";
+
     if (pathname.startsWith("/chats")) return "Chats";
     if (pathname.startsWith("/sell")) return "Sell";
     if (pathname.startsWith("/profile")) return "Profile";
     if (pathname.startsWith("/settings")) return "Settings";
-    if (pathname.startsWith("/product")) return "Product";
+    if (pathname.startsWith("/edit-profile")) return "Edit Profile";
+    if (pathname.startsWith("/change-password")) return "Change Password";
+    if (pathname.startsWith("/help")) return "Help & Support";
+    if (pathname.startsWith("/terms")) return "Terms & Conditions";
+    if (pathname.startsWith("/privacy")) return "Privacy Policy";
 
-    return "RentKaro";
+    return <Text style={styles.brand}>RentKaro</Text>;
+  };
+
+  // 🔐 Logout
+  const handleLogout = () => {
+    Alert.alert(
+      "Logout",
+      "Are you sure you want to logout?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Logout",
+          style: "destructive",
+          onPress: async () => {
+            await logout();
+            router.replace("/login");
+          },
+        },
+      ]
+    );
   };
 
   return (
     <View style={styles.container}>
-      {/* LEFT : BRAND */}
+      {/* LEFT */}
       <View style={styles.side}>
-        <Text style={styles.brand}>RentKaro</Text>
+        {isHome ? (
+          <Text style={styles.brand}>RentKaro</Text>
+        ) : (
+          <TouchableOpacity onPress={() => router.back()}>
+            <Ionicons name="arrow-back" size={24} color="#fff" />
+          </TouchableOpacity>
+        )}
       </View>
 
-      {/* CENTER : AUTO PAGE TITLE */}
+      {/* CENTER */}
       <View style={styles.center}>
-        <Text style={styles.title}>{getTitleFromRoute()}</Text>
+        {!isHome && (
+          <Text style={styles.title}>{getTitleFromRoute()}</Text>
+        )}
       </View>
 
-      {/* RIGHT : LOGOUT */}
+      {/* RIGHT */}
       <View style={styles.sideRight}>
-        <TouchableOpacity onPress={onLogout}>
-          <Ionicons name="log-out-outline" size={24} color="#fff" />
-        </TouchableOpacity>
+        {isHome && (
+          <TouchableOpacity onPress={handleLogout}>
+            <Ionicons name="log-out-outline" size={24} color="#fff" />
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
 }
 
+/* STYLES */
 const styles = StyleSheet.create({
   container: {
     height: 80,
@@ -55,7 +96,7 @@ const styles = StyleSheet.create({
   },
 
   sideRight: {
-    width: 100,
+    width: 80,
     alignItems: "flex-end",
     justifyContent: "center",
   },
@@ -69,7 +110,8 @@ const styles = StyleSheet.create({
     color: "#C76A46",
     fontSize: 22,
     fontWeight: "900",
-    letterSpacing: 1.2,
+    fontFamily: "RentKaroScript",
+    letterSpacing: 1.3,
   },
 
   title: {
