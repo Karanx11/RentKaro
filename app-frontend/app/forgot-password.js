@@ -8,33 +8,23 @@ import {
 import { useRouter } from "expo-router";
 import { useState } from "react";
 
-export default function SignupScreen() {
+export default function ForgotPasswordScreen() {
   const router = useRouter();
-
-  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
 
-  const handleSignup = () => {
-    if (!name || !email || !password) return;
+  const handleReset = () => {
+    if (!email) return;
 
-    // 🔐 later integrate API
-       router.push("/kyc");
-
+    // 🔐 later integrate email/OTP reset
+    router.replace("/login");
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.logo}>RentKaro</Text>
-      <Text style={styles.subtitle}>Create your account</Text>
-
-      <TextInput
-        placeholder="Full Name"
-        placeholderTextColor="#777"
-        style={styles.input}
-        value={name}
-        onChangeText={setName}
-      />
+      <Text style={styles.title}>Forgot Password</Text>
+      <Text style={styles.subtitle}>
+        Enter your email to reset your password
+      </Text>
 
       <TextInput
         placeholder="Email"
@@ -45,24 +35,12 @@ export default function SignupScreen() {
         autoCapitalize="none"
       />
 
-      <TextInput
-        placeholder="Password"
-        placeholderTextColor="#777"
-        style={styles.input}
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-
-      <TouchableOpacity style={styles.btn} onPress={handleSignup}>
-        <Text style={styles.btnText}>Sign Up</Text>
+      <TouchableOpacity style={styles.btn} onPress={handleReset}>
+        <Text style={styles.btnText}>Send Reset Link</Text>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => router.replace("/login")}>
-        <Text style={styles.linkText}>
-          Already have an account?{" "}
-          <Text style={styles.link}>Login</Text>
-        </Text>
+        <Text style={styles.backText}>Back to Login</Text>
       </TouchableOpacity>
     </View>
   );
@@ -75,17 +53,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 24,
   },
-  logo: {
-    fontSize: 34,
+  title: {
+    fontSize: 28,
     fontWeight: "900",
     color: "#C76A46",
     textAlign: "center",
-    marginBottom: 6,
+    marginBottom: 8,
   },
   subtitle: {
     color: "#aaa",
     textAlign: "center",
-    marginBottom: 40,
+    marginBottom: 30,
   },
   input: {
     backgroundColor: "#111",
@@ -104,16 +82,12 @@ const styles = StyleSheet.create({
   },
   btnText: {
     color: "#000",
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "800",
   },
-  linkText: {
+  backText: {
     color: "#aaa",
     textAlign: "center",
     marginTop: 20,
-  },
-  link: {
-    color: "#C76A46",
-    fontWeight: "700",
   },
 });
