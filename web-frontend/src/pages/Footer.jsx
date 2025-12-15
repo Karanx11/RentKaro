@@ -43,7 +43,7 @@ function Footer() {
               <a href="/chat" className="hover:text-[#C76A46] transition">Chat</a>
             </li>
             <li>
-              <a href="/about" className="hover:text-[#C76A46] transition">About</a>
+              <a href="/settings" className="hover:text-[#C76A46] transition">Settings</a>
             </li>
           </ul>
         </div>
@@ -57,10 +57,14 @@ function Footer() {
           py-4 text-center text-gray-700 text-sm
         "
       >
-        © {new Date().getFullYear()}  
-        <span className="font-semibold text-[#C76A46]"> RentKaro</span>  
+        © {new Date().getFullYear()}
+        <span className="font-semibold text-[#C76A46]"> RentKaro</span>
         — Smarter Renting Starts Here.
+        <span className="block mt-1 text-gray-600">
+          Built by <span className="font-semibold text-black">Karan Sharma</span>
+        </span>
       </div>
+
     </footer>
   );
 }

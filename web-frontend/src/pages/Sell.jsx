@@ -1,9 +1,25 @@
 import { useState } from "react";
 import NavBar from "../components/NavBar"; // <-- make sure the path is correct
 
+const CATEGORIES = [
+  "Electronics",
+  "Camera",
+  "Computers",
+  "Books",
+  "Tools",
+  "Gaming",
+  "Camping",
+  "Furniture",
+  "Other",
+];
+
 function Sell() {
   const [images, setImages] = useState([null, null, null]);
   const [mode, setMode] = useState("rent");
+  const [category, setCategory] = useState("");
+  const [description, setDescription] = useState("");
+
+
 
   // Handle image upload and preview
   const handleImageUpload = (e, index) => {
@@ -82,31 +98,103 @@ function Sell() {
                 required
               />
             </div>
-
-            {/* PRICE INPUTS */}
+            
+            {/* CATEGORY SELECTION */}
             <div>
               <label className="block text-xl font-semibold mb-3 text-gray-800">
-                Pricing
+                Select Category
               </label>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                <input
-                  type="number"
-                  placeholder="Per Day"
-                  className="px-5 py-3 rounded-xl bg-white/80 border border-gray-300 shadow-md text-lg"
-                />
-                <input
-                  type="number"
-                  placeholder="Per Month"
-                  className="px-5 py-3 rounded-xl bg-white/80 border border-gray-300 shadow-md text-lg"
-                />
-                <input
-                  type="number"
-                  placeholder="Per Year"
-                  className="px-5 py-3 rounded-xl bg-white/80 border border-gray-300 shadow-md text-lg"
-                />
+              <div className="flex gap-4 flex-wrap">
+                {CATEGORIES.map((cat) => (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setCategory(cat)}
+                    className={`
+                      px-6 py-3 rounded-xl text-sm font-semibold
+                      backdrop-blur-xl border shadow-md transition
+                      ${
+                        category === cat
+                          ? "bg-black text-white border-black"
+                          : "bg-white/60 text-black border-gray-300 hover:bg-white"
+                      }
+                    `}
+                  >
+                    {cat}
+                  </button>
+                ))}
               </div>
             </div>
+
+            {/* PRODUCT DESCRIPTION */}
+            <div>
+              <label className="block text-xl font-semibold mb-2 text-gray-800">
+                Product Description
+              </label>
+
+              <textarea
+                maxLength={500}
+                rows={3}
+                placeholder="Describe your product (condition, usage, accessories, etc.)"
+                onInput={(e) => {
+                  e.target.style.height = "auto";
+                  e.target.style.height = e.target.scrollHeight + "px";
+                }}
+                onChange={(e) => setDescription(e.target.value)}
+                value={description}
+                className="
+                  w-full px-5 py-4 rounded-xl
+                  bg-white/80 border border-gray-300
+                  text-gray-900 text-lg
+                  outline-none resize-none
+                  shadow-md
+                  focus:border-black
+                  transition
+                "
+                required
+              />
+
+              {/* CHARACTER COUNTER */}
+              <div className="mt-1 text-right text-sm text-gray-600">
+                {description.length} / 500
+              </div>
+            </div>
+
+            {/* PRICING */}
+              <div>
+                <label className="block text-xl font-semibold mb-3 text-gray-800">
+                  Pricing
+                </label>
+
+                {mode === "rent" ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    <input
+                      type="number"
+                      placeholder="Per Day (₹)"
+                      className="px-5 py-3 rounded-xl bg-white/80 border border-gray-300 shadow-md text-lg"
+                    />
+                    <input
+                      type="number"
+                      placeholder="Per Month (₹)"
+                      className="px-5 py-3 rounded-xl bg-white/80 border border-gray-300 shadow-md text-lg"
+                    />
+                    <input
+                      type="number"
+                      placeholder="Per Year (₹)"
+                      className="px-5 py-3 rounded-xl bg-white/80 border border-gray-300 shadow-md text-lg"
+                    />
+                  </div>
+                ) : (
+                  <input
+                    type="number"
+                    placeholder="Selling Price (₹)"
+                    className="w-full px-5 py-3 rounded-xl bg-white/80 border border-gray-300 shadow-md text-lg"
+                  />
+                )}
+              </div>
+
+
 
             {/* RENT / SELL TOGGLE */}
             <div className="text-center">

@@ -90,18 +90,6 @@ function HomeBody() {
           <div className="flex gap-6 mt-8 flex-wrap justify-center lg:justify-start">
 
             <a
-              href="/sell"
-              className="
-                bg-black hover:bg-gray-800
-                text-white hover:text-[#C76A46]
-                px-10 py-3 rounded-xl
-                text-lg font-semibold shadow-lg
-              "
-            >
-              Rent/Sell
-            </a>
-
-            <a
               href="/market"
               className="
                 bg-black hover:bg-gray-800
@@ -114,7 +102,7 @@ function HomeBody() {
             </a>
 
             <a
-              href="/about"
+              href="/sell"
               className="
                 bg-black hover:bg-gray-800
                 text-white hover:text-[#C76A46]
@@ -122,7 +110,19 @@ function HomeBody() {
                 text-lg font-semibold shadow-lg
               "
             >
-              About
+              Rent/Sell
+            </a>
+
+            <a
+              href="/chat"
+              className="
+                bg-black hover:bg-gray-800
+                text-white hover:text-[#C76A46]
+                px-10 py-3 rounded-xl
+                text-lg font-semibold shadow-lg
+              "
+            >
+              Chats
             </a>
 
           </div>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { IoSearch, IoLocationOutline } from "react-icons/io5";
 import { Link } from "react-router-dom";
 import NavBar from "../components/NavBar";
+import Categories from "../components/Categories";
 
 const DUMMY_PRODUCTS = [
   {
@@ -56,6 +57,12 @@ function Market() {
           <p className="text-gray-700 mb-8">
             Browse items listed by other users. Rent smart, save more.
           </p>
+
+          {/* CATEGORIES */}
+        <div className="mb-8">
+          <Categories onSelect={(cat) => console.log("Selected:", cat)} />
+        </div>
+
 
           {/* SEARCH BAR SECTION */}
           <div className="

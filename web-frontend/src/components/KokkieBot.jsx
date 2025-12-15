@@ -26,7 +26,7 @@ function KokkieBot() {
       <button
         onClick={() => setOpen(true)}
         className="
-          fixed bottom-6 right-6 z-50
+          fixed bottom-20 md:bottom-5 right-6 z-50
           w-16 h-16 rounded-full overflow-hidden
           bg-black shadow-xl
           flex items-center justify-center
@@ -44,7 +44,7 @@ function KokkieBot() {
       {open && (
         <div
           className="
-            fixed bottom-24 right-6 z-50
+            fixed bottom-36 md:bottom-24 right-6 z-50
             w-[90%] sm:w-[350px] h-[480px]
             bg-white/30 backdrop-blur-xl
             border border-gray-500/30

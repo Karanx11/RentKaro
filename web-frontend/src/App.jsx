@@ -10,10 +10,12 @@ import Market from "./pages/Market";
 import EditProfile from "./components/EditProfile";
 import ProductDetails from "./components/ProductDetails"
 import KokkieBot from "./components/KokkieBot";
-import About from "./pages/About";
+import Settings from "./pages/Settings";
 import Signup from "./pages/Signup"
 import ForgotPassword from "./pages/ForgotPassword"
-
+import HelpSupport from "./pages/HelpSupport"
+import Terms from "./pages/Terms"
+import Privacy from "./pages/Privacy"
 function App() {
   return (
     <BrowserRouter>
@@ -30,10 +32,14 @@ function App() {
         <Route path="/chatbot" element={<ChatBot />} />
         <Route path="/market" element={<Market />} />
         <Route path="/product/:id" element={<ProductDetails />} />
-        <Route path="/about" element={<About />} />
+        <Route path="/settings" element={<Settings />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />}/>
         <Route path="/forgot" element={<ForgotPassword />} />
+        <Route path="/help-support" element={<HelpSupport />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/privacy" element={<Privacy />} />
+
       </Routes>
 
     </BrowserRouter>

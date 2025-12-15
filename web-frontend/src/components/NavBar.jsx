@@ -1,92 +1,156 @@
-import { useState } from "react";
-import { GiHamburgerMenu } from "react-icons/gi";
-import { IoMdClose } from "react-icons/io";
-import { IoSearch } from "react-icons/io5";
 import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
+import { FaUserCircle, FaCog, FaPlus } from "react-icons/fa";
+import { MdStorefront, MdChat } from "react-icons/md";
 
 function NavBar() {
-  const [open, setOpen] = useState(false);
-
   return (
-    <nav className="fixed top-0 left-0 w-full z-50 bg-black/50 backdrop-blur-xl shadow-md border-b border-black/30">
+    <>
+      {/* DESKTOP NAVBAR */}
+      <nav className="hidden md:block fixed top-0 left-0 w-full z-50
+                      bg-primary/80 backdrop-blur-xl
+                      border-b border-muted/30 shadow-md">
 
-      {/* Desktop Nav */}
-      <div className="hidden md:flex items-center justify-between px-10 py-5">
+        <div className="flex items-center justify-between px-10 py-5">
 
-        {/* LEFT LOGO */}
-        <Link to="/" className="text-3xl font-extrabold text-white tracking-wide">
-          RentKaro
-        </Link>
+          {/* LOGO */}
+          <Link to="/" className="text-3xl font-extrabold text-light">
+            RentSellKaro
+          </Link>
 
-        {/* CENTER MENU */}
-        <ul className="flex gap-10 text-white font-medium text-lg">
-          <li><Link to="/" className="hover:text-[#C76A46]">Home</Link></li>
-          <li><Link to="/market" className="hover:text-[#C76A46]">Market</Link></li>
-          <li><Link to="/sell" className="hover:text-[#C76A46]">Rent/Sell</Link></li>
-          <li><Link to="/chat" className="hover:text-[#C76A46]">Chat</Link></li>
-          <li><Link to="/about" className="hover:text-[#C76A46]">About</Link></li>
-        </ul>
+          {/* MENU */}
+          <ul className="flex gap-10 text-light font-medium text-lg">
+            <li><Link to="/" className="hover:text-[#C76A46]">Home</Link></li>
+            <li><Link to="/market" className="hover:text-[#C76A46]">Market</Link></li>
+            <li><Link to="/sell" className="hover:text-[#C76A46]">Rent/Sell</Link></li>
+            <li><Link to="/chat" className="hover:text-[#C76A46]">Chat</Link></li>
+            <li><Link to="/settings" className="hover:text-[#C76A46]">Settings</Link></li>
+          </ul>
 
-        {/* SEARCH BAR */}
-        <div className="flex items-center w-[320px] bg-white/90 border border-white/30 rounded-full px-4 py-2 shadow-sm">
-          <IoSearch className="text-gray-600 text-xl mr-3" />
-          <input
-            type="text"
-            placeholder="Search here..."
-            className="flex-1 bg-transparent outline-none text-gray-800 text-lg"
-          />
-        </div>
-
-        {/* RIGHT PROFILE + LOGIN */}
-        <div className="flex items-center gap-6 text-lg font-medium text-white">
-          <Link to="/profile" className="hover:text-[#C76A46]">Profile</Link>
-          <Link to="/login" className="hover:text-[#C76A46]">Logout</Link>
-        </div>
-
-      </div>
-
-      {/* Mobile Nav */}
-      <div className="md:hidden flex items-center justify-between px-6 py-4">
-
-        {/* LOGO */}
-        <Link to="/" className="text-2xl font-bold text-white">
-          RentKaro
-        </Link>
-
-        {/* HAMBURGER */}
-        <button onClick={() => setOpen(!open)} className="text-3xl text-white">
-          {open ? <IoMdClose /> : <GiHamburgerMenu />}
-        </button>
-      </div>
-
-      {/* Mobile Menu */}
-      {open && (
-        <div className="md:hidden bg-black/50 backdrop-blur-xl border-t border-white/30 px-6 py-6 flex flex-col gap-5">
-
-          {/* Search bar mobile */}
-          <div className="flex items-center w-full bg-white/90 border border-white/30 rounded-full px-4 py-2 shadow-sm">
-            <IoSearch className="text-gray-600 text-xl mr-3" />
+          {/* SEARCH
+          <div className="flex items-center w-[320px]
+                          bg-secondary border border-muted/30
+                          rounded-full px-4 py-2">
+            <IoSearch className="text-muted text-xl mr-3" />
             <input
               type="text"
               placeholder="Search here..."
-              className="flex-1 bg-transparent outline-none text-gray-600 text-lg"
+              className="flex-1 bg-transparent outline-none
+                         text-light placeholder:text-muted"
             />
+          </div> */}
+
+          {/* RIGHT */}
+          <div className="flex items-center gap-6 text-lg text-light">
+            <Link to="/profile" className="hover:text-accent">Profile</Link>
+            <Link to="/login" className="hover:text-accent">Logout</Link>
           </div>
 
-          <Link to="/" className="text-white hover:text-[#C76A46] text-lg">Home</Link>
-          <Link to="/market" className="text-white hover:text-[#C76A46] text-lg">Market</Link>
-          <Link to="/sell" className="text-white hover:text-[#C76A46] text-lg">Rent/Sell</Link>
-          <Link to="/chat" className="text-white hover:text-[#C76A46] text-lg">Chat</Link>
-          <Link to="/about" className="text-white hover:text-[#C76A46] text-lg">About</Link>
-
-          <hr className="border-white/40" />
-
-          <Link to="/profile" className="text-white hover:text-[#C76A46] text-lg">Profile</Link>
-          <Link to="/login" className="text-white hover:text-[#C76A46] text-lg">Logout</Link>
         </div>
-      )}
+      </nav>
 
-    </nav>
+      {/* MOBILE TOP NAV */}
+      <nav className="md:hidden fixed top-0 left-0 w-full z-50
+                      bg-primary/90 backdrop-blur-xl
+                      border-b border-muted/30">
+
+        <div className="flex items-center justify-between px-5 py-4">
+
+          {/* BRAND */}
+          <Link to="/" className="text-xl font-bold text-light">
+            RentSellKaro
+          </Link>
+
+          {/* ACTIONS */}
+          <div className="flex items-center gap-4 text-light text-2xl">
+            <Link to="/profile">
+              <FaUserCircle />
+            </Link>
+            <Link
+              to="/login"
+              className="text-sm border border-muted/40
+                         px-3 py-1 rounded-md"
+            >
+              Logout
+            </Link>
+          </div>
+
+        </div>
+      </nav>
+
+      {/* MOBILE BOTTOM NAV */}
+      <nav
+        className="md:hidden fixed bottom-0 left-0 w-full z-50
+                  bg-primary/95 backdrop-blur-xl
+                  border-t border-muted/30"
+      >
+        <div className="flex justify-around items-center py-2">
+
+          {/* MARKET */}
+          <NavLink
+            to="/market"
+            className={({ isActive }) =>
+              `flex flex-col items-center text-xs transition
+              ${isActive ? "text-[#C76A46]" : "text-muted"}`
+            }
+          >
+            <MdStorefront className="text-2xl" />
+            Market
+          </NavLink>
+
+          {/* CHAT */}
+          <NavLink
+            to="/chat"
+            className={({ isActive }) =>
+              `flex flex-col items-center text-xs transition
+              ${isActive ? "text-[#C76A46]" : "text-muted"}`
+            }
+          >
+            <MdChat className="text-2xl" />
+            Chats
+          </NavLink>
+
+          {/* CENTER ADD (SELL) */}
+          <NavLink
+            to="/sell"
+            className={({ isActive }) =>
+              `rounded-full p-4 -mt-2 shadow-lg transition
+              ${isActive
+                ? "bg-[#C76A46] text-white"
+                : "bg-accent text-primary"}`
+            }
+          >
+            <FaPlus className="text-2xl" />
+          </NavLink>
+
+          {/* PROFILE */}
+          <NavLink
+            to="/profile"
+            className={({ isActive }) =>
+              `flex flex-col items-center text-xs transition
+              ${isActive ? "text-[#C76A46]" : "text-muted"}`
+            }
+          >
+            <FaUserCircle className="text-2xl" />
+            Profile
+          </NavLink>
+
+          {/* SETTINGS */}
+          <NavLink
+            to="/settings"
+            className={({ isActive }) =>
+              `flex flex-col items-center text-xs transition
+              ${isActive ? "text-[#C76A46]" : "text-muted"}`
+            }
+          >
+            <FaCog className="text-2xl" />
+            Settings
+          </NavLink>
+
+        </div>
+      </nav>
+
+    </>
   );
 }
 
