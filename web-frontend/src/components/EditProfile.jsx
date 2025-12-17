@@ -4,6 +4,14 @@ import NavBar from "./NavBar";
 function EditProfile() {
 
   const [image, setImage] = useState(null);
+  const [email, setEmail] = useState("");
+  const [emailOtp, setEmailOtp] = useState("");
+  const [emailOtpSent, setEmailOtpSent] = useState(false);
+
+  const [phone, setPhone] = useState("");
+  const [phoneOtp, setPhoneOtp] = useState("");
+  const [phoneOtpSent, setPhoneOtpSent] = useState(false);
+
 
   // Handle image preview
   const handleImageChange = (e) => {
@@ -87,36 +95,120 @@ function EditProfile() {
               />
             </div>
 
-            {/* EMAIL */}
-            <div>
-              <label className="block text-lg font-semibold text-gray-800 mb-2">
-                Email
-              </label>
+           {/* EMAIL */}
+          <div className="space-y-3">
+            <label className="block text-lg font-semibold text-gray-800">
+              Email
+            </label>
+
+            <div className="flex gap-3">
               <input
                 type="email"
                 placeholder="example@gmail.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="
-                  w-full px-5 py-3 rounded-xl
-                  bg-white/80 border border-gray-300 
+                  flex-1 px-5 py-3 rounded-xl
+                  bg-white/80 border border-gray-300
                   text-gray-900 text-lg outline-none shadow-md
                 "
               />
+
+              <button
+                type="button"
+                onClick={() => setEmailOtpSent(true)}
+                disabled={!email}
+                className="
+                  px-5 py-3 rounded-xl font-semibold
+                  bg-black text-white hover:bg-gray-800 hover:text-[#C76A46]
+                  disabled:opacity-40 disabled:cursor-not-allowed
+                  transition shadow-md
+                "
+              >
+                Verify
+              </button>
             </div>
 
-            {/* PHONE */}
-            <div>
-              <label className="block text-lg font-semibold text-gray-800 mb-2">
-                Phone Number
-              </label>
+            {emailOtpSent && (
               <input
-                type="number"
-                placeholder="+91 XXXXX XXXXX"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={6}
+                placeholder="Enter Email OTP"
+                value={emailOtp}
+                onChange={(e) =>
+                  setEmailOtp(e.target.value.replace(/\D/g, ""))
+                }
                 className="
                   w-full px-5 py-3 rounded-xl
-                  bg-white/80 border border-gray-300 
+                  bg-white/80 border border-gray-300
                   text-gray-900 text-lg outline-none shadow-md
+                  tracking-widest text-center
                 "
               />
+            )}
+          </div>
+
+
+           {/* PHONE */}
+            <div className="space-y-3">
+              <label className="block text-lg font-semibold text-gray-800">
+                Phone Number
+              </label>
+
+              <div className="flex gap-3">
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={10}
+                  placeholder="Enter 10-digit number"
+                  value={phone}
+                  onChange={(e) =>
+                    setPhone(e.target.value.replace(/\D/g, ""))
+                  }
+                  className="
+                    flex-1 px-5 py-3 rounded-xl
+                    bg-white/80 border border-gray-300
+                    text-gray-900 text-lg outline-none shadow-md
+                  "
+                />
+
+                <button
+                  type="button"
+                  onClick={() => setPhoneOtpSent(true)}
+                  disabled={phone.length !== 10}
+                  className="
+                    px-5 py-3 rounded-xl font-semibold
+                    bg-black text-white hover:bg-gray-800 hover:text-[#C76A46]
+                    disabled:opacity-40 disabled:cursor-not-allowed
+                    transition shadow-md
+                  "
+                >
+                  Get OTP
+                </button>
+              </div>
+
+              {phoneOtpSent && (
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={6}
+                  placeholder="Enter Phone OTP"
+                  value={phoneOtp}
+                  onChange={(e) =>
+                    setPhoneOtp(e.target.value.replace(/\D/g, ""))
+                  }
+                  className="
+                    w-full px-5 py-3 rounded-xl
+                    bg-white/80 border border-gray-300
+                    text-gray-900 text-lg outline-none shadow-md
+                    tracking-widest text-center
+                  "
+                />
+              )}
             </div>
 
             {/* ADDRESS */}

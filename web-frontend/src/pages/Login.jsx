@@ -1,12 +1,29 @@
 import NavBar from "../components/NavBar";
 import { useState } from "react";
 import { FiMail, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { loginUser } from "../utils/auth";
 
 function Login() {
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+ const handleLogin = async () => {
+  try {
+    setLoading(true);
+    await loginUser(email, password);
+    navigate("/");
+  } catch (err) {
+    alert(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <>
@@ -20,7 +37,6 @@ function Login() {
           pt-32 pb-10 px-4
         "
       >
-        {/* LOGIN CARD */}
         <div
           className="
             w-full max-w-md
@@ -35,7 +51,7 @@ function Login() {
             Login
           </h1>
 
-          {/* EMAIL INPUT */}
+          {/* EMAIL */}
           <div className="flex items-center bg-white rounded-xl px-4 py-3 shadow-md">
             <FiMail className="text-gray-600 text-xl mr-3" />
             <input
@@ -47,7 +63,7 @@ function Login() {
             />
           </div>
 
-          {/* PASSWORD INPUT */}
+          {/* PASSWORD */}
           <div className="flex items-center bg-white rounded-xl px-4 py-3 shadow-md relative">
             <FiLock className="text-gray-600 text-xl mr-3" />
 
@@ -59,33 +75,31 @@ function Login() {
               className="flex-1 bg-transparent outline-none text-lg text-gray-800"
             />
 
-            {/* SHOW / HIDE PASSWORD */}
             <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 text-gray-600 hover:text-black"
-            >
-              {showPassword ? <FiEyeOff size={22} /> : <FiEye size={22} />}
-            </button>
-          </div>
+  onClick={handleLogin}
+  disabled={loading}
+  className="w-full bg-black hover:bg-gray-800
+             text-white hover:text-[#C76A46]
+             rounded-xl py-3 text-lg font-semibold shadow-lg transition"
+>
+  {loading ? "Logging in..." : "Login"}
+</button>
 
-          {/* FORGOT PASSWORD */}
-          <p className="text-center text-gray-700">
-            <Link to="/forgot" className="font-semibold hover:text-[#C76A46]">
-              Forgot Password?
-            </Link>
-          </p>
+          </div>
 
           {/* LOGIN BUTTON */}
           <button
+            onClick={handleLogin}
+            disabled={loading}
             className="
               w-full bg-black hover:bg-gray-800
               text-white hover:text-[#C76A46]
-              rounded-xl py-3 text-lg font-semibold shadow-lg
-              transition
+              rounded-xl py-3 text-lg font-semibold
+              shadow-lg transition
+              disabled:opacity-60
             "
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
 
           {/* SIGNUP LINK */}

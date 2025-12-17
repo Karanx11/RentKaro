@@ -1,46 +1,82 @@
 import NavBar from "../components/NavBar";
 import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import {
   FiMail,
   FiLock,
   FiUser,
-  FiMapPin,
-  FiCreditCard,
   FiPhone,
+  FiEye,
+  FiEyeOff,
 } from "react-icons/fi";
-import { Link } from "react-router-dom";
-import { FiEye, FiEyeOff } from "react-icons/fi";
 
 function Signup() {
+  const navigate = useNavigate();
+
   const [form, setForm] = useState({
     name: "",
     email: "",
-    emailOtp: "",
     phone: "",
-    phoneOtp: "",
     password: "",
     confirmPassword: "",
-    address: "",
-    aadhaar: "",
-    aadhaarOtp: "",
-    pan: "",
   });
 
   const [profilePic, setProfilePic] = useState(null);
-  const [aadhaarFront, setAadhaarFront] = useState(null);
-  const [aadhaarBack, setAadhaarBack] = useState(null);
-  const [panImage, setPanImage] = useState(null);
-
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleFileUpload = (e, setter) => {
+  const handleFileUpload = (e) => {
     const file = e.target.files[0];
-    if (file) setter(URL.createObjectURL(file));
+    if (file) setProfilePic(URL.createObjectURL(file));
+  };
+
+  // 🔥 SIGNUP API CALL
+  const handleSignup = async () => {
+    if (!form.name || !form.email || !form.phone || !form.password) {
+      alert("All fields are required");
+      return;
+    }
+
+    if (form.password !== form.confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const res = await fetch("http://localhost:5000/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          phone: form.phone,
+          password: form.password,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.message || "Signup failed");
+        setLoading(false);
+        return;
+      }
+
+      alert("Signup successful! Please login.");
+      navigate("/login");
+    } catch (err) {
+      console.error(err);
+      alert("Server error. Try again later.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -54,255 +90,69 @@ function Signup() {
             Create Account
           </h1>
 
-          {/* PROFILE PICTURE UPLOAD */}
-          <div className="flex flex-col items-center gap-3 mt-2">
-            <label className="w-28 h-28 rounded-full bg-white shadow-md border border-gray-300 flex items-center justify-center cursor-pointer overflow-hidden">
+          {/* PROFILE PIC */}
+          <div className="flex flex-col items-center gap-3">
+            <label className="w-28 h-28 rounded-full bg-white shadow-md border flex items-center justify-center cursor-pointer overflow-hidden">
               {profilePic ? (
                 <img src={profilePic} className="w-full h-full object-cover" />
               ) : (
-                <span className="text-gray-600 text-sm text-center">
-                  Upload Photo
-                </span>
+                <span className="text-gray-600 text-sm">Upload Photo</span>
               )}
-
               <input
                 type="file"
                 className="hidden"
                 accept="image/*"
-                onChange={(e) => handleFileUpload(e, setProfilePic)}
+                onChange={handleFileUpload}
               />
             </label>
-
             <p className="text-gray-700 text-sm">Profile Picture (Optional)</p>
           </div>
 
-          {/* FULL NAME */}
-          <div className="flex items-center bg-white rounded-xl px-4 py-3 shadow-md">
-            <FiUser className="text-gray-600 text-xl mr-3" />
-            <input
-              type="text"
-              name="name"
-              placeholder="Full Name"
-              value={form.name}
-              onChange={handleChange}
-              className="flex-1 bg-transparent outline-none text-lg text-gray-800"
-            />
-          </div>
+          {/* NAME */}
+          <Input icon={<FiUser />} name="name" placeholder="Full Name" value={form.name} onChange={handleChange} />
 
-          {/* EMAIL + OTP */}
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center bg-white rounded-xl px-4 py-3 shadow-md">
-              <FiMail className="text-gray-600 text-xl mr-3" />
-              <input
-                type="email"
-                name="email"
-                placeholder="Email Address"
-                value={form.email}
-                onChange={handleChange}
-                className="flex-1 bg-transparent outline-none text-lg text-gray-800"
-              />
-              <button className="ml-3 text-sm px-3 py-1 bg-black text-white rounded-lg hover:bg-gray-800">
-                Send OTP
-              </button>
-            </div>
+          {/* EMAIL */}
+          <Input icon={<FiMail />} name="email" placeholder="Email Address" value={form.email} onChange={handleChange} />
 
-            <input
-              type="text"
-              name="emailOtp"
-              placeholder="Enter Email OTP"
-              value={form.emailOtp}
-              onChange={handleChange}
-              className="w-full bg-white rounded-xl px-4 py-3 shadow-md outline-none text-lg text-gray-800"
-            />
-          </div>
-
-          {/* PHONE + OTP */}
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center bg-white rounded-xl px-4 py-3 shadow-md">
-              <FiPhone className="text-gray-600 text-xl mr-3" />
-              <input
-                type="text"
-                name="phone"
-                placeholder="Phone Number"
-                value={form.phone}
-                maxLength="10"
-                onChange={handleChange}
-                className="flex-1 bg-transparent outline-none text-lg text-gray-800"
-              />
-              <button className="ml-3 text-sm px-3 py-1 bg-black text-white rounded-lg hover:bg-gray-800">
-                Send OTP
-              </button>
-            </div>
-
-            <input
-              type="text"
-              name="phoneOtp"
-              placeholder="Enter Phone OTP"
-              value={form.phoneOtp}
-              onChange={handleChange}
-              className="w-full bg-white rounded-xl px-4 py-3 shadow-md outline-none text-lg text-gray-800"
-            />
-          </div>
+          {/* PHONE */}
+          <Input icon={<FiPhone />} name="phone" placeholder="Phone Number" value={form.phone} onChange={handleChange} />
 
           {/* PASSWORD */}
-          <div className="flex items-center bg-white rounded-xl px-4 py-3 shadow-md relative">
-            <FiLock className="text-gray-600 text-xl mr-3" />
-            <input
-              type={showPassword ? "text" : "password"}
-              name="password"
-              placeholder="Password"
-              value={form.password}
-              onChange={handleChange}
-              className="flex-1 bg-transparent outline-none text-lg text-gray-800"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 text-gray-600 hover:text-black"
-            >
-              {showPassword ? <FiEyeOff size={22} /> : <FiEye size={22} />}
-            </button>
-          </div>
+          <PasswordInput
+            label="Password"
+            value={form.password}
+            show={showPassword}
+            setShow={setShowPassword}
+            name="password"
+            onChange={handleChange}
+          />
 
           {/* CONFIRM PASSWORD */}
-          <div className="flex items-center bg-white rounded-xl px-4 py-3 shadow-md relative">
-            <FiLock className="text-gray-600 text-xl mr-3" />
-            <input
-              type={showConfirmPassword ? "text" : "password"}
-              name="confirmPassword"
-              placeholder="Confirm Password"
-              value={form.confirmPassword}
-              onChange={handleChange}
-              className="flex-1 bg-transparent outline-none text-lg text-gray-800"
-            />
-            <button
-              type="button"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute right-4 text-gray-600 hover:text-black"
-            >
-              {showConfirmPassword ? <FiEyeOff size={22} /> : <FiEye size={22} />}
-            </button>
-          </div>
+          <PasswordInput
+            label="Confirm Password"
+            value={form.confirmPassword}
+            show={showConfirmPassword}
+            setShow={setShowConfirmPassword}
+            name="confirmPassword"
+            onChange={handleChange}
+          />
 
-          {/* KYC SECTION */}
-          <h2 className="text-2xl font-bold text-black mt-4">KYC Verification</h2>
-
-          {/* ADDRESS */}
-          <div className="flex items-center bg-white rounded-xl px-4 py-3 shadow-md">
-            <FiMapPin className="text-gray-600 text-xl mr-3" />
-            <input
-              type="text"
-              name="address"
-              placeholder="Full Residential Address"
-              value={form.address}
-              onChange={handleChange}
-              className="flex-1 bg-transparent outline-none text-lg text-gray-800"
-            />
-          </div>
-
-          {/* AADHAAR + OTP */}
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center bg-white rounded-xl px-4 py-3 shadow-md">
-              <FiCreditCard className="text-gray-600 text-xl mr-3" />
-              <input
-                type="text"
-                name="aadhaar"
-                placeholder="Aadhaar Number"
-                value={form.aadhaar}
-                maxLength="12"
-                onChange={handleChange}
-                className="flex-1 bg-transparent outline-none text-lg text-gray-800"
-              />
-              <button className="ml-3 text-sm px-3 py-1 bg-black text-white rounded-lg hover:bg-gray-800">
-                Send OTP
-              </button>
-            </div>
-
-            <input
-              type="text"
-              name="aadhaarOtp"
-              placeholder="Enter Aadhaar OTP"
-              value={form.aadhaarOtp}
-              onChange={handleChange}
-              className="w-full bg-white rounded-xl px-4 py-3 shadow-md outline-none text-lg text-gray-800"
-            />
-          </div>
-
-          {/* AADHAAR IMAGES */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <label className="w-full h-36 bg-white rounded-xl shadow-md flex justify-center items-center cursor-pointer overflow-hidden">
-              {aadhaarFront ? (
-                <img src={aadhaarFront} className="w-full h-full object-cover" />
-              ) : (
-                <span className="text-gray-600 text-sm">Upload Aadhaar Front</span>
-              )}
-              <input
-                type="file"
-                className="hidden"
-                accept="image/*"
-                onChange={(e) => handleFileUpload(e, setAadhaarFront)}
-              />
-            </label>
-
-            <label className="w-full h-36 bg-white rounded-xl shadow-md flex justify-center items-center cursor-pointer overflow-hidden">
-              {aadhaarBack ? (
-                <img src={aadhaarBack} className="w-full h-full object-cover" />
-              ) : (
-                <span className="text-gray-600 text-sm">Upload Aadhaar Back</span>
-              )}
-              <input
-                type="file"
-                className="hidden"
-                accept="image/*"
-                onChange={(e) => handleFileUpload(e, setAadhaarBack)}
-              />
-            </label>
-          </div>
-
-          {/* PAN NUMBER */}
-          <div className="flex items-center bg-white rounded-xl px-4 py-3 shadow-md">
-            <FiCreditCard className="text-gray-600 text-xl mr-3" />
-            <input
-              type="text"
-              name="pan"
-              placeholder="PAN Number (Optional)"
-              value={form.pan}
-              onChange={handleChange}
-              className="flex-1 bg-transparent outline-none text-lg text-gray-800"
-            />
-          </div>
-
-          {/* PAN IMAGE */}
-          <label className="w-full h-36 bg-white rounded-xl shadow-md flex justify-center items-center cursor-pointer overflow-hidden">
-            {panImage ? (
-              <img src={panImage} className="w-full h-full object-cover" />
-            ) : (
-              <span className="text-gray-600 text-sm">Upload PAN Card</span>
-            )}
-            <input
-              type="file"
-              className="hidden"
-              accept="image/*"
-              onChange={(e) => handleFileUpload(e, setPanImage)}
-            />
-          </label>
-
-          {/* SIGNUP BUTTON */}
-          <button className="w-full bg-black hover:bg-gray-800 text-white hover:text-[#C76A46] rounded-xl py-3 text-lg font-semibold shadow-lg transition">
-            Sign Up
+          {/* SUBMIT */}
+          <button
+            onClick={handleSignup}
+            disabled={loading}
+            className="w-full bg-black hover:bg-gray-800 text-white hover:text-[#C76A46] rounded-xl py-3 text-lg font-semibold shadow-lg transition disabled:opacity-50"
+          >
+            {loading ? "Signing up..." : "Sign Up"}
           </button>
 
           {/* LOGIN LINK */}
           <p className="text-center text-gray-700 text-lg">
             Already have an account?{" "}
-            <Link
-              to="/login"
-              className="font-semibold text-black hover:text-[#C76A46]"
-            >
+            <Link to="/login" className="font-semibold hover:text-[#C76A46]">
               Login
             </Link>
           </p>
-
         </div>
       </div>
     </>
@@ -310,3 +160,38 @@ function Signup() {
 }
 
 export default Signup;
+
+/* ---------- SMALL COMPONENTS ---------- */
+
+function Input({ icon, ...props }) {
+  return (
+    <div className="flex items-center bg-white rounded-xl px-4 py-3 shadow-md">
+      <span className="text-gray-600 text-xl mr-3">{icon}</span>
+      <input
+        {...props}
+        className="flex-1 bg-transparent outline-none text-lg text-gray-800"
+      />
+    </div>
+  );
+}
+
+function PasswordInput({ label, show, setShow, ...props }) {
+  return (
+    <div className="flex items-center bg-white rounded-xl px-4 py-3 shadow-md relative">
+      <FiLock className="text-gray-600 text-xl mr-3" />
+      <input
+        type={show ? "text" : "password"}
+        {...props}
+        className="flex-1 bg-transparent outline-none text-lg text-gray-800"
+        placeholder={label}
+      />
+      <button
+        type="button"
+        onClick={() => setShow(!show)}
+        className="absolute right-4 text-gray-600"
+      >
+        {show ? <FiEyeOff /> : <FiEye />}
+      </button>
+    </div>
+  );
+}

@@ -149,7 +149,7 @@ export default function Settings() {
   );
 }
 
-/* ================= SMALL COMPONENTS ================= */
+/*  SMALL COMPONENTS  */
 
 function SectionTitle({ title }) {
   return (

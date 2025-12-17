@@ -1,5 +1,4 @@
 import NavBar from "../components/NavBar";
-import { Mail, Phone, MessageCircle, HelpCircle } from "lucide-react";
 
 function HelpSupport() {
   return (
@@ -19,38 +18,6 @@ function HelpSupport() {
             </p>
           </div>
 
-          {/* QUICK HELP CARDS */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-
-            <SupportCard
-              icon={<MessageCircle size={28} />}
-              title="Chat with Kokkie"
-              desc="Get instant help from our smart assistant."
-              action="Open Chat"
-            />
-
-            <SupportCard
-              icon={<Mail size={28} />}
-              title="Email Support"
-              desc="Reach us via email for detailed queries."
-              action="support@rentsellkaro.com"
-            />
-
-            <SupportCard
-              icon={<Phone size={28} />}
-              title="Call Support"
-              desc="Talk to our support team directly."
-              action="+91 9XXXXXXXXX"
-            />
-
-            <SupportCard
-              icon={<HelpCircle size={28} />}
-              title="FAQs"
-              desc="Find answers to common questions."
-              action="View FAQs"
-            />
-
-          </div>
 
           {/* CONTACT FORM */}
           <div className="
@@ -106,7 +73,7 @@ function HelpSupport() {
 
 export default HelpSupport;
 
-/* ================= SMALL COMPONENT ================= */
+/* SMALL COMPONENT */
 
 function SupportCard({ icon, title, desc, action }) {
   return (

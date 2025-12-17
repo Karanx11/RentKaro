@@ -88,7 +88,7 @@ function Privacy() {
 
 export default Privacy;
 
-/* ================= SMALL COMPONENT ================= */
+/*  SMALL COMPONENT  */
 
 function Section({ title, text }) {
   return (
