@@ -44,7 +44,7 @@ export default function Settings() {
             <SettingCard
               icon={<User size={26} />}
               label="Edit Profile"
-              onClick={() => navigate("/profile")}
+              onClick={() => navigate("/EditProfile")}
             />
 
             <SettingCard
@@ -99,15 +99,25 @@ export default function Settings() {
 
       {/* LOGOUT MODAL */}
       {showLogout && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm
-                        flex items-center justify-center z-50">
-          <div className="
-            bg-gray-400/40 backdrop-blur-xl
-            border border-gray-500/30
-            rounded-2xl p-7
-            w-[90%] max-w-sm
-            shadow-xl text-center
-          ">
+        <div
+          className="
+            fixed inset-0 z-50
+            bg-black/60 backdrop-blur-sm
+            flex items-center justify-center
+          "
+        >
+          <div
+            className="
+              bg-gray-400/40 backdrop-blur-xl
+              border border-gray-500/30
+              rounded-2xl p-7
+              w-[90%] max-w-sm
+              shadow-[0_8px_32px_rgba(31,38,135,0.37)]
+              text-center
+              animate-fadeIn
+            "
+          >
+            {/* ICON */}
             <LogOut size={38} className="mx-auto text-[#C76A46]" />
 
             <h2 className="text-xl font-bold text-black mt-4">
@@ -118,25 +128,31 @@ export default function Settings() {
               Are you sure you want to logout?
             </p>
 
+            {/* ACTIONS */}
             <div className="flex gap-4 mt-7">
+              {/* CANCEL */}
               <button
                 onClick={() => setShowLogout(false)}
                 className="
-                  flex-1 bg-white/80 hover:bg-white
+                  flex-1 py-3 rounded-xl
+                  bg-white/80 hover:bg-white
                   border border-gray-400
-                  py-3 rounded-xl
-                  font-semibold
+                  font-semibold text-gray-800
+                  transition
                 "
               >
                 Cancel
               </button>
 
+              {/* CONFIRM LOGOUT */}
               <button
                 onClick={handleLogout}
                 className="
-                  flex-1 bg-black hover:bg-gray-800
+                  flex-1 py-3 rounded-xl
+                  bg-black hover:bg-gray-800
                   text-white hover:text-[#C76A46]
-                  py-3 rounded-xl font-semibold
+                  font-semibold
+                  transition
                 "
               >
                 Logout
@@ -145,6 +161,7 @@ export default function Settings() {
           </div>
         </div>
       )}
+
     </>
   );
 }

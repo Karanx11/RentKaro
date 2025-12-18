@@ -16,6 +16,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import HelpSupport from "./pages/HelpSupport";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
+import ResetPassword from "./pages/ResetPassword";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -39,6 +40,7 @@ function App() {
         <Route path="/help-support" element={<HelpSupport />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
 
         {/* 🔒 PROTECTED ROUTES */}
         <Route

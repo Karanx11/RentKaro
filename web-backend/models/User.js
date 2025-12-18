@@ -1,7 +1,8 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
+    // ===== BASIC INFO =====
     name: {
       type: String,
       required: true,
@@ -15,18 +16,66 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
     },
 
-    password: {
-      type: String,
-      required: true,
-    },
-
     phone: {
       type: String,
       required: true,
       unique: true,
     },
+
+    address: {
+      type: String,
+    },
+
+    avatar: {
+      type: String,
+    },
+
+    password: {
+      type: String,
+      required: true,
+    },
+
+    // ===== FORGOT / RESET PASSWORD =====
+    resetPasswordToken: {
+      type: String,
+    },
+
+    resetPasswordExpire: {
+      type: Date,
+    },
+
+    // ===== EMAIL OTP =====
+    emailOtp: {
+      type: String,
+    },
+
+    emailOtpExpire: {
+      type: Date,
+    },
+
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
+
+    // ===== PHONE OTP =====
+    phoneOtp: {
+      type: String,
+    },
+
+    phoneOtpExpire: {
+      type: Date,
+    },
+
+    isPhoneVerified: {
+      type: Boolean,
+      default: false,
+    },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
-module.exports = mongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema);
+export default User;
