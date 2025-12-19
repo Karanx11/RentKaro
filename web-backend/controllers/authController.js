@@ -159,27 +159,30 @@ export const updateProfile = async (req, res) => {
   }
 };
 
-/* =========================================================
-   CHANGE PASSWORD (Logged in)
-========================================================= */
+// ================= CHANGE PASSWORD =================
 export const changePassword = async (req, res) => {
-  const { currentPassword, newPassword } = req.body;
+  try {
+    const { currentPassword, newPassword } = req.body;
 
-  if (!currentPassword || !newPassword) {
-    return res.status(400).json({ message: "All fields required" });
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const user = await User.findById(req.user._id);
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Current password is incorrect" });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+
+    res.json({ message: "Password changed successfully" });
+  } catch (error) {
+    console.error("Change password error:", error);
+    res.status(500).json({ message: "Server error" });
   }
-
-  const user = await User.findById(req.user._id);
-
-  const isMatch = await bcrypt.compare(currentPassword, user.password);
-  if (!isMatch) {
-    return res.status(401).json({ message: "Current password incorrect" });
-  }
-
-  user.password = await bcrypt.hash(newPassword, 10);
-  await user.save();
-
-  res.json({ message: "Password changed successfully" });
 };
 
 /* =========================================================
@@ -232,4 +235,87 @@ export const resetPassword = async (req, res) => {
   await user.save();
 
   res.json({ message: "Password reset successful" });
+};
+//send otp for new email
+/**
+ * @route POST /api/auth/send-email-otp
+ * @access Private
+ */
+// ================= CHANGE EMAIL OTP =================
+export const sendChangeEmailOtp = async (req, res) => {
+  try {
+    const { newEmail } = req.body;
+
+    if (!newEmail) {
+      return res.status(400).json({ message: "New email required" });
+    }
+
+    // check if email already exists
+    const emailExists = await User.findOne({ email: newEmail });
+    if (emailExists) {
+      return res.status(400).json({ message: "Email already in use" });
+    }
+
+    const otp = generateOtp();
+
+    req.user.emailOtp = crypto
+      .createHash("sha256")
+      .update(otp)
+      .digest("hex");
+
+    req.user.emailOtpExpire = Date.now() + 10 * 60 * 1000;
+
+    await req.user.save();
+
+    await sendEmail({
+      to: newEmail,
+      subject: "Verify new email - RentKaro",
+      html: `
+        <h2>Email Change Verification</h2>
+        <p>Your OTP:</p>
+        <h1>${otp}</h1>
+        <p>Valid for 10 minutes</p>
+      `,
+    });
+
+    res.json({ message: "OTP sent to new email" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to send OTP" });
+  }
+};
+
+// ================= VERIFY CHANGE EMAIL OTP =================
+export const verifyChangeEmailOtp = async (req, res) => {
+  try {
+    const { newEmail, otp } = req.body;
+
+    const hashedOtp = crypto
+      .createHash("sha256")
+      .update(otp)
+      .digest("hex");
+
+    if (
+      req.user.emailOtp !== hashedOtp ||
+      req.user.emailOtpExpire < Date.now()
+    ) {
+      return res.status(400).json({ message: "Invalid or expired OTP" });
+    }
+
+    req.user.email = newEmail;
+    req.user.isEmailVerified = true;
+    req.user.emailOtp = undefined;
+    req.user.emailOtpExpire = undefined;
+
+    await req.user.save();
+
+    res.json({
+      message: "Email updated successfully",
+      email: req.user.email,
+      isEmailVerified: true,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Email verification failed" });
+  }
 };

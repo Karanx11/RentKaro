@@ -1,144 +1,113 @@
-// ================= LOGIN =================
+const API = "http://localhost:5000/api/auth";
+
+/* ================= TOKEN HELPERS ================= */
+export const getToken = () => localStorage.getItem("token");
+
+const authHeaders = () => ({
+  "Content-Type": "application/json",
+  Authorization: `Bearer ${getToken()}`,
+});
+
+/* ================= LOGIN ================= */
 export const loginUser = async (email, password) => {
-  const res = await fetch("http://localhost:5000/api/auth/login", {
+  const res = await fetch(`${API}/login`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
   });
 
   const data = await res.json();
+  if (!res.ok) throw new Error(data.message || "Login failed");
 
-  if (!res.ok) {
-    throw new Error(data.message || "Login failed");
-  }
-
-  // ✅ Save token
+  // ✅ backend-safe storage
   localStorage.setItem("token", data.token);
+  localStorage.setItem("user", JSON.stringify(data.user));
 
-  // ✅ Save user (structured)
-  localStorage.setItem(
-    "user",
-    JSON.stringify({
-      id: data._id,
-      name: data.name,
-      email: data.email,
-      phone: data.phone,
-    })
-  );
-
-  return data;
+  return data.user;
 };
 
-// ================= GET PROFILE =================
+/* ================= GET PROFILE ================= */
 export const getProfile = async () => {
+  const token = getToken();
+  if (!token) return null;
+
   try {
-    const token = localStorage.getItem("token");
-
-    if (!token) return null;
-
-    const res = await fetch("http://localhost:5000/api/auth/me", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
+    const res = await fetch(`${API}/me`, {
+      headers: authHeaders(),
     });
 
     if (!res.ok) {
-      // ❌ token expired or invalid
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+      logout();
       return null;
     }
 
     return await res.json();
-  } catch (error) {
-    console.error("Get profile error:", error);
+  } catch (err) {
+    console.error("Get profile error:", err);
     return null;
   }
 };
 
-// ================= LOGOUT =================
+/* ================= LOGOUT ================= */
 export const logout = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
   window.location.href = "/login";
 };
 
-// update profile
+/* ================= UPDATE PROFILE ================= */
 export const updateProfile = async (profileData) => {
-  const token = localStorage.getItem("token");
-
-  const res = await fetch("http://localhost:5000/api/auth/profile", {
+  const res = await fetch(`${API}/profile`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
+    headers: authHeaders(),
     body: JSON.stringify(profileData),
   });
 
   const data = await res.json();
+  if (!res.ok) throw new Error(data.message || "Update failed");
 
-  if (!res.ok) {
-    throw new Error(data.message || "Update failed");
-  }
-
-  // update local user cache
   localStorage.setItem("user", JSON.stringify(data));
-
   return data;
 };
-export const changePassword = async (passwords) => {
-  const token = localStorage.getItem("token");
 
-  const res = await fetch("http://localhost:5000/api/auth/change-password", {
+/* ================= CHANGE PASSWORD ================= */
+export const changePassword = async ({ currentPassword, newPassword }) => {
+  const res = await fetch(`${API}/change-password`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(passwords),
+    headers: authHeaders(),
+    body: JSON.stringify({ currentPassword, newPassword }),
   });
 
   const data = await res.json();
-
-  if (!res.ok) {
-    throw new Error(data.message || "Password change failed");
-  }
+  if (!res.ok) throw new Error(data.message || "Password change failed");
 
   return data;
 };
-const API = "http://localhost:5000/api/auth";
 
-const getToken = () => localStorage.getItem("token");
-
-export const sendEmailOtp = async (email) => {
-  const res = await fetch(`${API}/send-email-otp`, {
+/* ================= SEND NEW EMAIL OTP ================= */
+export const sendEmailOtp = async (newEmail) => {
+  const res = await fetch(`${API}/send-change-email-otp`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${getToken()}`,
-    },
-    body: JSON.stringify({ email }),
+    headers: authHeaders(),
+    body: JSON.stringify({ newEmail }),
   });
 
   const data = await res.json();
-  if (!res.ok) throw new Error(data.message);
+  if (!res.ok) throw new Error(data.message || "Failed to send OTP");
+
+  return data;
 };
 
-export const verifyEmailOtp = async (email, otp) => {
-  const res = await fetch(`${API}/verify-email-otp`, {
+/* ================= VERIFY NEW EMAIL OTP ================= */
+export const verifyEmailOtp = async (newEmail, otp) => {
+  const res = await fetch(`${API}/verify-change-email-otp`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${getToken()}`,
-    },
-    body: JSON.stringify({ email, otp }),
+    headers: authHeaders(),
+    body: JSON.stringify({ newEmail, otp }),
   });
 
   const data = await res.json();
-  if (!res.ok) throw new Error(data.message);
+  if (!res.ok) throw new Error(data.message || "OTP verification failed");
+
+  return data;
 };

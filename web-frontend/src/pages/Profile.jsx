@@ -107,7 +107,7 @@ function Profile() {
               )}
 
               <button
-                onClick={() => navigate("/edit-profile")}
+                onClick={() => navigate("/EditProfile")}
                 className="
                   mt-5 px-6 py-3 rounded-xl
                   text-lg font-semibold

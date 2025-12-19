@@ -32,6 +32,10 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+     // ===== CHANGE EMAIL OTP =====
+    pendingEmail: String,
+    emailOtp: String,
+    emailOtpExpire: Date,
 
     // ===== FORGOT PASSWORD OTP =====
     resetOtp: String,
