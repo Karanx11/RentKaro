@@ -2,12 +2,7 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
-    // ===== BASIC INFO =====
-    name: {
-      type: String,
-      required: true,
-      trim: true,
-    },
+    name: { type: String, required: true, trim: true },
 
     email: {
       type: String,
@@ -22,59 +17,27 @@ const userSchema = new mongoose.Schema(
       unique: true,
     },
 
-    address: {
-      type: String,
-    },
-
-    avatar: {
-      type: String,
-    },
+    address: String,
+    avatar: String,
 
     password: {
       type: String,
       required: true,
     },
 
-    // ===== FORGOT / RESET PASSWORD =====
-    resetPasswordToken: {
-      type: String,
-    },
-
-    resetPasswordExpire: {
-      type: Date,
-    },
-
-    // ===== EMAIL OTP =====
-    emailOtp: {
-      type: String,
-    },
-
-    emailOtpExpire: {
-      type: Date,
-    },
-
+    // ===== EMAIL VERIFICATION OTP =====
+    emailOtp: String,
+    emailOtpExpire: Date,
     isEmailVerified: {
       type: Boolean,
       default: false,
     },
 
-    // ===== PHONE OTP =====
-    phoneOtp: {
-      type: String,
-    },
-
-    phoneOtpExpire: {
-      type: Date,
-    },
-
-    isPhoneVerified: {
-      type: Boolean,
-      default: false,
-    },
+    // ===== FORGOT PASSWORD OTP =====
+    resetOtp: String,
+    resetOtpExpire: Date,
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
 const User = mongoose.model("User", userSchema);

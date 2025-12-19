@@ -58,15 +58,16 @@ function Profile() {
         <div className="max-w-6xl mx-auto">
 
           {/* ================= PROFILE CARD ================= */}
-          <div className="
-            bg-gray-400/40 backdrop-blur-xl
-            border border-gray-500/30
-            shadow-[0_8px_32px_rgba(31,38,135,0.37)]
-            rounded-3xl p-10 md:p-14
-            flex flex-col md:flex-row items-center gap-10
-          ">
-
-            {/* PROFILE IMAGE / FALLBACK */}
+          <div
+            className="
+              bg-gray-400/40 backdrop-blur-xl
+              border border-gray-500/30
+              shadow-[0_8px_32px_rgba(31,38,135,0.37)]
+              rounded-3xl p-10 md:p-14
+              flex flex-col md:flex-row items-center gap-10
+            "
+          >
+            {/* PROFILE IMAGE */}
             {user.avatar ? (
               <img
                 src={user.avatar}
@@ -74,20 +75,29 @@ function Profile() {
                 className="w-40 h-40 rounded-full border-4 border-white shadow-xl object-cover"
               />
             ) : (
-              <div className="
-                w-40 h-40 rounded-full
-                bg-black text-white
-                flex items-center justify-center
-                text-5xl font-bold shadow-xl
-              ">
+              <div
+                className="
+                  w-40 h-40 rounded-full
+                  bg-black text-white
+                  flex items-center justify-center
+                  text-5xl font-bold shadow-xl
+                "
+              >
                 {user.name?.charAt(0).toUpperCase()}
               </div>
             )}
 
             {/* USER INFO */}
             <div className="text-center md:text-left">
-              <h1 className="text-4xl font-extrabold text-black">
+              <h1 className="text-4xl font-extrabold text-black flex items-center gap-2 justify-center md:justify-start">
                 {user.name}
+
+                {user.isEmailVerified && (
+                  <FiCheckCircle
+                    className="text-green-600 text-2xl"
+                    title="Email Verified"
+                  />
+                )}
               </h1>
 
               <p className="text-gray-700 mt-1">{user.email}</p>
@@ -97,7 +107,7 @@ function Profile() {
               )}
 
               <button
-                onClick={() => navigate("/EditProfile")}
+                onClick={() => navigate("/edit-profile")}
                 className="
                   mt-5 px-6 py-3 rounded-xl
                   text-lg font-semibold
@@ -119,17 +129,41 @@ function Profile() {
             <StatCard title="Reviews" value="4.6 ★" />
           </div>
 
-          {/* ================= VERIFIED ================= */}
-          <div className="
-            bg-gray-400/40 backdrop-blur-xl
-            border border-gray-500/30
-            rounded-2xl p-6 mt-10 shadow-lg
-            flex items-center gap-4
-          ">
-            <FiCheckCircle className="text-green-600 text-3xl" />
-            <p className="text-gray-800 text-lg">
-              Your account is <span className="font-bold">Verified</span>
-            </p>
+          {/* ================= VERIFICATION STATUS ================= */}
+          <div
+            className="
+              bg-gray-400/40 backdrop-blur-xl
+              border border-gray-500/30
+              rounded-2xl p-6 mt-10 shadow-lg
+              flex items-center gap-4
+            "
+          >
+            {user.isEmailVerified ? (
+              <>
+                <FiCheckCircle className="text-green-600 text-3xl" />
+                <p className="text-gray-800 text-lg">
+                  Email is{" "}
+                  <span className="font-bold text-green-700">
+                    Verified
+                  </span>
+                </p>
+              </>
+            ) : (
+              <>
+                <FiCheckCircle className="text-yellow-500 text-3xl" />
+                <div>
+                  <p className="text-gray-800 text-lg font-semibold">
+                    Email not verified
+                  </p>
+                  <button
+                    onClick={() => navigate("/verify-email")}
+                    className="text-sm mt-1 underline hover:text-[#C76A46]"
+                  >
+                    Verify now
+                  </button>
+                </div>
+              </>
+            )}
           </div>
 
           {/* ================= QUICK ACTIONS ================= */}
@@ -141,11 +175,16 @@ function Profile() {
             <ActionCard
               icon={<FiPlusCircle />}
               label="Add Listing"
-              onClick={() => navigate("/sell")}
+              onClick={() =>
+                user.isEmailVerified
+                  ? navigate("/sell")
+                  : alert("Verify email to add listing")
+              }
             />
             <ActionCard
               icon={<FiList />}
               label="Manage Listings"
+              onClick={() => navigate("/my-listings")}
             />
             <ActionCard
               icon={<FiInbox />}
@@ -166,11 +205,13 @@ export default Profile;
 
 function StatCard({ title, value }) {
   return (
-    <div className="
-      bg-gray-400/40 backdrop-blur-xl
-      border border-gray-500/30
-      rounded-2xl p-8 text-center shadow-lg
-    ">
+    <div
+      className="
+        bg-gray-400/40 backdrop-blur-xl
+        border border-gray-500/30
+        rounded-2xl p-8 text-center shadow-lg
+      "
+    >
       <h2 className="text-3xl font-bold text-black">{value}</h2>
       <p className="text-gray-700 mt-1">{title}</p>
     </div>

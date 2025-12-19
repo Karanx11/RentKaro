@@ -10,15 +10,20 @@ function Login() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [showVerifyHint, setShowVerifyHint] = useState(false);
 
+  // ================= LOGIN =================
   const handleLogin = async () => {
     if (!email || !password) {
-      alert("Email and password are required");
+      setError("Email and password are required");
       return;
     }
 
     try {
       setLoading(true);
+      setError("");
+      setShowVerifyHint(false);
 
       const res = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
@@ -28,32 +33,43 @@ function Login() {
 
       const data = await res.json();
 
-      if (!res.ok) {
-        alert(data.message || "Login failed");
+      // ❌ NOT VERIFIED
+      if (res.status === 403) {
+        setError("Please verify your email before logging in");
+        setShowVerifyHint(true);
         return;
       }
 
-      // ✅ store token
+      if (!res.ok) {
+        setError(data.message || "Login failed");
+        return;
+      }
+
+      // ✅ SUCCESS
       localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
 
-      // ✅ optional: store user info
-      localStorage.setItem(
-        "user",
-        JSON.stringify({
-          id: data._id,
-          name: data.name,
-          email: data.email,
-          phone: data.phone,
-        })
-      );
-
-      navigate("/profile"); // or dashboard
-
+      navigate("/profile");
     } catch (error) {
       console.error(error);
-      alert("Server error. Try again later.");
+      setError("Server error. Try again later.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // ================= RESEND OTP =================
+  const handleResendOtp = async () => {
+    try {
+      await fetch("http://localhost:5000/api/auth/send-email-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      alert("OTP resent to your email");
+    } catch {
+      alert("Failed to resend OTP");
     }
   };
 
@@ -67,6 +83,13 @@ function Login() {
           <h1 className="text-4xl font-extrabold text-black text-center">
             Login
           </h1>
+
+          {/* ERROR */}
+          {error && (
+            <p className="text-center text-red-600 font-semibold">
+              {error}
+            </p>
+          )}
 
           {/* EMAIL */}
           <div className="flex items-center bg-white rounded-xl px-4 py-3 shadow-md">
@@ -83,7 +106,6 @@ function Login() {
           {/* PASSWORD */}
           <div className="flex items-center bg-white rounded-xl px-4 py-3 shadow-md relative">
             <FiLock className="text-gray-600 text-xl mr-3" />
-
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
@@ -91,7 +113,6 @@ function Login() {
               onChange={(e) => setPassword(e.target.value)}
               className="flex-1 bg-transparent outline-none text-lg text-gray-800"
             />
-
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
@@ -100,15 +121,26 @@ function Login() {
               {showPassword ? <FiEyeOff /> : <FiEye />}
             </button>
           </div>
-          <div className="text-right">
-          <Link
-            to="/forgot"
-            className="text-sm font-medium text-gray-700 hover:text-[#C76A46] transition"
-          >
-            Forgot password?
-          </Link>
-        </div>
 
+          {/* FORGOT PASSWORD */}
+          <div className="text-right">
+            <Link
+              to="/forgot"
+              className="text-sm font-medium text-gray-700 hover:text-[#C76A46]"
+            >
+              Forgot password?
+            </Link>
+          </div>
+
+          {/* RESEND OTP */}
+          {showVerifyHint && (
+            <button
+              onClick={handleResendOtp}
+              className="text-sm text-[#C76A46] font-semibold underline"
+            >
+              Resend verification email
+            </button>
+          )}
 
           {/* LOGIN BUTTON */}
           <button
@@ -119,17 +151,13 @@ function Login() {
             {loading ? "Logging in..." : "Login"}
           </button>
 
-          {/* SIGNUP LINK */}
+          {/* SIGNUP */}
           <p className="text-center text-gray-700 text-lg">
             Don’t have an account?{" "}
-            <Link
-              to="/signup"
-              className="font-semibold text-black hover:text-[#C76A46]"
-            >
+            <Link to="/signup" className="font-semibold hover:text-[#C76A46]">
               Sign up
             </Link>
           </p>
-
         </div>
       </div>
     </>

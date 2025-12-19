@@ -4,9 +4,7 @@ import { FiEye, FiEyeOff } from "react-icons/fi";
 import { updateProfile, getProfile, changePassword } from "../utils/auth";
 import {
   sendEmailOtp,
-  verifyEmailOtp,
-  sendPhoneOtp,
-  verifyPhoneOtp,
+  verifyEmailOtp
 } from "../utils/auth";
 
 
@@ -20,6 +18,8 @@ function EditProfile() {
 
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
+  
+
 
   const [saving, setSaving] = useState(false);
 
@@ -38,10 +38,7 @@ function EditProfile() {
   const [emailOtpSent, setEmailOtpSent] = useState(false);
   const [emailVerified, setEmailVerified] = useState(false);
 
-  const [phoneOtp, setPhoneOtp] = useState("");
-  const [phoneOtpSent, setPhoneOtpSent] = useState(false);
-  const [phoneVerified, setPhoneVerified] = useState(false);
-
+  
   const handleSendEmailOtp = async () => {
   try {
     await sendEmailOtp(email);
@@ -63,27 +60,6 @@ const handleVerifyEmailOtp = async () => {
   }
 };
 
-const handleSendPhoneOtp = async () => {
-  try {
-    await sendPhoneOtp(phone);
-    setPhoneOtpSent(true);
-    alert("Phone OTP sent");
-  } catch (err) {
-    alert(err.message);
-  }
-};
-
-const handleVerifyPhoneOtp = async () => {
-  try {
-    await verifyPhoneOtp(phone, phoneOtp);
-    setPhoneVerified(true);
-    setPhoneOtpSent(false);
-    alert("Phone verified");
-  } catch (err) {
-    alert(err.message);
-  }
-};
-
 
   // ================= LOAD PROFILE =================
   useEffect(() => {
@@ -96,6 +72,7 @@ const handleVerifyPhoneOtp = async () => {
       setPhone(data.phone || "");
       setAddress(data.address || "");
       setAvatar(data.avatar || "");
+      setEmailVerified(data.isEmailVerified || false);
     };
 
     loadProfile();
@@ -267,50 +244,19 @@ const handleVerifyPhoneOtp = async () => {
 
 
             {/* PHONE */}
-            <div className="space-y-3">
-  <label className="font-semibold">Phone</label>
-
-  <div className="flex gap-3">
-    <input
-      type="text"
-      value={phone}
-      onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
-      className="flex-1 px-4 py-3 rounded-xl border"
-    />
-
-    {!phoneVerified && (
-      <button
-        onClick={handleSendPhoneOtp}
-        className="px-4 py-3 bg-black text-white rounded-xl"
-      >
-        Send OTP
-      </button>
-    )}
-  </div>
-
-  {phoneOtpSent && (
-    <div className="flex gap-3">
-      <input
-        type="text"
-        maxLength={6}
-        value={phoneOtp}
-        onChange={(e) => setPhoneOtp(e.target.value.replace(/\D/g, ""))}
-        placeholder="Enter OTP"
-        className="flex-1 px-4 py-3 rounded-xl border"
-      />
-      <button
-        onClick={handleVerifyPhoneOtp}
-        className="px-4 py-3 bg-green-600 text-white rounded-xl"
-      >
-        Verify
-      </button>
-    </div>
-      )}
-
-      {phoneVerified && (
-        <p className="text-green-600 font-semibold">Phone Verified ✓</p>
-      )}
-    </div>
+            <div>
+              <label className="block text-lg font-semibold text-gray-800 mb-2">
+                Phone Number
+              </label>
+              <input
+                type="text"
+                maxLength={10}
+                value={phone}
+                onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
+                placeholder="Enter phone number"
+                className="w-full px-5 py-3 rounded-xl bg-white/80 border border-gray-300 text-lg shadow-md"
+              />
+            </div>
 
 
             {/* ADDRESS */}
@@ -394,11 +340,17 @@ const handleVerifyPhoneOtp = async () => {
             <div className="text-center pt-6">
               <button
                 onClick={handleSave}
-                disabled={saving || changing}
-                className="px-14 py-4 bg-black hover:bg-gray-800 text-white rounded-2xl text-xl font-bold shadow-xl disabled:opacity-50"
+                disabled={saving || !emailVerified}
+                className={`
+                  px-14 py-4 rounded-2xl text-xl font-bold shadow-xl transition
+                  ${emailVerified
+                    ? "bg-black hover:bg-gray-800 text-white"
+                    : "bg-gray-400 text-gray-700 cursor-not-allowed"}
+                `}
               >
-                {saving ? "Saving..." : "Save Changes"}
+                {emailVerified ? (saving ? "Saving..." : "Save Changes") : "Verify Email to Save"}
               </button>
+
             </div>
 
           </div>
