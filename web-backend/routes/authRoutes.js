@@ -4,11 +4,12 @@ import {
   registerUser,
   verifySignupOtp,
   loginUser,
+  refreshAccessToken,
   getMe,
   forgotPassword,
   resetPassword,
   updateProfile,
-  changePassword,          // ✅ MUST BE IMPORTED
+  changePassword,         
   sendChangeEmailOtp,
   verifyChangeEmailOtp,
 } from "../controllers/authController.js";
@@ -19,6 +20,7 @@ const router = express.Router();
 router.post("/register", registerUser);
 router.post("/verify-signup-otp", verifySignupOtp);
 router.post("/login", loginUser);
+router.post("/refresh-token", refreshAccessToken);
 
 // PROFILE
 router.get("/me", protect, getMe);

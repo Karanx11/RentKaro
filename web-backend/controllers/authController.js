@@ -4,10 +4,17 @@ import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import sendEmail from "../utils/sendEmail.js";
 import { generateOtp } from "../utils/generateOtp.js";
+import { generateAccessToken, generateRefreshToken } from "../utils/generateTokens.js";
 
 // ================= JWT =================
-const generateToken = (id) =>
-  jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+const generateToken = (id) => {
+  return jwt.sign(
+    { id },
+    process.env.JWT_ACCESS_SECRET,
+    { expiresIn: "7d" }
+  );
+};
+
 
 /* =========================================================
    REGISTER (with Email OTP)
@@ -87,21 +94,28 @@ export const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   const user = await User.findOne({ email });
-  if (!user) {
-    return res.status(401).json({ message: "Invalid credentials" });
-  }
+  if (!user) return res.status(401).json({ message: "Invalid credentials" });
 
   if (!user.isEmailVerified) {
-    return res.status(403).json({ message: "Verify email before login" });
+    return res.status(403).json({ message: "Verify email first" });
   }
 
   const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) {
-    return res.status(401).json({ message: "Invalid credentials" });
-  }
+  if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
+
+  const accessToken = generateAccessToken(user._id);
+  const refreshToken = generateAccessToken(user._id);
+
+  // 🍪 Store refresh token in cookie
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: false, // true in production
+    sameSite: "strict",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
 
   res.json({
-    token: generateToken(user._id),
+    accessToken,
     user: {
       _id: user._id,
       name: user.name,
@@ -127,6 +141,7 @@ export const getMe = async (req, res) => {
     isEmailVerified: req.user.isEmailVerified,
   });
 };
+
 
 /* =========================================================
    UPDATE PROFILE
@@ -317,5 +332,22 @@ export const verifyChangeEmailOtp = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Email verification failed" });
+  }
+};
+
+export const refreshAccessToken = async (req, res) => {
+  const token = req.cookies.refreshToken;
+
+  if (!token) {
+    return res.status(401).json({ message: "No refresh token" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+    const accessToken = generateAccessToken(decoded.id);
+
+    res.json({ accessToken });
+  } catch {
+    res.status(403).json({ message: "Invalid refresh token" });
   }
 };

@@ -19,8 +19,10 @@ export const loginUser = async (email, password) => {
   const data = await res.json();
   if (!res.ok) throw new Error(data.message || "Login failed");
 
-  // ✅ backend-safe storage
+  // ✅ store access token
   localStorage.setItem("token", data.token);
+
+  // ✅ store user
   localStorage.setItem("user", JSON.stringify(data.user));
 
   return data.user;
@@ -28,25 +30,33 @@ export const loginUser = async (email, password) => {
 
 /* ================= GET PROFILE ================= */
 export const getProfile = async () => {
-  const token = getToken();
+  const token = localStorage.getItem("token");
   if (!token) return null;
 
   try {
-    const res = await fetch(`${API}/me`, {
-      headers: authHeaders(),
+    const res = await fetch("http://localhost:5000/api/auth/me", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
     });
 
+    const data = await res.json();
+
     if (!res.ok) {
-      logout();
-      return null;
+      console.error("Profile fetch failed:", data.message);
+      return null; // ❌ DO NOT logout here
     }
 
-    return await res.json();
+    return data;
   } catch (err) {
-    console.error("Get profile error:", err);
+    console.error("Profile error:", err);
     return null;
   }
 };
+
+
 
 /* ================= LOGOUT ================= */
 export const logout = () => {
