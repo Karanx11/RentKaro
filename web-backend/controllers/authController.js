@@ -104,12 +104,11 @@ export const loginUser = async (req, res) => {
   if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
 
   const accessToken = generateAccessToken(user._id);
-  const refreshToken = generateAccessToken(user._id);
+  const refreshToken = generateRefreshToken(user._id); // ✅ FIXED
 
-  // 🍪 Store refresh token in cookie
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
-    secure: false, // true in production
+    secure: false, // true in prod
     sameSite: "strict",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
@@ -126,21 +125,23 @@ export const loginUser = async (req, res) => {
     },
   });
 };
-
-/* =========================================================
-   GET CURRENT USER (PROFILE)
-========================================================= */
+// ================= GET CURRENT USER =================
 export const getMe = async (req, res) => {
-  res.json({
-    _id: req.user._id,
-    name: req.user.name,
-    email: req.user.email,
-    phone: req.user.phone,
-    address: req.user.address,
-    avatar: req.user.avatar,
-    isEmailVerified: req.user.isEmailVerified,
-  });
+  try {
+    res.json({
+      _id: req.user._id,
+      name: req.user.name,
+      email: req.user.email,
+      phone: req.user.phone,
+      address: req.user.address,
+      avatar: req.user.avatar,
+      isEmailVerified: req.user.isEmailVerified,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch profile" });
+  }
 };
+
 
 
 /* =========================================================

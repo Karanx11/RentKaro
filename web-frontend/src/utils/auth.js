@@ -20,7 +20,7 @@ export const loginUser = async (email, password) => {
   if (!res.ok) throw new Error(data.message || "Login failed");
 
   // ✅ store access token
-  localStorage.setItem("token", data.token);
+  localStorage.setItem("token", data.accessToken);
 
   // ✅ store user
   localStorage.setItem("user", JSON.stringify(data.user));
