@@ -1,10 +1,10 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
 
 import Home from "./pages/Home";
 import Sell from "./pages/Sell";
 import Profile from "./pages/Profile";
-import ChatScreen from "./pages/ChatScreen";
-import ChatBot from "./pages/ChatBot"; 
+import ChatBot from "./pages/ChatBot";
 import Login from "./pages/Login";
 import Market from "./pages/Market";
 import EditProfile from "./components/EditProfile";
@@ -17,10 +17,19 @@ import HelpSupport from "./pages/HelpSupport";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import ResetPassword from "./pages/ResetPassword";
-
+import ChatList from "./pages/chat/ChatList";
+import ChatRoom from "./pages/chat/ChatRoom";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
+
+  // 🔔 REGISTER SERVICE WORKER (ONCE)
+  useEffect(() => {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js");
+    }
+  }, []);
+
   return (
     <BrowserRouter>
 
@@ -42,6 +51,10 @@ function App() {
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
 
+        {/* CHAT */}
+        <Route path="/chat" element={<ChatList />} />
+        <Route path="/chat/:chatId" element={<ChatRoom />} />
+
         {/* 🔒 PROTECTED ROUTES */}
         <Route
           path="/sell"
@@ -62,19 +75,10 @@ function App() {
         />
 
         <Route
-          path="/EditProfile"
+          path="/editprofile"
           element={
             <ProtectedRoute>
               <EditProfile />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/chat"
-          element={
-            <ProtectedRoute>
-              <ChatScreen />
             </ProtectedRoute>
           }
         />

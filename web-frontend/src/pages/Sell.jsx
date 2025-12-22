@@ -1,5 +1,5 @@
 import { useState } from "react";
-import NavBar from "../components/NavBar"; // <-- make sure the path is correct
+import NavBar from "../components/NavBar";
 
 const CATEGORIES = [
   "Electronics",
@@ -15,46 +15,126 @@ const CATEGORIES = [
 
 function Sell() {
   const [images, setImages] = useState([null, null, null]);
+  const [imageFiles, setImageFiles] = useState([null, null, null]);
+
   const [mode, setMode] = useState("rent");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
+  const [title, setTitle] = useState("");
 
+  const [prices, setPrices] = useState({
+    day: "",
+    month: "",
+    year: "",
+    sell: "",
+  });
 
-
-  // Handle image upload and preview
+  /* ---------------- IMAGE UPLOAD ---------------- */
   const handleImageUpload = (e, index) => {
     const file = e.target.files[0];
     if (!file) return;
 
+    const preview = URL.createObjectURL(file);
+
     const updatedImages = [...images];
-    updatedImages[index] = URL.createObjectURL(file);
+    const updatedFiles = [...imageFiles];
+
+    updatedImages[index] = preview;
+    updatedFiles[index] = file;
+
     setImages(updatedImages);
+    setImageFiles(updatedFiles);
   };
+
+  /* ---------------- SUBMIT ---------------- */
+  const handleSubmit = async () => {
+  if (!title || !category || !description) {
+    alert("Please fill all required fields");
+    return;
+  }
+
+  if (imageFiles.filter(Boolean).length !== 3) {
+    alert("Please upload exactly 3 images");
+    return;
+  }
+
+  if (mode === "sell" && !prices.sell) {
+    alert("Please enter selling price");
+    return;
+  }
+
+  if (mode === "rent" && !prices.day) {
+    alert("Please enter rent price");
+    return;
+  }
+
+  const token = localStorage.getItem("token");
+  if (!token) {
+    alert("Please login first");
+    return;
+  }
+
+  const pricePayload =
+    mode === "rent"
+      ? {
+          day: Number(prices.day),
+          month: Number(prices.month || 0),
+          year: Number(prices.year || 0),
+        }
+      : {
+          sell: Number(prices.sell),
+        };
+
+  const formData = new FormData();
+  formData.append("title", title);
+  formData.append("description", description);
+  formData.append("category", category);
+  formData.append("listingType", mode);
+  formData.append("price", JSON.stringify(pricePayload));
+
+  imageFiles.forEach((file) => formData.append("images", file));
+
+  try {
+    const res = await fetch("http://localhost:5000/api/products", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      console.error(err);
+      alert(err.message || "Failed to list product");
+      return;
+    }
+
+    alert("Product listed successfully 🎉");
+    window.location.href = "/market";
+  } catch (err) {
+    console.error(err);
+    alert("Server error");
+  }
+};
+
 
   return (
     <>
-      {/* NAVBAR */}
       <NavBar />
 
-      {/* PAGE BODY */}
-      <div className="w-full min-h-screen bg-gray-500/10 border border-gray-500/10 px-6 md:px-20 py-28">
-
+      <div className="w-full min-h-screen bg-gray-500/10 px-6 md:px-20 py-28">
         <div className="max-w-4xl mx-auto bg-gray-400/40 backdrop-blur-xl shadow-2xl rounded-3xl p-10 border border-white/40">
 
-          {/* Title */}
           <h1 className="text-4xl font-extrabold text-center text-black">
             List Your Product
           </h1>
-          <p className="text-center text-gray-700 mt-2">
-            Add product details and choose whether you want to Rent or Sell.
-          </p>
 
-          {/* FORM */}
           <div className="mt-10 space-y-10">
 
-            {/* IMAGE INPUTS */}
+            {/* IMAGES */}
             <div>
-              <label className="block text-xl font-semibold mb-3 text-gray-800">
+              <label className="block text-xl font-semibold mb-3">
                 Upload Images (3 required)
               </label>
 
@@ -62,64 +142,52 @@ function Sell() {
                 {images.map((img, i) => (
                   <label
                     key={i}
-                    className="
-                      w-full h-40 bg-white/50 border border-gray-300 
-                      rounded-xl cursor-pointer flex items-center justify-center 
-                      overflow-hidden shadow-md hover:shadow-lg transition
-                    "
+                    className="w-full h-40 bg-white/50 border rounded-xl cursor-pointer flex items-center justify-center overflow-hidden"
                   >
                     {img ? (
                       <img src={img} className="w-full h-full object-cover" />
                     ) : (
                       <span className="text-gray-500">Click to Upload</span>
                     )}
-
                     <input
                       type="file"
                       accept="image/*"
                       className="hidden"
                       onChange={(e) => handleImageUpload(e, i)}
-                      required
                     />
                   </label>
                 ))}
               </div>
             </div>
 
-            {/* PRODUCT NAME */}
+            {/* TITLE */}
             <div>
-              <label className="block text-xl font-semibold mb-2 text-gray-800">
+              <label className="block text-xl font-semibold mb-2">
                 Product Name
               </label>
               <input
-                type="text"
-                placeholder="e.g. DSLR Camera, Electric Drill..."
-                className="w-full px-5 py-3 rounded-xl bg-white/80 border border-gray-300 text-gray-900 text-lg outline-none shadow-md"
-                required
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="w-full px-5 py-3 rounded-xl bg-white/80 border shadow-md"
+                placeholder="e.g. DSLR Camera"
               />
             </div>
-            
-            {/* CATEGORY SELECTION */}
+
+            {/* CATEGORY */}
             <div>
-              <label className="block text-xl font-semibold mb-3 text-gray-800">
+              <label className="block text-xl font-semibold mb-3">
                 Select Category
               </label>
-
               <div className="flex gap-4 flex-wrap">
                 {CATEGORIES.map((cat) => (
                   <button
                     key={cat}
-                    type="button"
                     onClick={() => setCategory(cat)}
-                    className={`
-                      px-6 py-3 rounded-xl text-sm font-semibold
-                      backdrop-blur-xl border shadow-md transition
-                      ${
-                        category === cat
-                          ? "bg-black text-white border-black"
-                          : "bg-white/60 text-black border-gray-300 hover:bg-white"
-                      }
-                    `}
+                    className={`px-6 py-3 rounded-xl font-semibold ${
+                      category === cat
+                        ? "bg-black text-white"
+                        : "bg-white/70"
+                    }`}
                   >
                     {cat}
                   </button>
@@ -127,119 +195,92 @@ function Sell() {
               </div>
             </div>
 
-            {/* PRODUCT DESCRIPTION */}
+            {/* DESCRIPTION */}
             <div>
-              <label className="block text-xl font-semibold mb-2 text-gray-800">
-                Product Description
+              <label className="block text-xl font-semibold mb-2">
+                Description
               </label>
-
               <textarea
-                maxLength={500}
-                rows={3}
-                placeholder="Describe your product (condition, usage, accessories, etc.)"
-                onInput={(e) => {
-                  e.target.style.height = "auto";
-                  e.target.style.height = e.target.scrollHeight + "px";
-                }}
-                onChange={(e) => setDescription(e.target.value)}
                 value={description}
-                className="
-                  w-full px-5 py-4 rounded-xl
-                  bg-white/80 border border-gray-300
-                  text-gray-900 text-lg
-                  outline-none resize-none
-                  shadow-md
-                  focus:border-black
-                  transition
-                "
-                required
+                onChange={(e) => setDescription(e.target.value)}
+                maxLength={500}
+                className="w-full px-5 py-4 rounded-xl bg-white/80 border shadow-md resize-none"
               />
-
-              {/* CHARACTER COUNTER */}
-              <div className="mt-1 text-right text-sm text-gray-600">
+              <div className="text-right text-sm">
                 {description.length} / 500
               </div>
             </div>
 
             {/* PRICING */}
-              <div>
-                <label className="block text-xl font-semibold mb-3 text-gray-800">
-                  Pricing
-                </label>
+            <div>
+              <label className="block text-xl font-semibold mb-3">
+                Pricing
+              </label>
 
-                {mode === "rent" ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                    <input
-                      type="number"
-                      placeholder="Per Day (₹)"
-                      className="px-5 py-3 rounded-xl bg-white/80 border border-gray-300 shadow-md text-lg"
-                    />
-                    <input
-                      type="number"
-                      placeholder="Per Month (₹)"
-                      className="px-5 py-3 rounded-xl bg-white/80 border border-gray-300 shadow-md text-lg"
-                    />
-                    <input
-                      type="number"
-                      placeholder="Per Year (₹)"
-                      className="px-5 py-3 rounded-xl bg-white/80 border border-gray-300 shadow-md text-lg"
-                    />
-                  </div>
-                ) : (
+              {mode === "rent" ? (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                   <input
+                    placeholder="Per Day (₹)"
                     type="number"
-                    placeholder="Selling Price (₹)"
-                    className="w-full px-5 py-3 rounded-xl bg-white/80 border border-gray-300 shadow-md text-lg"
+                    onChange={(e) =>
+                      setPrices((p) => ({ ...p, day: e.target.value }))
+                    }
+                    className="px-5 py-3 rounded-xl bg-white/80 border"
                   />
-                )}
-              </div>
-
-
-
-            {/* RENT / SELL TOGGLE */}
-            <div className="text-center">
-              <h3 className="text-xl font-semibold mb-3 text-gray-800">
-                Choose Listing Type
-              </h3>
-
-              <div className="flex justify-center gap-6">
-
-                <button
-                  onClick={() => setMode("rent")}
-                  className={`
-                    px-10 py-3 text-lg rounded-xl font-semibold
-                    shadow-lg border transition
-                    ${mode === "rent"
-                      ? "bg-black text-white border-black"
-                      : "bg-white/60 text-black border-gray-400 hover:bg-white"}
-                  `}
-                >
-                  Rent
-                </button>
-
-                <button
-                  onClick={() => setMode("sell")}
-                  className={`
-                    px-10 py-3 text-lg rounded-xl font-semibold
-                    shadow-lg border transition
-                    ${mode === "sell"
-                      ? "bg-black text-white border-black"
-                      : "bg-white/60 text-black border-gray-400 hover:bg-white"}
-                  `}
-                >
-                  Sell
-                </button>
-
-              </div>
+                  <input
+                    placeholder="Per Month (₹)"
+                    type="number"
+                    onChange={(e) =>
+                      setPrices((p) => ({ ...p, month: e.target.value }))
+                    }
+                    className="px-5 py-3 rounded-xl bg-white/80 border"
+                  />
+                  <input
+                    placeholder="Per Year (₹)"
+                    type="number"
+                    onChange={(e) =>
+                      setPrices((p) => ({ ...p, year: e.target.value }))
+                    }
+                    className="px-5 py-3 rounded-xl bg-white/80 border"
+                  />
+                </div>
+              ) : (
+                <input
+                  placeholder="Selling Price (₹)"
+                  type="number"
+                  onChange={(e) =>
+                    setPrices((p) => ({ ...p, sell: e.target.value }))
+                  }
+                  className="w-full px-5 py-3 rounded-xl bg-white/80 border"
+                />
+              )}
             </div>
 
-            {/* SUBMIT BUTTON */}
-            <div className="text-center mt-10">
+            {/* TOGGLE */}
+            <div className="flex justify-center gap-6">
               <button
-                className="
-                  px-14 py-4 bg-[#C76A46] text-white rounded-2xl 
-                  text-xl font-bold shadow-xl hover:bg-[#b65e3f] transition
-                "
+                onClick={() => setMode("rent")}
+                className={`px-10 py-3 rounded-xl ${
+                  mode === "rent" ? "bg-black text-white" : "bg-white"
+                }`}
+              >
+                Rent
+              </button>
+              <button
+                onClick={() => setMode("sell")}
+                className={`px-10 py-3 rounded-xl ${
+                  mode === "sell" ? "bg-black text-white" : "bg-white"
+                }`}
+              >
+                Sell
+              </button>
+            </div>
+
+            {/* SUBMIT */}
+            <div className="text-center">
+              <button
+                onClick={handleSubmit}
+                className="px-14 py-4 bg-[#C76A46] text-white rounded-2xl text-xl font-bold"
               >
                 Submit Listing
               </button>
@@ -247,7 +288,6 @@ function Sell() {
 
           </div>
         </div>
-
       </div>
     </>
   );

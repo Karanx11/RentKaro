@@ -32,16 +32,23 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-     // ===== CHANGE EMAIL OTP =====
+
+    // ===== CHANGE EMAIL OTP =====
     pendingEmail: String,
-    emailOtp: String,
-    emailOtpExpire: Date,
 
     // ===== FORGOT PASSWORD OTP =====
     resetOtp: String,
     resetOtpExpire: Date,
+
+    // 🔔 PUSH NOTIFICATION SUBSCRIPTION (ADD HERE)
+    pushSubscription: {
+      type: Object,
+      default: null,
+    },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
 const User = mongoose.model("User", userSchema);
