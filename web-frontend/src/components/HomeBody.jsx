@@ -1,18 +1,27 @@
 import { IoSearch } from "react-icons/io5";
 import RecentlyViewed from "./RecentlyViewed";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function HomeBody() {
+  const [query, setQuery] = useState("");
+  const navigate = useNavigate();
+
+  const handleSearch = () => {
+    if (!query.trim()) return;
+    navigate(`/market?search=${encodeURIComponent(query)}`);
+  };
+
   return (
     <div
-  className="
-    w-full min-h-screen 
-    bg-gray-500/10 backdrop-blur-lg
-    px-4 sm:px-6 md:px-12 
-    pt-32 pb-20     
-    flex flex-col items-center
-  "
->
-
+      className="
+        w-full min-h-screen 
+        bg-gray-500/10 backdrop-blur-lg
+        px-4 sm:px-6 md:px-12 
+        pt-32 pb-20     
+        flex flex-col items-center
+      "
+    >
       {/* HERO CARD */}
       <div
         className="
@@ -27,26 +36,17 @@ function HomeBody() {
           p-6 sm:p-10
         "
       >
-
         {/* LEFT IMAGE */}
         <div className="w-full lg:w-1/2 flex justify-center">
           <img
             src="/src/assets/Home-Side.png"
-            className="
-              w-[70%] sm:w-[60%] md:w-[75%] lg:w-[85%]
-              h-auto drop-shadow-xl
-            "
+            className="w-[70%] sm:w-[60%] md:w-[75%] lg:w-[85%]"
             alt="hero"
           />
         </div>
 
         {/* RIGHT CONTENT */}
-        <div className="
-          w-full lg:w-1/2 
-          flex flex-col items-center lg:items-start
-          text-center lg:text-left
-        ">
-          
+        <div className="w-full lg:w-1/2 flex flex-col items-center lg:items-start text-center lg:text-left">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-black leading-tight">
             Find the Perfect Item <br /> to Rent Today
           </h1>
@@ -56,24 +56,21 @@ function HomeBody() {
           </p>
 
           {/* SEARCH BAR */}
-          <div
-            className="
-              mt-8 w-full max-w-lg
-              bg-gray-500 rounded-2xl shadow-xl
-              flex flex-col sm:flex-row gap-4 sm:gap-3
-              px-4 py-4
-            "
-          >
+          <div className="mt-8 w-full max-w-lg bg-gray-500 rounded-2xl shadow-xl flex flex-col sm:flex-row gap-4 px-4 py-4">
             <div className="flex items-center flex-1 bg-white rounded-xl px-4 py-3 shadow-md">
               <IoSearch className="text-gray-600 text-2xl mr-3" />
               <input
                 type="text"
                 placeholder="Search for items..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                 className="flex-1 bg-transparent outline-none text-lg text-gray-700"
               />
             </div>
 
             <button
+              onClick={handleSearch}
               className="
                 bg-black hover:bg-gray-800
                 text-white hover:text-[#C76A46]
@@ -88,54 +85,23 @@ function HomeBody() {
 
           {/* ACTION BUTTONS */}
           <div className="flex gap-6 mt-8 flex-wrap justify-center lg:justify-start">
-
-            <a
-              href="/market"
-              className="
-                bg-black hover:bg-gray-800
-                text-white hover:text-[#C76A46]
-                px-10 py-3 rounded-xl
-                text-lg font-semibold shadow-lg
-              "
-            >
+            <a href="/market" className="bg-black px-10 py-3 rounded-xl text-white font-semibold shadow-lg">
               Market
             </a>
-
-            <a
-              href="/sell"
-              className="
-                bg-black hover:bg-gray-800
-                text-white hover:text-[#C76A46]
-                px-10 py-3 rounded-xl
-                text-lg font-semibold shadow-lg
-              "
-            >
-              Rent/Sell
+            <a href="/sell" className="bg-black px-10 py-3 rounded-xl text-white font-semibold shadow-lg">
+              Rent / Sell
             </a>
-
-            <a
-              href="/chat"
-              className="
-                bg-black hover:bg-gray-800
-                text-white hover:text-[#C76A46]
-                px-10 py-3 rounded-xl
-                text-lg font-semibold shadow-lg
-              "
-            >
+            <a href="/chat" className="bg-black px-10 py-3 rounded-xl text-white font-semibold shadow-lg">
               Chats
             </a>
-
           </div>
-
         </div>
       </div>
 
-      {/* SPACING BELOW HERO */}
       <div className="h-10"></div>
 
-      {/* RECENTLY VIEWED SECTION */}
+      {/* RECENTLY VIEWED */}
       <RecentlyViewed />
-
     </div>
   );
 }

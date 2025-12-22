@@ -26,7 +26,7 @@ router.post("/refresh-token", refreshAccessToken);
 router.get("/me", protect, getMe);
 router.put("/profile", protect, updateProfile);
 
-// 🔐 CHANGE PASSWORD (✅ THIS FIXES 404)
+// 🔐 CHANGE PASSWORD
 router.put("/change-password", protect, changePassword);
 
 // FORGOT PASSWORD

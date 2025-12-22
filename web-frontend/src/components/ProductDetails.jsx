@@ -8,14 +8,16 @@ import NavBar from "../components/NavBar";
 const API_URL = "http://localhost:5000";
 
 function ProductDetails() {
-  const { id } = useParams(); // product id from URL
+  const { id } = useParams();
   const navigate = useNavigate();
 
   const [product, setProduct] = useState(null);
   const [selectedImage, setSelectedImage] = useState("");
   const [loading, setLoading] = useState(true);
 
-  /* ---------------- FETCH PRODUCT ---------------- */
+  const userId = JSON.parse(localStorage.getItem("user"))?._id;
+
+  /* ================= FETCH PRODUCT ================= */
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -32,32 +34,47 @@ function ProductDetails() {
     fetchProduct();
   }, [id]);
 
-  /* ---------------- CHAT ---------------- */
+  /* ========== SAVE RECENTLY VIEWED ========== */
+  useEffect(() => {
+    if (!product?._id) return;
+
+    let viewed =
+      JSON.parse(localStorage.getItem("recentlyViewed")) || [];
+
+    viewed = viewed.filter((pid) => pid !== product._id);
+    viewed.unshift(product._id);
+
+    localStorage.setItem(
+      "recentlyViewed",
+      JSON.stringify(viewed.slice(0, 6))
+    );
+  }, [product]);
+
+  /* ================= CHAT ================= */
   const handleChat = async () => {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    alert("Please login first");
-    return;
-  }
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Please login first");
+      return;
+    }
 
-  const res = await fetch("http://localhost:5000/api/chat/start", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({
-      ownerId: product.owner._id,
-      productId: product._id,
-    }),
-  });
+    const res = await fetch(`${API_URL}/api/chat`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        ownerId: product.owner._id,
+        productId: product._id,
+      }),
+    });
 
-  const chat = await res.json();
-  navigate(`/chat/${chat._id}`);
-};
+    const chat = await res.json();
+    navigate(`/chat/${chat._id}`);
+  };
 
-
-  /* ---------------- BUY / RENT ---------------- */
+  /* ================= BUY / RENT ================= */
   const handleOrder = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -87,12 +104,14 @@ function ProductDetails() {
           : "Purchase successful!"
       );
 
-      handleChat(); // auto-open chat
+      handleChat();
     } catch (err) {
       console.error("Order failed", err);
+      alert("Order failed");
     }
   };
 
+  /* ================= STATES ================= */
   if (loading) {
     return <p className="text-center mt-40">Loading...</p>;
   }
@@ -101,6 +120,8 @@ function ProductDetails() {
     return <p className="text-center mt-40">Product not found</p>;
   }
 
+  const isOwner = userId === product.owner?._id;
+
   return (
     <>
       <NavBar />
@@ -108,15 +129,9 @@ function ProductDetails() {
       <div className="w-full min-h-screen bg-gray-500/10 px-6 md:px-20 py-32">
         <div className="max-w-6xl mx-auto">
 
-          <div
-            className="
-              bg-gray-400/40 backdrop-blur-xl
-              border border-gray-500/30
-              rounded-3xl shadow-xl
-              p-10 flex flex-col lg:flex-row gap-12
-            "
-          >
-            {/* IMAGE GALLERY */}
+          <div className="bg-gray-400/40 backdrop-blur-xl border rounded-3xl p-10 flex flex-col lg:flex-row gap-12">
+
+            {/* IMAGES */}
             <div className="w-full lg:w-1/2">
               <div className="h-[400px] rounded-2xl overflow-hidden shadow-xl">
                 <img
@@ -152,7 +167,7 @@ function ProductDetails() {
 
               <p className="flex items-center gap-2 mt-2 text-gray-700">
                 <IoLocationOutline className="text-2xl" />
-                {product.location || "India"}
+                {product.location}
               </p>
 
               <p className="mt-4 text-lg text-gray-800">
@@ -161,9 +176,7 @@ function ProductDetails() {
 
               {/* PRICING */}
               <div className="mt-6">
-                <h2 className="text-2xl font-bold mb-3">
-                  Pricing
-                </h2>
+                <h2 className="text-2xl font-bold mb-3">Pricing</h2>
 
                 {product.listingType === "rent" ? (
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
@@ -185,37 +198,28 @@ function ProductDetails() {
               </div>
 
               {/* ACTIONS */}
-              <div className="flex flex-col sm:flex-row gap-6 mt-10">
-                <button
-                  onClick={handleOrder}
-                  className="
-                    flex-1 bg-black hover:bg-gray-800
-                    text-white hover:text-[#C76A46]
-                    px-8 py-4 rounded-xl
-                    text-lg font-bold shadow-xl
-                    flex items-center justify-center gap-3
-                  "
-                >
-                  <FiShoppingBag className="text-2xl" />
-                  {product.listingType === "rent"
-                    ? "Rent Now"
-                    : "Buy Now"}
-                </button>
+              {!isOwner && (
+                <div className="flex flex-col sm:flex-row gap-6 mt-10">
+                  <button
+                    onClick={handleOrder}
+                    className="flex-1 bg-black text-white px-8 py-4 rounded-xl font-bold shadow-xl flex items-center justify-center gap-3"
+                  >
+                    <FiShoppingBag />
+                    {product.listingType === "rent"
+                      ? "Rent Now"
+                      : "Buy Now"}
+                  </button>
 
-                <button
-                  onClick={handleChat}
-                  className="
-                    flex-1 bg-white/70 hover:bg-white
-                    text-black border border-gray-400
-                    px-8 py-4 rounded-xl
-                    text-lg font-bold shadow-xl
-                    flex items-center justify-center gap-3
-                  "
-                >
-                  <FiMessageSquare className="text-2xl" />
-                  Chat Owner
-                </button>
-              </div>
+                  <button
+                    onClick={handleChat}
+                    className="flex-1 bg-white border px-8 py-4 rounded-xl font-bold shadow-xl flex items-center justify-center gap-3"
+                  >
+                    <FiMessageSquare />
+                    Chat Owner
+                  </button>
+                </div>
+              )}
+
             </div>
           </div>
         </div>

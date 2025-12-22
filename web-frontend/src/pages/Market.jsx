@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { IoSearch, IoLocationOutline } from "react-icons/io5";
 import { Link, useNavigate } from "react-router-dom";
 import NavBar from "../components/NavBar";
@@ -13,6 +14,8 @@ function Market() {
   const [productQuery, setProductQuery] = useState("");
   const [locationQuery, setLocationQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [searchParams] = useSearchParams();
+  const searchQuery = searchParams.get("search") || "";
 
   /* ---------------- FETCH PRODUCTS ---------------- */
   useEffect(() => {
@@ -32,8 +35,9 @@ function Market() {
   /* ---------------- FILTER ---------------- */
   const filteredProducts = products.filter((p) => {
     const matchProduct = p.title
-      .toLowerCase()
-      .includes(productQuery.toLowerCase());
+    .toLowerCase()
+    .includes(searchQuery.toLowerCase());
+
 
     const matchLocation = p.location
       ?.toLowerCase()

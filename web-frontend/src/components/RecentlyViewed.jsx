@@ -1,30 +1,47 @@
+import { useEffect, useState } from "react";
 import { IoLocationOutline } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 
-const RECENTLY_VIEWED = [
-  {
-    id: 1,
-    name: "Canon DSLR Camera",
-    price: 800,
-    location: "Delhi",
-    image: "https://images.pexels.com/photos/212372/pexels-photo-212372.jpeg",
-  },
-  {
-    id: 2,
-    name: "Gaming Laptop",
-    price: 1200,
-    location: "Mumbai",
-    image: "https://images.pexels.com/photos/18104/pexels-photo.jpg",
-  },
-  {
-    id: 3,
-    name: "Camping Tent",
-    price: 300,
-    location: "Pune",
-    image: "https://images.pexels.com/photos/618848/pexels-photo-618848.jpeg",
-  },
-];
+const API_URL = "http://localhost:5000";
 
 function RecentlyViewed() {
+  const [items, setItems] = useState([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchRecentlyViewed = async () => {
+      const ids =
+        JSON.parse(localStorage.getItem("recentlyViewed")) || [];
+
+      if (ids.length === 0) return;
+
+      try {
+        const res = await fetch(`${API_URL}/api/products/by-ids`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ ids }),
+        });
+
+        const data = await res.json();
+
+        // preserve order
+        const ordered = ids
+          .map((id) => data.find((p) => p._id === id))
+          .filter(Boolean);
+
+        setItems(ordered);
+      } catch (error) {
+        console.error("Failed to fetch recently viewed", error);
+      }
+    };
+
+    fetchRecentlyViewed();
+  }, []);
+
+  if (items.length === 0) return null;
+
   return (
     <div
       className="
@@ -40,12 +57,11 @@ function RecentlyViewed() {
         Recently Viewed Items
       </h2>
 
-      {/* GRID */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-
-        {RECENTLY_VIEWED.map((item) => (
+        {items.map((item) => (
           <div
-            key={item.id}
+            key={item._id}
+            onClick={() => navigate(`/product/${item._id}`)}
             className="
               bg-white/70 backdrop-blur-md border border-gray-300
               rounded-2xl shadow-xl overflow-hidden
@@ -54,19 +70,26 @@ function RecentlyViewed() {
           >
             <div className="h-48 w-full overflow-hidden">
               <img
-                src={item.image}
+                src={`${API_URL}${item.images[0]}`}
                 className="w-full h-full object-cover"
-                alt={item.name}
+                alt={item.title}
               />
             </div>
 
             <div className="p-4">
               <h3 className="text-xl font-semibold text-black">
-                {item.name}
+                {item.title}
               </h3>
 
               <p className="text-gray-700 mt-1">
-                ₹{item.price} <span className="text-sm">/ day</span>
+                {item.listingType === "rent" ? (
+                  <>
+                    ₹{item.price.day}
+                    <span className="text-sm"> / day</span>
+                  </>
+                ) : (
+                  <>₹{item.price.sell}</>
+                )}
               </p>
 
               <p className="text-gray-600 text-sm flex items-center gap-1 mt-1">
@@ -75,7 +98,6 @@ function RecentlyViewed() {
             </div>
           </div>
         ))}
-
       </div>
     </div>
   );

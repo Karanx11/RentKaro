@@ -20,9 +20,21 @@ router.post(
         category,
         listingType,
         price,
+        location,
       } = req.body;
 
-      if (!title || !description || !category || !listingType || !price) {
+      // ✅ DEBUG LOG (NOW CORRECT)
+      console.log("LOCATION RECEIVED:", location);
+
+      // ✅ VALIDATION
+      if (
+        !title ||
+        !description ||
+        !category ||
+        !listingType ||
+        !price ||
+        !location
+      ) {
         return res.status(400).json({
           message: "Missing required fields",
         });
@@ -46,12 +58,13 @@ router.post(
         price: JSON.parse(price),
         images: imageUrls,
         owner: req.user._id,
+        location,           // ✅ NOW SAVED
         isAvailable: true,
       });
 
       res.status(201).json(product);
     } catch (error) {
-      console.error("Create product error:", error.message);
+      console.error("Create product error:", error);
       res.status(500).json({ message: "Server error" });
     }
   }
@@ -73,7 +86,7 @@ router.get("/", async (req, res) => {
 });
 
 /* =========================
-   GET SINGLE PRODUCT (IMPORTANT)
+   GET SINGLE PRODUCT
 ========================= */
 router.get("/:id", async (req, res) => {
   try {
@@ -94,5 +107,24 @@ router.get("/:id", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+// GET PRODUCTS BY IDS (RECENTLY VIEWED)
+router.post("/by-ids", async (req, res) => {
+  try {
+    const { ids } = req.body;
+
+    if (!ids || !ids.length) {
+      return res.json([]);
+    }
+
+    const products = await Product.find({
+      _id: { $in: ids },
+    });
+
+    res.json(products);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 
 export default router;

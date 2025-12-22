@@ -19,8 +19,9 @@ function Sell() {
 
   const [mode, setMode] = useState("rent");
   const [category, setCategory] = useState("");
-  const [description, setDescription] = useState("");
   const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [location, setLocation] = useState("");
 
   const [prices, setPrices] = useState({
     day: "",
@@ -48,76 +49,78 @@ function Sell() {
 
   /* ---------------- SUBMIT ---------------- */
   const handleSubmit = async () => {
-  if (!title || !category || !description) {
-    alert("Please fill all required fields");
-    return;
-  }
-
-  if (imageFiles.filter(Boolean).length !== 3) {
-    alert("Please upload exactly 3 images");
-    return;
-  }
-
-  if (mode === "sell" && !prices.sell) {
-    alert("Please enter selling price");
-    return;
-  }
-
-  if (mode === "rent" && !prices.day) {
-    alert("Please enter rent price");
-    return;
-  }
-
-  const token = localStorage.getItem("token");
-  if (!token) {
-    alert("Please login first");
-    return;
-  }
-
-  const pricePayload =
-    mode === "rent"
-      ? {
-          day: Number(prices.day),
-          month: Number(prices.month || 0),
-          year: Number(prices.year || 0),
-        }
-      : {
-          sell: Number(prices.sell),
-        };
-
-  const formData = new FormData();
-  formData.append("title", title);
-  formData.append("description", description);
-  formData.append("category", category);
-  formData.append("listingType", mode);
-  formData.append("price", JSON.stringify(pricePayload));
-
-  imageFiles.forEach((file) => formData.append("images", file));
-
-  try {
-    const res = await fetch("http://localhost:5000/api/products", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formData,
-    });
-
-    if (!res.ok) {
-      const err = await res.json();
-      console.error(err);
-      alert(err.message || "Failed to list product");
+    if (!title || !category || !description || !location) {
+      alert("Please fill all required fields");
       return;
     }
 
-    alert("Product listed successfully 🎉");
-    window.location.href = "/market";
-  } catch (err) {
-    console.error(err);
-    alert("Server error");
-  }
-};
+    if (imageFiles.filter(Boolean).length !== 3) {
+      alert("Please upload exactly 3 images");
+      return;
+    }
 
+    if (mode === "sell" && !prices.sell) {
+      alert("Please enter selling price");
+      return;
+    }
+
+    if (mode === "rent" && !prices.day) {
+      alert("Please enter rent price");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Please login first");
+      return;
+    }
+
+    const pricePayload =
+      mode === "rent"
+        ? {
+            day: Number(prices.day),
+            month: Number(prices.month || 0),
+            year: Number(prices.year || 0),
+          }
+        : {
+            sell: Number(prices.sell),
+          };
+
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("category", category);
+    formData.append("location", location);
+    formData.append("listingType", mode);
+    formData.append("price", JSON.stringify(pricePayload));
+
+    imageFiles.forEach((file) => {
+      formData.append("images", file);
+    });
+
+    try {
+      const res = await fetch("http://localhost:5000/api/products", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        console.error(err);
+        alert(err.message || "Failed to list product");
+        return;
+      }
+
+      alert("Product listed successfully 🎉");
+      window.location.href = "/market";
+    } catch (error) {
+      console.error(error);
+      alert("Server error");
+    }
+  };
 
   return (
     <>
@@ -145,7 +148,11 @@ function Sell() {
                     className="w-full h-40 bg-white/50 border rounded-xl cursor-pointer flex items-center justify-center overflow-hidden"
                   >
                     {img ? (
-                      <img src={img} className="w-full h-full object-cover" />
+                      <img
+                        src={img}
+                        alt="preview"
+                        className="w-full h-full object-cover"
+                      />
                     ) : (
                       <span className="text-gray-500">Click to Upload</span>
                     )}
@@ -182,6 +189,7 @@ function Sell() {
                 {CATEGORIES.map((cat) => (
                   <button
                     key={cat}
+                    type="button"
                     onClick={() => setCategory(cat)}
                     className={`px-6 py-3 rounded-xl font-semibold ${
                       category === cat
@@ -209,6 +217,20 @@ function Sell() {
               <div className="text-right text-sm">
                 {description.length} / 500
               </div>
+            </div>
+
+            {/* LOCATION */}
+            <div>
+              <label className="block text-xl font-semibold mb-2">
+                Location
+              </label>
+              <input
+                type="text"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="e.g. Delhi, Mumbai, Pune"
+                className="w-full px-5 py-3 rounded-xl bg-white/80 border shadow-md"
+              />
             </div>
 
             {/* PRICING */}
@@ -259,6 +281,7 @@ function Sell() {
             {/* TOGGLE */}
             <div className="flex justify-center gap-6">
               <button
+                type="button"
                 onClick={() => setMode("rent")}
                 className={`px-10 py-3 rounded-xl ${
                   mode === "rent" ? "bg-black text-white" : "bg-white"
@@ -267,6 +290,7 @@ function Sell() {
                 Rent
               </button>
               <button
+                type="button"
                 onClick={() => setMode("sell")}
                 className={`px-10 py-3 rounded-xl ${
                   mode === "sell" ? "bg-black text-white" : "bg-white"

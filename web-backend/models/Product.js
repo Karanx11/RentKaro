@@ -22,7 +22,7 @@ const productSchema = new mongoose.Schema(
 
     images: [String],
 
-    location: { type: String, default: "India" },
+    location: { type: String, required: true, },
 
     owner: {
       type: mongoose.Schema.Types.ObjectId,
