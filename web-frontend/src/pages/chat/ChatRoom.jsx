@@ -1,11 +1,14 @@
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { IoSend } from "react-icons/io5";
 import NavBar from "../../components/NavBar";
 import MessageBubble from "./MessageBubble";
 import socket from "../../services/socket";
+import { connectSocket } from "../../services/socket";
 import axios from "axios";
 import { getUserIdFromToken } from "../../hooks/useAuth";
+
+const API_URL = "http://localhost:5000";
 
 function ChatRoom() {
   // 🔐 Logged-in user
@@ -14,62 +17,114 @@ function ChatRoom() {
   // 📌 Chat ID
   const { chatId } = useParams();
 
-  // 🧠 State
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
+  // 📦 Navigation state (from ProductDetails)
+  const location = useLocation();
+  const product = location.state?.product;
+  const autoMessage = location.state?.autoMessage;
+
+  // 🧠 States
+const [messages, setMessages] = useState([]);
+const [input, setInput] = useState("");
+const [isTyping, setIsTyping] = useState(false);
+const [chatUser] = useState(null);
+const autoSentRef = useRef(false);
+
 
   // 🔽 Refs
   const bottomRef = useRef(null);
   const typingTimeoutRef = useRef(null);
 
-  // 📥 Load old messages + mark read
+  /* ======================
+     LOAD CHAT INFO
+  ====================== */
+useEffect(() => {
+  if (!chatId || !userId) return;
+
+  connectSocket();
+  socket.emit("joinChat", chatId);
+
+  socket.on("receiveMessage", (msg) => {
+    setMessages(prev => [
+      ...prev,
+      {
+        id: msg.id,
+        from: msg.from === userId ? "me" : "other",
+        text: msg.text,
+        createdAt: msg.createdAt,
+      },
+    ]);
+  });
+
+  return () => socket.off("receiveMessage");
+}, [chatId, userId]);
+
+
+  /* ======================
+     LOAD OLD MESSAGES
+  ====================== */
   useEffect(() => {
     if (!chatId || !userId) return;
 
     const loadMessages = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:5000/api/messages/${chatId}`
-        );
+  `http://localhost:5000/api/chat/${chatId}`,
+  {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  }
+);
+
+        const data = Array.isArray(res.data) ? res.data : [];
 
         setMessages(
-          res.data.map((msg) => ({
+          data.map((msg) => ({
             id: msg._id,
             from: msg.sender === userId ? "me" : "other",
             text: msg.text,
+            createdAt: msg.createdAt,
           }))
         );
 
+
         await axios.put(
-          `http://localhost:5000/api/messages/read/${chatId}`
+          `${API_URL}/api/messages/read/${chatId}`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
         );
-      } catch (error) {
-        console.error("Failed to load messages", error);
+      } catch (err) {
+        console.error("Failed to load messages", err);
       }
     };
 
     loadMessages();
   }, [chatId, userId]);
 
-  // 🔌 Socket connection
+  /* ======================
+     SOCKET CONNECTION
+  ====================== */
   useEffect(() => {
-    if (!chatId) return;
-
-    if (!socket.connected) socket.connect();
+    if (!chatId || !userId) return;
 
     socket.emit("joinChat", chatId);
 
     socket.on("receiveMessage", (message) => {
       setMessages((prev) => {
-        if (prev.find((m) => m.id === message.id)) return prev;
+        if (prev.find((m) => m.id === message._id)) return prev;
 
         return [
           ...prev,
           {
-            id: message.id,
-            from: message.from === userId ? "me" : "other",
-            text: message.text,
+            id: message._id,
+            from: message.sender === userId ? "me" : "other",
+            text: message.content,
+            createdAt: message.createdAt,
+
           },
         ];
       });
@@ -85,28 +140,48 @@ function ChatRoom() {
     };
   }, [chatId, userId]);
 
-  // 🔽 Auto scroll
+  /* ======================
+     AUTO SEND FIRST MESSAGE
+  ====================== */
+  useEffect(() => {
+  if (!autoMessage) return;
+  if (!socket.connected) return;
+  if (autoSentRef.current) return;
+
+  socket.emit("sendMessage", {
+    chatId,
+    text: autoMessage,
+  });
+
+  autoSentRef.current = true;
+}, [autoMessage, chatId]);
+
+
+  /* ======================
+     AUTO SCROLL
+  ====================== */
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
 
-  // ✉️ Send message
+  /* ======================
+     SEND MESSAGE
+  ====================== */
   const sendMessage = () => {
-    if (!input.trim() || !userId) return;
+    if (!input.trim()) return;
 
     socket.emit("sendMessage", {
       chatId,
-      message: {
-        from: userId,
-        text: input,
-      },
+      text: input,
     });
 
     socket.emit("stopTyping", chatId);
     setInput("");
   };
 
-  // ⌨️ Typing handler
+  /* ======================
+     TYPING HANDLER
+  ====================== */
   const handleTyping = (e) => {
     setInput(e.target.value);
     socket.emit("typing", chatId);
@@ -125,55 +200,49 @@ function ChatRoom() {
       <NavBar />
 
       <div className="pt-24 px-4 md:px-10 min-h-screen bg-gray-500/10">
-        <div
-          className="max-w-5xl mx-auto
-                     bg-gray-400/40 backdrop-blur-xl
-                     rounded-3xl border border-gray-500/30
-                     flex flex-col h-[75vh]"
-        >
-          {/* HEADER */}
+        <div className="max-w-5xl mx-auto bg-gray-400/40 backdrop-blur-xl rounded-3xl border border-gray-500/30 flex flex-col h-[75vh]">
+
+          {/* ================= HEADER ================= */}
           <div className="p-4 border-b border-gray-500/30 bg-white/30 flex items-center gap-4">
             <img
-              src="https://i.imgur.com/6VBx3io.png"
+              src={chatUser?.avatar || "https://i.imgur.com/6VBx3io.png"}
               className="w-12 h-12 rounded-full"
               alt="user"
             />
-            <div>
-              <p className="font-semibold text-black">Rahul Kumar</p>
-              <p className="text-sm text-green-600">Online</p>
+            <div className="flex-1">
+              <p className="font-semibold text-black">
+                {chatUser?.name || "Loading..."}
+              </p>
+
+              {product && (
+                <p className="text-sm text-gray-600 truncate">
+                  📦 {product.title}
+                </p>
+              )}
             </div>
           </div>
 
-          {/* MESSAGES */}
+          {/* ================= MESSAGES ================= */}
           <div className="flex-1 p-6 overflow-y-auto space-y-4">
             {messages.map((msg) => (
               <MessageBubble key={msg.id} msg={msg} />
             ))}
-
-            {isTyping && (
-              <div className="text-sm italic text-gray-700 px-2">
-                Rahul is typing...
-              </div>
-            )}
-
             <div ref={bottomRef} />
           </div>
 
-          {/* INPUT */}
+          {/* ================= INPUT ================= */}
           <div className="p-4 border-t border-gray-500/30 bg-white/40 flex gap-4">
             <input
               value={input}
               onChange={handleTyping}
               onKeyDown={(e) => e.key === "Enter" && sendMessage()}
               placeholder="Type a message..."
-              className="flex-1 px-4 py-3 rounded-xl
-                         bg-white/80 border border-gray-300 outline-none"
+              className="flex-1 px-4 py-3 rounded-xl bg-white/80 border border-gray-300 outline-none"
             />
 
             <button
               onClick={sendMessage}
-              className="p-3 bg-black text-white rounded-xl
-                         hover:bg-gray-800 transition"
+              className="p-3 bg-black text-white rounded-xl hover:bg-gray-800 transition"
             >
               <IoSend className="text-2xl" />
             </button>

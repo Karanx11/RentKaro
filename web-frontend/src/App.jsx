@@ -52,8 +52,24 @@ function App() {
         <Route path="/reset-password/:token" element={<ResetPassword />} />
 
         {/* CHAT */}
-        <Route path="/chat" element={<ChatList />} />
-        <Route path="/chat/:chatId" element={<ChatRoom />} />
+        <Route
+  path="/chat"
+  element={
+    <ProtectedRoute>
+      <ChatList />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/chat/:chatId"
+  element={
+    <ProtectedRoute>
+      <ChatRoom />
+    </ProtectedRoute>
+  }
+/>
+
 
         {/* 🔒 PROTECTED ROUTES */}
         <Route

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { IoLocationOutline } from "react-icons/io5";
-import { FiMessageSquare, FiShoppingBag } from "react-icons/fi";
+import { FiMessageSquare } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import NavBar from "../components/NavBar";
@@ -34,23 +34,7 @@ function ProductDetails() {
     fetchProduct();
   }, [id]);
 
-  /* ========== SAVE RECENTLY VIEWED ========== */
-  useEffect(() => {
-    if (!product?._id) return;
-
-    let viewed =
-      JSON.parse(localStorage.getItem("recentlyViewed")) || [];
-
-    viewed = viewed.filter((pid) => pid !== product._id);
-    viewed.unshift(product._id);
-
-    localStorage.setItem(
-      "recentlyViewed",
-      JSON.stringify(viewed.slice(0, 6))
-    );
-  }, [product]);
-
-  /* ================= CHAT ================= */
+  /* ================= CHAT WITH OWNER ================= */
   const handleChat = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -58,56 +42,31 @@ function ProductDetails() {
       return;
     }
 
-    const res = await fetch(`${API_URL}/api/chat`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        ownerId: product.owner._id,
-        productId: product._id,
-      }),
-    });
-
-    const chat = await res.json();
-    navigate(`/chat/${chat._id}`);
-  };
-
-  /* ================= BUY / RENT ================= */
-  const handleOrder = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("Please login first");
-      return;
-    }
-
     try {
-      const endpoint =
-        product.listingType === "rent"
-          ? "/api/orders/rent"
-          : "/api/orders/buy";
+      const res = await fetch(`${API_URL}/api/chat/start`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          ownerId: product.owner._id,
+          productId: product._id,
+        }),
+      });
 
-      await axios.post(
-        `${API_URL}${endpoint}`,
-        { productId: product._id },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const chat = await res.json();
 
-      alert(
-        product.listingType === "rent"
-          ? "Rental request sent!"
-          : "Purchase successful!"
-      );
-
-      handleChat();
+      navigate(`/chat/${chat._id}`, {
+        state: {
+          product,
+          autoMessage:
+            "Hey there! I liked your product and want further information regarding this.",
+        },
+      });
     } catch (err) {
-      console.error("Order failed", err);
-      alert("Order failed");
+      console.error("Chat start failed", err);
+      alert("Unable to start chat");
     }
   };
 
@@ -131,12 +90,15 @@ function ProductDetails() {
 
           <div className="bg-gray-400/40 backdrop-blur-xl border rounded-3xl p-10 flex flex-col lg:flex-row gap-12">
 
-            {/* IMAGES */}
+            {/* ================= IMAGES ================= */}
             <div className="w-full lg:w-1/2">
+              <h2 className="text-xl font-bold mb-4">Product Images</h2>
+
               <div className="h-[400px] rounded-2xl overflow-hidden shadow-xl">
                 <img
                   src={selectedImage}
                   className="w-full h-full object-cover"
+                  alt="product"
                 />
               </div>
 
@@ -159,27 +121,40 @@ function ProductDetails() {
               </div>
             </div>
 
-            {/* DETAILS */}
-            <div className="w-full lg:w-1/2 flex flex-col justify-between">
-              <h1 className="text-4xl font-extrabold">
-                {product.title}
-              </h1>
+            {/* ================= DETAILS ================= */}
+            <div className="w-full lg:w-1/2 flex flex-col gap-6">
 
-              <p className="flex items-center gap-2 mt-2 text-gray-700">
-                <IoLocationOutline className="text-2xl" />
-                {product.location}
-              </p>
+              {/* TITLE */}
+              <div>
+                <h2 className="text-xl font-bold mb-2">Product Title</h2>
+                <h1 className="text-4xl font-extrabold">
+                  {product.title}
+                </h1>
+              </div>
 
-              <p className="mt-4 text-lg text-gray-800">
-                {product.description}
-              </p>
+              {/* LOCATION */}
+              <div>
+                <h2 className="text-xl font-bold mb-2">Location</h2>
+                <p className="flex items-center gap-2 text-gray-700">
+                  <IoLocationOutline className="text-2xl" />
+                  {product.location}
+                </p>
+              </div>
+
+              {/* DESCRIPTION */}
+              <div>
+                <h2 className="text-xl font-bold mb-2">Description</h2>
+                <p className="text-lg text-gray-800">
+                  {product.description}
+                </p>
+              </div>
 
               {/* PRICING */}
-              <div className="mt-6">
-                <h2 className="text-2xl font-bold mb-3">Pricing</h2>
+              <div>
+                <h2 className="text-xl font-bold mb-3">Pricing</h2>
 
                 {product.listingType === "rent" ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="bg-gray-300/50 p-4 rounded-xl">
                       ₹{product.price.day} / day
                     </div>
@@ -197,25 +172,21 @@ function ProductDetails() {
                 )}
               </div>
 
-              {/* ACTIONS */}
+              {/* CHAT BUTTON */}
               {!isOwner && (
-                <div className="flex flex-col sm:flex-row gap-6 mt-10">
-                  <button
-                    onClick={handleOrder}
-                    className="flex-1 bg-black text-white px-8 py-4 rounded-xl font-bold shadow-xl flex items-center justify-center gap-3"
-                  >
-                    <FiShoppingBag />
-                    {product.listingType === "rent"
-                      ? "Rent Now"
-                      : "Buy Now"}
-                  </button>
-
+                <div className="pt-6">
                   <button
                     onClick={handleChat}
-                    className="flex-1 bg-white border px-8 py-4 rounded-xl font-bold shadow-xl flex items-center justify-center gap-3"
+                    className="
+                      w-full bg-black text-white
+                      px-8 py-4 rounded-xl
+                      font-bold shadow-xl
+                      flex items-center justify-center gap-3
+                      hover:bg-gray-800 transition
+                    "
                   >
                     <FiMessageSquare />
-                    Chat Owner
+                    Chat with Owner
                   </button>
                 </div>
               )}

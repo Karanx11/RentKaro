@@ -1,15 +1,13 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { IoSearch, IoLocationOutline } from "react-icons/io5";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import NavBar from "../components/NavBar";
 import Categories from "../components/Categories";
 
 const API_URL = "http://localhost:5000";
 
 function Market() {
-  const navigate = useNavigate();
-
   const [products, setProducts] = useState([]);
   const [productQuery, setProductQuery] = useState("");
   const [locationQuery, setLocationQuery] = useState("");
@@ -33,51 +31,24 @@ function Market() {
   }, []);
 
   /* ---------------- FILTER ---------------- */
-  const filteredProducts = products.filter((p) => {
-    const matchProduct = p.title
+  const finalQuery = (searchQuery || productQuery).toLowerCase();
+
+const filteredProducts = products.filter((p) => {
+  const matchProduct = p.title
     .toLowerCase()
-    .includes(searchQuery.toLowerCase());
+    .includes(finalQuery);
 
+  const matchLocation = p.location
+    ?.toLowerCase()
+    .includes(locationQuery.toLowerCase());
 
-    const matchLocation = p.location
-      ?.toLowerCase()
-      .includes(locationQuery.toLowerCase());
+  const matchCategory = selectedCategory
+    ? p.category === selectedCategory
+    : true;
 
-    const matchCategory = selectedCategory
-      ? p.category === selectedCategory
-      : true;
+  return matchProduct && matchLocation && matchCategory;
+});
 
-    return matchProduct && matchLocation && matchCategory;
-  });
-
-  /* ---------------- CHAT HANDLER ---------------- */
-  const startChat = async (product) => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("Please login first");
-      return;
-    }
-
-    try {
-      const res = await fetch(`${API_URL}/api/chat/start`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          ownerId: product.owner,
-          productId: product._id,
-        }),
-      });
-
-      const chat = await res.json();
-      navigate(`/chat/${chat._id}`);
-    } catch (err) {
-      console.error("Chat start failed", err);
-      alert("Unable to start chat");
-    }
-  };
 
   return (
     <>
@@ -191,34 +162,21 @@ function Market() {
                       📍 {product.location || "India"}
                     </p>
 
-                    {/* ACTION BUTTONS */}
-                    <div className="mt-4 flex gap-3">
-                      {/* VIEW ITEM */}
+                    {/* VIEW ITEM ONLY */}
+                    <div className="mt-4">
                       <Link
                         to={`/product/${product._id}`}
                         className="
-                          flex-1 bg-black hover:bg-gray-800
+                          block w-full text-center
+                          bg-black hover:bg-gray-800
                           text-white hover:text-[#C76A46]
                           px-4 py-2 rounded-xl
                           text-sm font-semibold
-                          shadow text-center
+                          shadow
                         "
                       >
                         View Item
                       </Link>
-
-                      {/* CHAT OWNER */}
-                      <button
-                        onClick={() => startChat(product)}
-                        className="
-                          flex-1 bg-white/80 hover:bg-white
-                          text-black border border-gray-400
-                          px-4 py-2 rounded-xl
-                          text-sm font-semibold shadow
-                        "
-                      >
-                        Chat Owner
-                      </button>
                     </div>
                   </div>
                 </div>

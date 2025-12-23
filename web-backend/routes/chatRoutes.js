@@ -1,12 +1,79 @@
 import express from "express";
 import Chat from "../models/Chat.js";
 import Message from "../models/Message.js";
+import User from "../models/User.js";
 import protect from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
 /* =========================
-   START / GET CHAT
+   GET MY CHATS (FIRST!)
+========================= */
+router.get("/my-chats", protect, async (req, res) => {
+  try {
+    const userId = req.user._id.toString();
+
+    const chats = await Chat.find({
+      users: userId,
+    }).sort({ updatedAt: -1 });
+
+    const result = [];
+
+    for (const chat of chats) {
+      const otherUserId = chat.users.find(
+        (u) => u.toString() !== userId
+      );
+
+      const otherUser = await User.findById(otherUserId).select(
+        "name avatar"
+      );
+
+      const lastMessage = await Message.findOne({
+        chatId: chat._id,
+      }).sort({ createdAt: -1 });
+
+      result.push({
+        _id: chat._id,
+        otherUser,
+        lastMessage: lastMessage
+          ? { text: lastMessage.text }
+          : null,
+      });
+
+    }
+
+    res.json(result);
+  } catch (err) {
+    console.error("my-chats error:", err.message);
+    res.status(500).json([]);
+  }
+});
+
+/* =========================
+   GET CHAT BY ID
+========================= */
+router.get("/:chatId", protect, async (req, res) => {
+  try {
+    const chat = await Chat.findById(req.params.chatId)
+      .populate("users", "name avatar")
+      .populate("product", "title images");
+
+    if (
+      !chat ||
+      !chat.users.some((u) => u._id.equals(req.user._id))
+    ) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+
+    res.json(chat);
+  } catch (err) {
+    console.error("get chat error:", err.message);
+    res.status(500).json({ message: "Failed to load chat" });
+  }
+});
+
+/* =========================
+   START / CREATE CHAT
 ========================= */
 router.post("/start", protect, async (req, res) => {
   try {
@@ -32,25 +99,8 @@ router.post("/start", protect, async (req, res) => {
 
     res.json(chat);
   } catch (error) {
-    console.error("Chat start error:", error.message);
+    console.error("chat start error:", error.message);
     res.status(500).json({ message: "Chat creation failed" });
-  }
-});
-
-/* =========================
-   GET USER CHATS
-========================= */
-router.get("/", protect, async (req, res) => {
-  try {
-    const chats = await Chat.find({
-      users: req.user._id,
-    })
-      .populate("product", "title images")
-      .sort({ updatedAt: -1 });
-
-    res.json(chats);
-  } catch (error) {
-    res.status(500).json({ message: "Failed to fetch chats" });
   }
 });
 
@@ -60,14 +110,14 @@ router.get("/", protect, async (req, res) => {
 router.get("/unread/:chatId", protect, async (req, res) => {
   try {
     const count = await Message.countDocuments({
-      chat: req.params.chatId,
+      chatId: req.params.chatId,
       read: false,
       sender: { $ne: req.user._id },
     });
 
     res.json({ count });
   } catch (error) {
-    res.status(500).json({ message: "Failed to fetch unread count" });
+    res.status(500).json({ count: 0 });
   }
 });
 

@@ -4,4 +4,11 @@ const socket = io("http://localhost:5000", {
   autoConnect: false,
 });
 
+export const connectSocket = () => {
+  socket.auth = {
+    token: localStorage.getItem("token"),
+  };
+  socket.connect();
+};
+
 export default socket;

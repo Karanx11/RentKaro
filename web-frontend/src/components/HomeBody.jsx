@@ -22,7 +22,7 @@ function HomeBody() {
         flex flex-col items-center
       "
     >
-      {/* HERO CARD */}
+      {/* ================= HERO CARD ================= */}
       <div
         className="
           w-full max-w-[1500px]
@@ -41,7 +41,7 @@ function HomeBody() {
           <img
             src="/src/assets/Home-Side.png"
             className="w-[70%] sm:w-[60%] md:w-[75%] lg:w-[85%]"
-            alt="hero"
+            alt="RentKaro hero"
           />
         </div>
 
@@ -55,7 +55,7 @@ function HomeBody() {
             From electronics to daily essentials — RentKaro makes it super easy.
           </p>
 
-          {/* SEARCH BAR */}
+          {/* ================= SEARCH BAR ================= */}
           <div className="mt-8 w-full max-w-lg bg-gray-500 rounded-2xl shadow-xl flex flex-col sm:flex-row gap-4 px-4 py-4">
             <div className="flex items-center flex-1 bg-white rounded-xl px-4 py-3 shadow-md">
               <IoSearch className="text-gray-600 text-2xl mr-3" />
@@ -79,28 +79,41 @@ function HomeBody() {
                 shadow-lg w-full sm:w-auto justify-center
               "
             >
-              <IoSearch className="text-2xl" /> Search
+              <IoSearch className="text-2xl" />
+              Search
             </button>
           </div>
 
-          {/* ACTION BUTTONS */}
+          {/* ================= QUICK LINKS ================= */}
           <div className="flex gap-6 mt-8 flex-wrap justify-center lg:justify-start">
-            <a href="/market" className="bg-black px-10 py-3 rounded-xl text-white font-semibold shadow-lg">
+            <button
+              onClick={() => navigate("/market")}
+              className="bg-black px-10 py-3 rounded-xl text-white font-semibold shadow-lg"
+            >
               Market
-            </a>
-            <a href="/sell" className="bg-black px-10 py-3 rounded-xl text-white font-semibold shadow-lg">
+            </button>
+
+            <button
+              onClick={() => navigate("/sell")}
+              className="bg-black px-10 py-3 rounded-xl text-white font-semibold shadow-lg"
+            >
               Rent / Sell
-            </a>
-            <a href="/chat" className="bg-black px-10 py-3 rounded-xl text-white font-semibold shadow-lg">
+            </button>
+
+            <button
+              onClick={() => navigate("/chat")}
+              className="bg-black px-10 py-3 rounded-xl text-white font-semibold shadow-lg"
+            >
               Chats
-            </a>
+            </button>
           </div>
         </div>
       </div>
 
-      <div className="h-10"></div>
+      {/* ================= SPACING ================= */}
+      <div className="h-12" />
 
-      {/* RECENTLY VIEWED */}
+      {/* ================= RECENTLY VIEWED ================= */}
       <RecentlyViewed />
     </div>
   );

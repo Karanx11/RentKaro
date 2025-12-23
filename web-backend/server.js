@@ -4,8 +4,8 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import http from "http";
 import { Server } from "socket.io";
-import webpush from "web-push";
 import jwt from "jsonwebtoken";
+import webpush from "web-push";
 
 import connectDB from "./config/db.js";
 
@@ -15,12 +15,12 @@ import messageRoutes from "./routes/messageRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
+import orderRoutes from "./routes/orderRoutes.js";
 
 // MODELS
 import Message from "./models/Message.js";
-import User from "./models/User.js";
 import Chat from "./models/Chat.js";
-import orderRoutes from "./routes/orderRoutes.js";
+import User from "./models/User.js";
 
 /* =======================
    ENV + DB
@@ -29,43 +29,27 @@ dotenv.config();
 connectDB();
 
 /* =======================
-   WEB PUSH CONFIG
-======================= */
-webpush.setVapidDetails(
-  "mailto:support@rentkaro.com",
-  process.env.VAPID_PUBLIC_KEY,
-  process.env.VAPID_PRIVATE_KEY
-);
-
-/* =======================
-   EXPRESS APP
+   EXPRESS
 ======================= */
 const app = express();
 
-app.use(
-  cors({
-    origin: "http://localhost:5173",
-    credentials: true,
-  })
-);
+app.use(cors({
+  origin: "http://localhost:5173",
+  credentials: true,
+}));
 
 app.use(express.json());
 app.use(cookieParser());
-
-// STATIC FILES
 app.use("/uploads", express.static("uploads"));
 
-/* =======================
-   API ROUTES
-======================= */
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/products", productRoutes);
-
 app.use("/api/orders", orderRoutes);
-app.get("/", (req, res) => {
+
+app.get("/", (_, res) => {
   res.send("🚀 RentKaro backend running");
 });
 
@@ -81,10 +65,10 @@ const io = new Server(server, {
   },
 });
 
-/* 🔐 SOCKET AUTH (JWT) */
+/* 🔐 SOCKET AUTH */
 io.use((socket, next) => {
   const token = socket.handshake.auth?.token;
-  if (!token) return next(new Error("Unauthorized"));
+  if (!token) return next(new Error("No token"));
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -96,87 +80,56 @@ io.use((socket, next) => {
 });
 
 io.on("connection", (socket) => {
-  console.log("🟢 Socket connected:", socket.id);
+  console.log("🟢 Connected:", socket.userId);
 
   /* JOIN CHAT */
-  socket.on("joinChat", (chatId) => {
+  socket.on("joinChat", async (chatId) => {
+    const chat = await Chat.findById(chatId);
+    if (!chat) return;
+
+    if (!chat.users.some(u => u.toString() === socket.userId)) {
+      console.log("❌ Unauthorized join");
+      return;
+    }
+
     socket.join(chatId);
-  });
-
-  /* TYPING */
-  socket.on("typing", (chatId) => {
-    socket.to(chatId).emit("typing");
-  });
-
-  socket.on("stopTyping", (chatId) => {
-    socket.to(chatId).emit("stopTyping");
+    console.log("📥 Joined chat:", chatId);
   });
 
   /* SEND MESSAGE */
   socket.on("sendMessage", async ({ chatId, text }) => {
-    try {
-      // 1️⃣ SAVE MESSAGE
-      const newMessage = await Message.create({
-        chat: chatId,
-        sender: socket.userId,
-        content: text,
-        read: false,
-      });
+    const chat = await Chat.findById(chatId);
+    if (!chat) return;
 
-      // 2️⃣ EMIT MESSAGE
-      io.to(chatId).emit("receiveMessage", {
-        _id: newMessage._id,
-        chat: chatId,
-        sender: socket.userId,
-        content: text,
-        createdAt: newMessage.createdAt,
-      });
+    if (!chat.users.some(u => u.toString() === socket.userId)) return;
 
-      // 3️⃣ FIND RECEIVER
-      const chat = await Chat.findById(chatId);
-      if (!chat) return;
+    const msg = await Message.create({
+      chatId,
+      sender: socket.userId,
+      text,
+      read: false,
+    });
 
-      const receiverId = chat.users.find(
-        (u) => u.toString() !== socket.userId
-      );
-      if (!receiverId) return;
+    io.to(chatId).emit("receiveMessage", {
+      id: msg._id,
+      from: socket.userId,
+      text: msg.text,
+      createdAt: msg.createdAt,
+    });
 
-      const receiver = await User.findById(receiverId);
-
-      // 4️⃣ PUSH NOTIFICATION
-      if (receiver?.pushSubscription) {
-        try {
-          await webpush.sendNotification(
-            receiver.pushSubscription,
-            JSON.stringify({
-              title: "New message on RentKaro",
-              body: text,
-            })
-          );
-        } catch (err) {
-          if (err.statusCode === 410) {
-            await User.findByIdAndUpdate(receiverId, {
-              pushSubscription: null,
-            });
-          }
-          console.error("Push error:", err.message);
-        }
-      }
-    } catch (err) {
-      console.error("sendMessage error:", err.message);
-    }
+    console.log("📨 Message sent:", msg.text);
   });
 
   socket.on("disconnect", () => {
-    console.log("🔴 Socket disconnected:", socket.id);
+    console.log("🔴 Disconnected:", socket.userId);
   });
 });
+
 
 /* =======================
    START SERVER
 ======================= */
 const PORT = process.env.PORT || 5000;
-
 server.listen(PORT, () => {
-  console.log(`🚀 Server + Socket.IO running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
