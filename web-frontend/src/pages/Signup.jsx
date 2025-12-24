@@ -22,7 +22,7 @@ function Signup() {
     confirmPassword: "",
   });
 
-  const [profilePic, setProfilePic] = useState(null);
+
 
   const [otp, setOtp] = useState("");
   const [otpStep, setOtpStep] = useState(false);
@@ -36,11 +36,7 @@ function Signup() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setProfilePic(URL.createObjectURL(file));
-  };
+  
 
   // ================= SIGNUP =================
   const handleSignup = async () => {
@@ -117,34 +113,14 @@ function Signup() {
             Create Account
           </h1>
 
-          {/* ========== PROFILE PICTURE ========== */}
-          {!otpStep && (
-            <div className="flex flex-col items-center gap-3">
-              <label className="w-28 h-28 rounded-full bg-white shadow-md border flex items-center justify-center cursor-pointer overflow-hidden">
-                {profilePic ? (
-                  <img src={profilePic} className="w-full h-full object-cover" />
-                ) : (
-                  <span className="text-gray-600 text-sm">Upload Photo</span>
-                )}
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleImageChange}
-                />
-              </label>
-              <p className="text-gray-700 text-sm">
-                Profile picture (optional)
-              </p>
-            </div>
-          )}
+         
 
           {/* ========== SIGNUP FORM ========== */}
           {!otpStep && (
             <>
               <Input icon={<FiUser />} name="name" placeholder="Full Name" value={form.name} onChange={handleChange} />
               <Input icon={<FiMail />} name="email" placeholder="Email Address" value={form.email} onChange={handleChange} />
-              <Input icon={<FiPhone />} name="phone" placeholder="Phone Number" value={form.phone} onChange={handleChange} />
+              <Input icon={<FiPhone />} name="phone" placeholder="WhatsApp Number" value={form.phone} onChange={handleChange} />
 
               <PasswordInput
                 label="Password"

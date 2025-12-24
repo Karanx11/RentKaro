@@ -4,6 +4,7 @@ import {
   registerUser,
   verifySignupOtp,
   loginUser,
+  logoutUser,
   refreshAccessToken,
   getMe,
   forgotPassword,
@@ -12,6 +13,7 @@ import {
   changePassword,         
   sendChangeEmailOtp,
   verifyChangeEmailOtp,
+  deleteAccount,
 } from "../controllers/authController.js";
 
 const router = express.Router();
@@ -20,7 +22,8 @@ const router = express.Router();
 router.post("/register", registerUser);
 router.post("/verify-signup-otp", verifySignupOtp);
 router.post("/login", loginUser);
-router.post("/refresh-token", refreshAccessToken);
+router.post("/logout", logoutUser);
+router.post("/refresh", refreshAccessToken);
 
 // PROFILE
 router.get("/me", protect, getMe);
@@ -37,4 +40,6 @@ router.post("/reset-password", resetPassword);
 router.post("/send-change-email-otp", protect, sendChangeEmailOtp);
 router.post("/verify-change-email-otp", protect, verifyChangeEmailOtp);
 
+//DELETE ACCOUNT
+router.delete("/delete-account", protect, deleteAccount);
 export default router;

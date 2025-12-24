@@ -43,67 +43,64 @@ useEffect(() => {
   connectSocket();
   socket.emit("joinChat", chatId);
 
-  socket.on("receiveMessage", (msg) => {
-    setMessages(prev => [
+  socket.on("receiveMessage", (message) => {
+  setMessages(prev => {
+    if (prev.some(m => m._id === message._id)) return prev;
+
+    return [
       ...prev,
       {
-        id: msg.id,
-        from: msg.from === userId ? "me" : "other",
-        text: msg.text,
-        createdAt: msg.createdAt,
-      },
-    ]);
+        _id: message._id,
+        from: message.sender === userId ? "me" : "other",
+        text: message.text,
+        createdAt: message.createdAt,
+      }
+    ];
   });
+});
+
 
   return () => socket.off("receiveMessage");
 }, [chatId, userId]);
 
 
-  /* ======================
-     LOAD OLD MESSAGES
-  ====================== */
-  useEffect(() => {
-    if (!chatId || !userId) return;
+ /* ======================
+   LOAD OLD MESSAGES
+====================== */
+useEffect(() => {
+  if (!chatId || !userId) return;
 
-    const loadMessages = async () => {
-      try {
-        const res = await axios.get(
-  `http://localhost:5000/api/chat/${chatId}`,
-  {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
-  }
-);
+  const loadMessages = async () => {
+    try {
+      const res = await axios.get(
+        `http://localhost:5000/api/messages/${chatId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
 
-        const data = Array.isArray(res.data) ? res.data : [];
-
-        setMessages(
-          data.map((msg) => ({
-            id: msg._id,
-            from: msg.sender === userId ? "me" : "other",
-            text: msg.text,
-            createdAt: msg.createdAt,
-          }))
-        );
-
-
-        await axios.put(
-          `${API_URL}/api/messages/read/${chatId}`,
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-      } catch (err) {
-        console.error("Failed to load messages", err);
+      if (!Array.isArray(res.data)) {
+        console.error("Messages API did not return array", res.data);
+        return;
       }
-    };
 
-    loadMessages();
-  }, [chatId, userId]);
+      setMessages(
+        res.data.map((msg) => ({
+          _id: msg._id,
+          from: msg.sender === userId ? "me" : "other",
+          text: msg.text,
+          createdAt: msg.createdAt,
+        }))
+      );
+    } catch (error) {
+      console.error("Failed to load messages", error);
+    }
+  };
+
+  loadMessages();
+}, [chatId, userId]);
 
   /* ======================
      SOCKET CONNECTION

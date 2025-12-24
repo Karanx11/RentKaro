@@ -5,10 +5,15 @@ const socket = io("http://localhost:5000", {
 });
 
 export const connectSocket = () => {
-  socket.auth = {
-    token: localStorage.getItem("token"),
-  };
-  socket.connect();
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    console.warn("⚠️ No token found, socket not connected");
+    return;
+  }
+
+  socket.auth = { token };   // 🔐 inject token FIRST
+  socket.connect();          // 🔌 then connect
 };
 
 export default socket;

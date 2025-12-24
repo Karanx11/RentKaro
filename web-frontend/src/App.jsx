@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
+import { connectSocket } from "./services/socket";
 
 import Home from "./pages/Home";
 import Sell from "./pages/Sell";
@@ -17,14 +18,15 @@ import HelpSupport from "./pages/HelpSupport";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import ResetPassword from "./pages/ResetPassword";
-import ChatList from "./pages/chat/ChatList";
-import ChatRoom from "./pages/chat/ChatRoom";
+import MyListings from "./pages/MyListings"
+import EditListing from "./pages/EditListing"
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
 
   // 🔔 REGISTER SERVICE WORKER (ONCE)
   useEffect(() => {
+    connectSocket();
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js");
     }
@@ -46,29 +48,12 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot" element={<ForgotPassword />} />
+        
         <Route path="/help-support" element={<HelpSupport />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
-
-        {/* CHAT */}
-        <Route
-  path="/chat"
-  element={
-    <ProtectedRoute>
-      <ChatList />
-    </ProtectedRoute>
-  }
-/>
-
-<Route
-  path="/chat/:chatId"
-  element={
-    <ProtectedRoute>
-      <ChatRoom />
-    </ProtectedRoute>
-  }
-/>
+        <Route path="/edit-listing/:id" element={<EditListing />} />
 
 
         {/* 🔒 PROTECTED ROUTES */}
@@ -107,7 +92,17 @@ function App() {
             </ProtectedRoute>
           }
         />
+         <Route
+  path="/my-listings"
+  element={
+    <ProtectedRoute>
+      <MyListings />
+    </ProtectedRoute>
+  }
+/>
       </Routes>
+    
+
 
     </BrowserRouter>
   );

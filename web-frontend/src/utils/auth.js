@@ -1,12 +1,12 @@
+// src/utils/auth.js
+import { fetchWithAuth } from "./fetchWithAuth";
+// src/utils/auth.js
+
 const API = "http://localhost:5000/api/auth";
 
-/* ================= TOKEN HELPERS ================= */
+/* ================= TOKEN ================= */
 export const getToken = () => localStorage.getItem("token");
-
-const authHeaders = () => ({
-  "Content-Type": "application/json",
-  Authorization: `Bearer ${getToken()}`,
-});
+export const isLoggedIn = () => !!localStorage.getItem("token");
 
 /* ================= LOGIN ================= */
 export const loginUser = async (email, password) => {
@@ -19,10 +19,7 @@ export const loginUser = async (email, password) => {
   const data = await res.json();
   if (!res.ok) throw new Error(data.message || "Login failed");
 
-  // ✅ store access token
   localStorage.setItem("token", data.accessToken);
-
-  // ✅ store user
   localStorage.setItem("user", JSON.stringify(data.user));
 
   return data.user;
@@ -30,33 +27,18 @@ export const loginUser = async (email, password) => {
 
 /* ================= GET PROFILE ================= */
 export const getProfile = async () => {
-  const token = localStorage.getItem("token");
+  const token = getToken();
   if (!token) return null;
 
-  try {
-    const res = await fetch("http://localhost:5000/api/auth/me", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
+  const res = await fetch(`${API}/me`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
-    const data = await res.json();
-
-    if (!res.ok) {
-      console.error("Profile fetch failed:", data.message);
-      return null; // ❌ DO NOT logout here
-    }
-
-    return data;
-  } catch (err) {
-    console.error("Profile error:", err);
-    return null;
-  }
+  if (!res.ok) return null;
+  return await res.json();
 };
-
-
 
 /* ================= LOGOUT ================= */
 export const logout = () => {
@@ -65,13 +47,18 @@ export const logout = () => {
   window.location.href = "/login";
 };
 
+
 /* ================= UPDATE PROFILE ================= */
+
 export const updateProfile = async (profileData) => {
-  const res = await fetch(`${API}/profile`, {
-    method: "PUT",
-    headers: authHeaders(),
-    body: JSON.stringify(profileData),
-  });
+  const res = await fetchWithAuth(
+    "http://localhost:5000/api/auth/profile",
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(profileData),
+    }
+  );
 
   const data = await res.json();
   if (!res.ok) throw new Error(data.message || "Update failed");
@@ -81,12 +68,16 @@ export const updateProfile = async (profileData) => {
 };
 
 /* ================= CHANGE PASSWORD ================= */
+
 export const changePassword = async ({ currentPassword, newPassword }) => {
-  const res = await fetch(`${API}/change-password`, {
-    method: "PUT",
-    headers: authHeaders(),
-    body: JSON.stringify({ currentPassword, newPassword }),
-  });
+  const res = await fetchWithAuth(
+    "http://localhost:5000/api/auth/change-password",
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ currentPassword, newPassword }),
+    }
+  );
 
   const data = await res.json();
   if (!res.ok) throw new Error(data.message || "Password change failed");
@@ -94,13 +85,17 @@ export const changePassword = async ({ currentPassword, newPassword }) => {
   return data;
 };
 
-/* ================= SEND NEW EMAIL OTP ================= */
+/* ================= EMAIL CHANGE OTP ================= */
+
 export const sendEmailOtp = async (newEmail) => {
-  const res = await fetch(`${API}/send-change-email-otp`, {
-    method: "POST",
-    headers: authHeaders(),
-    body: JSON.stringify({ newEmail }),
-  });
+  const res = await fetchWithAuth(
+    "http://localhost:5000/api/auth/send-change-email-otp",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ newEmail }),
+    }
+  );
 
   const data = await res.json();
   if (!res.ok) throw new Error(data.message || "Failed to send OTP");
@@ -108,13 +103,15 @@ export const sendEmailOtp = async (newEmail) => {
   return data;
 };
 
-/* ================= VERIFY NEW EMAIL OTP ================= */
 export const verifyEmailOtp = async (newEmail, otp) => {
-  const res = await fetch(`${API}/verify-change-email-otp`, {
-    method: "POST",
-    headers: authHeaders(),
-    body: JSON.stringify({ newEmail, otp }),
-  });
+  const res = await fetchWithAuth(
+    "http://localhost:5000/api/auth/verify-change-email-otp",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ newEmail, otp }),
+    }
+  );
 
   const data = await res.json();
   if (!res.ok) throw new Error(data.message || "OTP verification failed");

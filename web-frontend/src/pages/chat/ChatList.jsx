@@ -1,34 +1,40 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import NavBar from "../../components/NavBar";
-import api from "../../services/api";
+import ChatItem from "./ChatItem";
+import axios from "axios";
 
 function ChatList() {
   const [chats, setChats] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchChats = async () => {
-      try {
-        const res = await api.get("/api/chat/my-chats");
-        setChats(res.data);
-      } catch (error) {
-        console.error("Failed to load chats", error);
-      }
-    };
+  const fetchChats = async () => {
+    try {
+      const res = await axios.get(
+        "http://localhost:5000/api/chat/my-chats",
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      setChats(res.data);
+    } catch (err) {
+      console.error("Failed to load chats", err);
+    }
+  };
 
-    fetchChats();
-  }, []);
+  fetchChats();
+}, []);
+
 
   return (
     <>
       <NavBar />
 
       <div className="pt-24 px-6 min-h-screen bg-gray-500/10">
-        <div className="max-w-4xl mx-auto
-                        bg-gray-400/40 backdrop-blur-xl
-                        rounded-3xl border border-gray-500/30
-                        p-6">
+        <div className="max-w-4xl mx-auto bg-gray-400/40 backdrop-blur-xl rounded-3xl border border-gray-500/30 p-6">
 
           <h2 className="text-2xl font-bold mb-6 text-black">
             Your Chats
@@ -39,24 +45,15 @@ function ChatList() {
               No chats yet. Start a chat from a product page.
             </p>
           ) : (
-            <div className="space-y-4">
+            <div className="divide-y">
               {chats.map((chat) => (
-                <div
+                <ChatItem
                   key={chat._id}
+                  name={chat.otherUser?.name || "Unknown"}
+                  message={chat.lastMessage?.text || "Start chatting"}
+                  unreadCount={chat.unreadCount || 0}
                   onClick={() => navigate(`/chat/${chat._id}`)}
-                  className="
-                    p-4 rounded-xl cursor-pointer
-                    bg-white/40 hover:bg-white/60
-                    border border-gray-300
-                  "
-                >
-                  <p className="font-semibold text-black">
-                    {chat.otherUser.name}
-                  </p>
-                  <p className="text-sm text-gray-700 truncate">
-                    {chat.lastMessage?.text || "Start chatting"}
-                  </p>
-                </div>
+                />
               ))}
             </div>
           )}

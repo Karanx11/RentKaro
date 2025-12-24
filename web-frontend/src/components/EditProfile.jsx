@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import NavBar from "./NavBar";
-import { FiEye, FiEyeOff } from "react-icons/fi";
 import {
   updateProfile,
   getProfile,
@@ -10,32 +9,26 @@ import {
 } from "../utils/auth";
 
 function EditProfile() {
-  /* ================= BASIC PROFILE ================= */
-  const [image, setImage] = useState(null);
+  /* ================= PROFILE ================= */
   const [avatar, setAvatar] = useState("");
-
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState(""); // current email
-  const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
+  const [name, setName] = useState("");      // 🔒 locked
+  const [email, setEmail] = useState("");    // current email
+  const [phone, setPhone] = useState("");    // 🔒 locked
+  const [address, setAddress] = useState(""); // ✅ editable
 
   const [saving, setSaving] = useState(false);
 
-  /* ================= NEW EMAIL + OTP ================= */
+  /* ================= EMAIL OTP ================= */
   const [newEmail, setNewEmail] = useState("");
   const [emailOtp, setEmailOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
-  const [emailVerified, setEmailVerified] = useState(true); // true for current email
+  const [emailVerified, setEmailVerified] = useState(true);
 
   /* ================= PASSWORD ================= */
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [changing, setChanging] = useState(false);
-
-  const [showCurrent, setShowCurrent] = useState(false);
-  const [showNew, setShowNew] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
 
   /* ================= LOAD PROFILE ================= */
   useEffect(() => {
@@ -54,64 +47,33 @@ function EditProfile() {
     loadProfile();
   }, []);
 
-  /* ================= IMAGE ================= */
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const preview = URL.createObjectURL(file);
-    setImage(preview);
-    setAvatar(preview);
-  };
-
-  /* ================= SEND OTP (NEW EMAIL) ================= */
+  /* ================= EMAIL OTP ================= */
   const handleSendOtp = async () => {
     if (!newEmail) return alert("Enter new email");
-
-    try {
-      await sendEmailOtp(newEmail);
-      setOtpSent(true);
-      setEmailVerified(false);
-      alert("OTP sent to new email");
-    } catch (err) {
-      alert(err.message || "Failed to send OTP");
-    }
+    await sendEmailOtp(newEmail);
+    setOtpSent(true);
+    setEmailVerified(false);
+    alert("OTP sent to new email");
   };
 
-  /* ================= VERIFY OTP ================= */
   const handleVerifyOtp = async () => {
-    if (!emailOtp) return alert("Enter OTP");
-
-    try {
-      await verifyEmailOtp(newEmail, emailOtp);
-
-      setEmail(newEmail); // update current email
-      setNewEmail("");
-      setEmailOtp("");
-      setOtpSent(false);
-      setEmailVerified(true);
-
-      alert("New email verified successfully");
-    } catch (err) {
-      alert(err.message || "Invalid OTP");
-    }
+    await verifyEmailOtp(newEmail, emailOtp);
+    setEmail(newEmail);
+    setNewEmail("");
+    setEmailOtp("");
+    setOtpSent(false);
+    setEmailVerified(true);
+    alert("Email verified successfully");
   };
 
-  /* ================= SAVE PROFILE ================= */
+  /* ================= SAVE ================= */
   const handleSave = async () => {
     try {
       setSaving(true);
-
-      await updateProfile({
-        name,
-        email,
-        phone,
-        address,
-        avatar,
-      });
-
-      alert("Profile updated successfully");
+      await updateProfile({ address });
+      alert("Profile updated");
     } catch (err) {
-      alert(err.message || "Failed to update profile");
+      alert(err.message || "Update failed");
     } finally {
       setSaving(false);
     }
@@ -122,16 +84,12 @@ function EditProfile() {
     if (!currentPassword || !newPassword || !confirmPassword)
       return alert("All fields required");
 
-    if (newPassword.length < 6)
-      return alert("Password must be at least 6 characters");
-
     if (newPassword !== confirmPassword)
       return alert("Passwords do not match");
 
     try {
       setChanging(true);
       await changePassword({ currentPassword, newPassword });
-
       alert("Password changed. Login again.");
       localStorage.clear();
       window.location.href = "/login";
@@ -146,38 +104,52 @@ function EditProfile() {
     <>
       <NavBar />
 
-      <div className="min-h-screen bg-gray-500/10 backdrop-blur-lg px-6 py-32">
-        <div className="max-w-3xl mx-auto bg-gray-400/40 border border-gray-500/30 rounded-3xl p-10 shadow-xl space-y-8">
+      <div className="min-h-screen bg-black/5 px-6 py-32">
+        <div className="max-w-3xl mx-auto bg-white/70 backdrop-blur-xl border rounded-3xl p-10 shadow-xl space-y-8">
 
-          <h1 className="text-4xl font-extrabold text-center">Edit Profile</h1>
+          <h1 className="text-4xl font-extrabold text-center">
+            Edit Profile
+          </h1>
 
-          {/* AVATAR */}
-          <div className="flex flex-col items-center gap-4">
-            <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg">
-              {image || avatar ? (
-                <img src={image || avatar} className="w-full h-full object-cover" />
+          {/* AVATAR (LOCKED) */}
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-white shadow-lg">
+              {avatar ? (
+                <img src={avatar} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full bg-black text-white flex items-center justify-center text-4xl">
-                  {name?.charAt(0)}
+                  {name.charAt(0)}
                 </div>
               )}
             </div>
-
-            <label className="cursor-pointer bg-black text-white px-5 py-2 rounded-xl">
-              Change Photo
-              <input type="file" hidden onChange={handleImageChange} />
-            </label>
+            <p className="text-sm text-gray-600">
+              Profile picture cannot be changed
+            </p>
           </div>
 
-          {/* NAME */}
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Full Name"
-            className="w-full px-4 py-3 rounded-xl"
-          />
-
-          {/* CURRENT EMAIL */}
+          {/* NAME (LOCKED) */}
+          <div>
+            <label className="font-semibold">Name</label>
+            <input
+              value={name}
+              disabled
+              className="w-full mt-1 px-4 py-3 rounded-xl bg-gray-200 cursor-not-allowed"
+            />
+          </div>
+          
+           {/* PHONE (LOCKED) */}
+          <div>
+            <label className="font-semibold">Phone Number</label>
+            <input
+              value={phone}
+              disabled
+              className="w-full mt-1 px-4 py-3 rounded-xl bg-gray-200 cursor-not-allowed"
+            />
+            <p className="text-sm text-gray-600 mt-1">
+              Phone number cannot be changed
+            </p>
+          </div>
+          {/* EMAIL (LOCKED) */}
           <div>
             <label className="font-semibold">Current Email</label>
             <input
@@ -185,17 +157,24 @@ function EditProfile() {
               disabled
               className="w-full mt-1 px-4 py-3 rounded-xl bg-gray-200"
             />
+            {emailVerified && (
+              <p className="text-green-600 font-semibold">
+                Email Verified ✓
+              </p>
+            )}
           </div>
 
-          {/* NEW EMAIL */}
+         
+
+          {/* EMAIL CHANGE */}
           <div className="space-y-3">
-            <label className="font-semibold">New Email</label>
+            <label className="font-semibold">Change Email</label>
 
             <input
               value={newEmail}
               onChange={(e) => setNewEmail(e.target.value)}
-              placeholder="Enter new email"
-              className="w-full px-4 py-3 rounded-xl"
+              placeholder="New email"
+              className="w-full px-4 py-3 rounded-xl border"
             />
 
             {!otpSent && newEmail && (
@@ -211,12 +190,9 @@ function EditProfile() {
               <div className="flex gap-3">
                 <input
                   value={emailOtp}
-                  onChange={(e) =>
-                    setEmailOtp(e.target.value.replace(/\D/g, ""))
-                  }
-                  maxLength={6}
+                  onChange={(e) => setEmailOtp(e.target.value)}
                   placeholder="Enter OTP"
-                  className="flex-1 px-4 py-3 rounded-xl"
+                  className="flex-1 px-4 py-3 rounded-xl border"
                 />
                 <button
                   onClick={handleVerifyOtp}
@@ -227,39 +203,49 @@ function EditProfile() {
               </div>
             )}
 
-            {emailVerified && (
-              <p className="text-green-600 font-semibold">
-                Email Verified ✓
-              </p>
-            )}
+            
+          </div>
+
+          {/* ADDRESS */}
+          <div>
+            <label className="font-semibold">Address</label>
+            <input
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder="Address"
+              className="w-full mt-1 px-4 py-3 rounded-xl border"
+            />
           </div>
 
           {/* PASSWORD */}
           <div className="border-t pt-8 space-y-4">
-            <h2 className="text-2xl font-bold text-center">Change Password</h2>
+            <h2 className="text-2xl font-bold text-center">
+              Change Password
+            </h2>
 
-            {[
-              [currentPassword, setCurrentPassword, showCurrent, setShowCurrent, "Current Password"],
-              [newPassword, setNewPassword, showNew, setShowNew, "New Password"],
-              [confirmPassword, setConfirmPassword, showConfirm, setShowConfirm, "Confirm Password"],
-            ].map(([val, setVal, show, setShow, label], i) => (
-              <div key={i} className="relative">
-                <input
-                  type={show ? "text" : "password"}
-                  value={val}
-                  onChange={(e) => setVal(e.target.value)}
-                  placeholder={label}
-                  className="w-full px-4 py-3 rounded-xl border"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShow(!show)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2"
-                >
-                  {show ? <FiEyeOff /> : <FiEye />}
-                </button>
-              </div>
-            ))}
+            <input
+              type="password"
+              placeholder="Current Password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border"
+            />
+
+            <input
+              type="password"
+              placeholder="New Password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border"
+            />
+
+            <input
+              type="password"
+              placeholder="Confirm New Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border"
+            />
 
             <button
               onClick={handleChangePassword}
@@ -274,13 +260,9 @@ function EditProfile() {
           <button
             onClick={handleSave}
             disabled={saving || !emailVerified}
-            className={`w-full py-3 rounded-xl text-lg font-semibold ${
-              emailVerified
-                ? "bg-black text-white"
-                : "bg-gray-400 text-gray-700 cursor-not-allowed"
-            }`}
+            className="w-full bg-black text-white py-3 rounded-xl text-lg font-semibold"
           >
-            {emailVerified ? "Save Changes" : "Verify Email to Save"}
+            Save Changes
           </button>
 
         </div>

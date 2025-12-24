@@ -1,20 +1,15 @@
+
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import sendEmail from "../utils/sendEmail.js";
 import { generateOtp } from "../utils/generateOtp.js";
-import { generateAccessToken, generateRefreshToken } from "../utils/generateTokens.js";
-
-// ================= JWT =================
-const generateToken = (id) => {
-  return jwt.sign(
-    { id },
-    process.env.JWT_ACCESS_SECRET,
-    { expiresIn: "7d" }
-  );
-};
-
+import {
+  generateAccessToken,
+  generateRefreshToken,
+} from "../utils/generateTokens.js";
+import Product from "../models/Product.js"; 
 
 /* =========================================================
    REGISTER (with Email OTP)
@@ -104,7 +99,7 @@ export const loginUser = async (req, res) => {
   if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
 
   const accessToken = generateAccessToken(user._id);
-  const refreshToken = generateRefreshToken(user._id); // ✅ FIXED
+  const refreshToken = generateRefreshToken(user._id);
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
@@ -125,23 +120,53 @@ export const loginUser = async (req, res) => {
     },
   });
 };
-// ================= GET CURRENT USER =================
-export const getMe = async (req, res) => {
+export const logoutUser = (req, res) => {
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    sameSite: "strict",
+    secure: false, // true in prod
+  });
+
+  res.json({ message: "Logged out successfully" });
+};
+
+/* =========================================================
+   REFRESH ACCESS TOKEN
+========================================================= */
+export const refreshAccessToken = (req, res) => {
+  const refreshToken = req.cookies.refreshToken;
+
+  if (!refreshToken) {
+    return res.status(401).json({ message: "No refresh token" });
+  }
+
   try {
-    res.json({
-      _id: req.user._id,
-      name: req.user.name,
-      email: req.user.email,
-      phone: req.user.phone,
-      address: req.user.address,
-      avatar: req.user.avatar,
-      isEmailVerified: req.user.isEmailVerified,
-    });
+    const decoded = jwt.verify(
+      refreshToken,
+      process.env.JWT_REFRESH_SECRET
+    );
+
+    const newAccessToken = generateAccessToken(decoded.id);
+    res.json({ accessToken: newAccessToken });
   } catch (error) {
-    res.status(500).json({ message: "Failed to fetch profile" });
+    return res.status(401).json({ message: "Invalid refresh token" });
   }
 };
 
+/* =========================================================
+   GET CURRENT USER
+========================================================= */
+export const getMe = async (req, res) => {
+  res.json({
+    _id: req.user._id,
+    name: req.user.name,
+    email: req.user.email,
+    phone: req.user.phone,
+    address: req.user.address,
+    avatar: req.user.avatar,
+    isEmailVerified: req.user.isEmailVerified,
+  });
+};
 
 
 /* =========================================================
@@ -335,20 +360,54 @@ export const verifyChangeEmailOtp = async (req, res) => {
     res.status(500).json({ message: "Email verification failed" });
   }
 };
-
-export const refreshAccessToken = async (req, res) => {
-  const token = req.cookies.refreshToken;
-
-  if (!token) {
-    return res.status(401).json({ message: "No refresh token" });
-  }
-
+/* =========================================================
+   DELETE ACCOUNT (PASSWORD CONFIRMATION)
+========================================================= */
+export const deleteAccount = async (req, res) => {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
-    const accessToken = generateAccessToken(decoded.id);
+    console.log("DELETE ACCOUNT HIT");
 
-    res.json({ accessToken });
-  } catch {
-    res.status(403).json({ message: "Invalid refresh token" });
+    const userId = req.user._id;
+    const { password } = req.body;
+
+    console.log("Password received:", !!password);
+
+    if (!password) {
+      return res.status(400).json({
+        message: "Password is required",
+      });
+    }
+
+    const user = await User.findById(userId);
+    if (!user || !user.password) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({
+        message: "Incorrect password",
+      });
+    }
+
+    // 🔥 DELETE USER PRODUCTS
+    await Product.deleteMany({ owner: userId });
+
+    // 🔥 DELETE USER
+    await User.findByIdAndDelete(userId);
+
+    // 🍪 CLEAR COOKIE
+    res.clearCookie("refreshToken");
+
+    return res.json({
+      message: "Account and products deleted successfully",
+    });
+  } catch (error) {
+    console.error("DELETE ACCOUNT ERROR:", error);
+    return res.status(500).json({
+      message: "Internal server error",
+    });
   }
 };
