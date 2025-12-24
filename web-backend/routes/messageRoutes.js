@@ -50,18 +50,15 @@ router.put("/read/:chatId", protect, async (req, res) => {
 /* =========================
    UNREAD COUNT (FIX)
 ========================= */
-router.get("/unread-count/:userId", async (req, res) => {
-  try {
-    const count = await Message.countDocuments({
-      sender: { $ne: req.params.userId },
-      read: false,
-    });
+router.get("/unread-count", protect, async (req, res) => {
+  const count = await Message.countDocuments({
+    sender: { $ne: req.user._id },
+    read: false,
+  });
 
-    res.json({ count });
-  } catch (error) {
-    res.status(500).json({ count: 0 });
-  }
+  res.json({ count });
 });
+
 
 
 export default router;

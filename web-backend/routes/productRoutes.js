@@ -126,5 +126,117 @@ router.post("/by-ids", async (req, res) => {
   }
 });
 
+/* ===============================
+   WHATSAPP REDIRECT (SECURE)
+================================ */
+router.get("/:id/whatsapp", protect, async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id)
+      .populate("owner", "phone name");
+
+    if (!product || !product.owner?.phone) {
+      return res.status(404).json({ message: "Contact not available" });
+    }
+
+    const message = `
+Hey! I’m interested in your product.
+
+📦 ${product.title}
+📍 Location: ${product.location}
+💰 Price: ${
+      product.listingType === "rent"
+        ? `₹${product.price.day} / day`
+        : `₹${product.price.sell}`
+    }
+
+🔗 ${process.env.FRONTEND_URL}/product/${product._id}
+`;
+
+    const whatsappUrl = `https://wa.me/${product.owner.phone}?text=${encodeURIComponent(
+      message
+    )}`;
+
+    res.json({ url: whatsappUrl });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to generate WhatsApp link" });
+  }
+});
+// =========================
+// GET MY LISTINGS
+// =========================
+router.get("/my/listings", protect, async (req, res) => {
+  try {
+    const products = await Product.find({
+      owner: req.user._id,
+    }).sort({ createdAt: -1 });
+
+    res.json(products);
+  } catch (error) {
+    console.error("My listings error:", error.message);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+// =========================
+// UPDATE PRODUCT (EDIT)
+// =========================
+router.put("/:id", protect, async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    // owner check
+    if (product.owner.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    const {
+      title,
+      description,
+      category,
+      location,
+      price,
+    } = req.body;
+
+    product.title = title || product.title;
+    product.description = description || product.description;
+    product.category = category || product.category;
+    product.location = location || product.location;
+    product.price = price || product.price;
+
+    const updated = await product.save();
+    res.json(updated);
+  } catch (error) {
+    console.error("Update product error:", error.message);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// =========================
+// DELETE PRODUCT
+// =========================
+router.delete("/:id", protect, async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    // owner check
+    if (product.owner.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    await product.deleteOne();
+    res.json({ message: "Product deleted successfully" });
+  } catch (error) {
+    console.error("Delete product error:", error.message);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 
 export default router;

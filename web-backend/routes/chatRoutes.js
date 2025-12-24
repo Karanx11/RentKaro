@@ -38,6 +38,7 @@ router.get("/my-chats", protect, async (req, res) => {
         lastMessage: lastMessage
           ? { text: lastMessage.text }
           : null,
+        unreadCount,
       });
 
     }

@@ -80,9 +80,8 @@ io.use((socket, next) => {
 });
 
 io.on("connection", (socket) => {
-  console.log("🟢 Connected:", socket.userId);
+  console.log("🟢 Socket connected:", socket.id, socket.userId);
 
-  /* JOIN CHAT */
   socket.on("joinChat", async (chatId) => {
     const chat = await Chat.findById(chatId);
     if (!chat) return;
@@ -96,14 +95,16 @@ io.on("connection", (socket) => {
     console.log("📥 Joined chat:", chatId);
   });
 
-  /* SEND MESSAGE */
   socket.on("sendMessage", async ({ chatId, text }) => {
     const chat = await Chat.findById(chatId);
     if (!chat) return;
 
-    if (!chat.users.some(u => u.toString() === socket.userId)) return;
+    if (!chat.users.some(u => u.toString() === socket.userId)) {
+      console.log("❌ Unauthorized message");
+      return;
+    }
 
-    const msg = await Message.create({
+    const newMessage = await Message.create({
       chatId,
       sender: socket.userId,
       text,
@@ -111,19 +112,20 @@ io.on("connection", (socket) => {
     });
 
     io.to(chatId).emit("receiveMessage", {
-      id: msg._id,
-      from: socket.userId,
-      text: msg.text,
-      createdAt: msg.createdAt,
+      _id: newMessage._id,
+      sender: socket.userId,
+      text: newMessage.text,
+      createdAt: newMessage.createdAt,
     });
 
-    console.log("📨 Message sent:", msg.text);
+    console.log("📨 Message sent");
   });
 
   socket.on("disconnect", () => {
-    console.log("🔴 Disconnected:", socket.userId);
+    console.log("🔴 Socket disconnected:", socket.id);
   });
 });
+
 
 
 /* =======================
