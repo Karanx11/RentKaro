@@ -3,9 +3,17 @@ import { FaUserCircle, FaCog, FaPlus } from "react-icons/fa";
 import { MdStorefront } from "react-icons/md";
 import { useState } from "react";
 import { logout as logoutUtil } from "../utils/auth";
+import { useLocation } from "react-router-dom";
+import { ArrowLeft, LogOut } from "lucide-react";
+
 
 function NavBar() {
   const navigate = useNavigate();
+
+  const location = useLocation();
+
+  const isHomePage = location.pathname === "/";
+  const isMarketPage = location.pathname === "/market";
 
   const user = JSON.parse(localStorage.getItem("user"));
   const isLoggedIn = !!localStorage.getItem("token");
@@ -99,6 +107,45 @@ function NavBar() {
           )}
         </div>
       </nav>
+    {/* ================= MOBILE TOP NAV ================= */}
+<nav className="md:hidden fixed top-0 left-0 w-full z-50 bg-primary/95 backdrop-blur-xl border-b border-muted/30">
+  <div className="flex items-center justify-between px-4 py-4">
+
+    {/* LEFT SIDE */}
+    {isHomePage ? (
+      <span className="text-xl font-extrabold text-light">
+        HomePage
+      </span>
+    ) : isMarketPage ? (
+      <button
+        onClick={() => navigate("/")}
+        className="text-xl font-extrabold text-light"
+      >
+        RentKaro
+      </button>
+    ) : (
+      <button
+        onClick={() => navigate(-1)}
+        className="text-light flex items-center gap-1"
+      >
+        <ArrowLeft size={22} />
+        <span className="text-sm">Back</span>
+      </button>
+    )}
+
+    {/* RIGHT SIDE */}
+    {(isHomePage || isMarketPage) && isLoggedIn && (
+      <button
+        onClick={() => setShowLogout(true)}
+        className="text-light hover:text-[#C76A46]"
+      >
+        <LogOut size={22} />
+      </button>
+    )}
+  </div>
+</nav>
+
+
 
       {/* ================= MOBILE BOTTOM NAV ================= */}
       <nav className="md:hidden fixed bottom-0 left-0 w-full z-50 bg-primary/95 backdrop-blur-xl border-t border-muted/30">

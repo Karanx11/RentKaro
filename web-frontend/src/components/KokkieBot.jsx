@@ -1,23 +1,86 @@
-import { useState } from "react";
-import { IoClose, IoSend } from "react-icons/io5";
+import { useState, useRef, useEffect } from "react";
+import { IoClose, IoSend, IoTrash } from "react-icons/io5";
+
+const API_URL = "http://localhost:5000";
 
 function KokkieBot() {
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState([
-    { from: "bot", text: "Hi! I'm Kokkie .... How can I help you today?" }
-  ]);
   const [input, setInput] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+  const messagesEndRef = useRef(null);
 
-  const sendMessage = () => {
-    if (!input.trim()) return;
+  /* 🔹 LOAD CHAT FROM LOCAL STORAGE */
+  const [messages, setMessages] = useState(() => {
+    const saved = localStorage.getItem("kokkie-chat");
+    return saved
+      ? JSON.parse(saved)
+      : [{ from: "bot", text: "Hi! I'm Kokkie 🤖 How can I help you today?" }];
+  });
+
+  /* 🔽 AUTO SCROLL */
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  /* 💾 SAVE CHAT */
+  useEffect(() => {
+    localStorage.setItem("kokkie-chat", JSON.stringify(messages));
+  }, [messages]);
+
+  /* ✉️ SEND MESSAGE */
+  const sendMessage = async () => {
+    if (!input.trim() || isTyping) return;
+
+    const userMessage = input;
+    setInput("");
+    setIsTyping(true);
 
     setMessages((prev) => [
       ...prev,
-      { from: "user", text: input },
-      { from: "bot", text: "Kokkie will soon reply with smart suggestions " }
+      { from: "user", text: userMessage },
+      { from: "bot", text: "Kokkie is typing..." }
     ]);
 
-    setInput("");
+    try {
+      const res = await fetch(`${API_URL}/api/chatbot`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: userMessage })
+      });
+
+      const data = await res.json();
+
+      setMessages((prev) => {
+        const updated = [...prev];
+        updated[updated.length - 1] = {
+        from: "bot",
+        text: data?.reply || "Sorry 😅 I didn’t get that.",
+        products: data?.products || []
+      };
+
+        return updated;
+      });
+    } catch (error) {
+      console.error("Chatbot error:", error);
+      setMessages((prev) => {
+        const updated = [...prev];
+        updated[updated.length - 1] = {
+          from: "bot",
+          text: "Server error 😢 Please try again."
+        };
+        return updated;
+      });
+    } finally {
+      setIsTyping(false);
+    }
+  };
+
+  /* 🧹 CLEAR CHAT */
+  const clearChat = () => {
+    localStorage.removeItem("kokkie-chat");
+    setMessages([
+      { from: "bot", text: "Hi! I'm Kokkie 🤖 How can I help you today?" }
+    ]);
   };
 
   return (
@@ -25,13 +88,9 @@ function KokkieBot() {
       {/* FLOATING BUTTON */}
       <button
         onClick={() => setOpen(true)}
-        className="
-          fixed bottom-20 md:bottom-5 right-6 z-50
-          w-16 h-16 rounded-full overflow-hidden
-          bg-black shadow-xl
-          flex items-center justify-center
-          hover:scale-105 transition
-        "
+        className="fixed bottom-20 md:bottom-5 right-6 z-50
+                   w-16 h-16 rounded-full overflow-hidden
+                   bg-black shadow-xl hover:scale-105 transition"
       >
         <img
           src="/src/assets/ChatBot.png"
@@ -40,60 +99,107 @@ function KokkieBot() {
         />
       </button>
 
-      {/* CHATBOT PANEL */}
+      {/* CHAT PANEL */}
       {open && (
-        <div
-          className="
-            fixed bottom-36 md:bottom-24 right-6 z-50
-            w-[90%] sm:w-[350px] h-[480px]
-            bg-white/30 backdrop-blur-xl
-            border border-gray-500/30
-            shadow-[0_8px_32px_rgba(31,38,135,0.37)]
-            rounded-3xl overflow-hidden
-            flex flex-col
-          "
-        >
+        <div className="fixed bottom-36 md:bottom-24 right-6 z-50
+                        w-[90%] sm:w-[350px] h-[480px]
+                        bg-white/30 backdrop-blur-xl
+                        border border-gray-500/30
+                        shadow-xl rounded-3xl
+                        flex flex-col overflow-hidden">
+
           {/* HEADER */}
-          <div className="bg-black text-white px-5 py-4 flex justify-between items-center">
-            <h2 className="text-xl font-bold">Kokkie Bot</h2>
-            <IoClose
-              className="text-2xl cursor-pointer"
-              onClick={() => setOpen(false)}
-            />
+          <div className="bg-black text-white px-4 py-3 flex justify-between items-center">
+            <h2 className="text-lg font-bold">Kokkie Bot</h2>
+
+            <div className="flex items-center gap-4">
+              <IoTrash
+                title="Clear chat"
+                onClick={clearChat}
+                className="text-xl cursor-pointer hover:text-red-400"
+              />
+              <IoClose
+                className="text-2xl cursor-pointer"
+                onClick={() => setOpen(false)}
+              />
+            </div>
           </div>
 
-          {/* MESSAGE AREA */}
+          {/* MESSAGES */}
           <div className="flex-1 p-4 overflow-y-auto space-y-4">
             {messages.map((msg, index) => (
               <div
                 key={index}
-                className={`
-                  max-w-[80%] px-4 py-3 rounded-xl
+                className={`max-w-[80%] px-4 py-3 rounded-xl
                   ${
                     msg.from === "bot"
                       ? "bg-white text-black border border-gray-300"
                       : "bg-black text-white ml-auto"
-                  }
-                `}
+                  }`}
               >
-                {msg.text}
+                {/* TEXT MESSAGE */}
+{msg.text && <p>{msg.text}</p>}
+
+{/* PRODUCT CARDS */}
+{msg.products && msg.products.length > 0 && (
+  <div className="mt-3 space-y-3">
+    {msg.products.map((product) => (
+      <div
+        key={product.id}
+        className="flex gap-3 p-2 border rounded-lg bg-white shadow-sm"
+      >
+        {/* IMAGE */}
+        {product.image ? (
+          <img
+            src={`http://localhost:5000${product.image}`}
+            alt={product.title}
+            className="w-16 h-16 object-cover rounded-md"
+          />
+        ) : (
+          <div className="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center text-xs">
+            No Image
+          </div>
+        )}
+
+        {/* INFO */}
+        <div className="flex-1">
+          <h4 className="font-semibold text-sm">{product.title}</h4>
+          <p className="text-xs text-gray-600">
+            ₹{product.price} {product.type === "rent" && "/ day"}
+          </p>
+
+          <a
+            href={`/products/${product.id}`}
+            className="inline-block mt-1 text-xs text-blue-600 underline"
+          >
+            View Product
+          </a>
+        </div>
+      </div>
+    ))}
+  </div>
+)}
+
               </div>
             ))}
+            <div ref={messagesEndRef} />
           </div>
 
-          {/* INPUT AREA */}
-          <div className="p-3 flex gap-3 border-t border-gray-500/30 bg-white/40 backdrop-blur-md">
+          {/* INPUT */}
+          <div className="p-3 flex gap-3 border-t bg-white/40 backdrop-blur-md">
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && sendMessage()}
               type="text"
               placeholder="Ask Kokkie..."
-              className="flex-1 px-4 py-2 rounded-xl bg-white shadow-md outline-none"
+              disabled={isTyping}
+              className="flex-1 px-4 py-2 rounded-xl bg-white shadow outline-none disabled:opacity-60"
             />
             <button
               onClick={sendMessage}
-              className="p-3 bg-black text-white rounded-xl shadow hover:bg-gray-800"
+              disabled={isTyping}
+              className="p-3 bg-black text-white rounded-xl hover:bg-gray-800 disabled:opacity-60"
             >
               <IoSend className="text-xl" />
             </button>

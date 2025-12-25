@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
 import { connectSocket } from "./services/socket";
+import ChatHistory from "./pages/ChatHistory";
 
 import Home from "./pages/Home";
 import Sell from "./pages/Sell";
@@ -43,7 +44,6 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/market" element={<Market />} />
         <Route path="/product/:id" element={<ProductDetails />} />
-        <Route path="/chatbot" element={<ChatBot />} />
 
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
@@ -54,6 +54,7 @@ function App() {
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/edit-listing/:id" element={<EditListing />} />
+        <Route path="/chat-history" element={<ChatHistory />} />
 
 
         {/* 🔒 PROTECTED ROUTES */}
@@ -62,6 +63,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Sell />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/chatbot"
+          element={
+            <ProtectedRoute>
+              <ChatBot />
             </ProtectedRoute>
           }
         />

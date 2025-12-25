@@ -16,11 +16,11 @@ import chatRoutes from "./routes/chatRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
+import chatbotRoutes from "./routes/chatbotRoutes.js";
 
-// MODELS
+// MODELS (used only for sockets)
 import Message from "./models/Message.js";
 import Chat from "./models/Chat.js";
-import User from "./models/User.js";
 
 /* =======================
    ENV + DB
@@ -29,25 +29,31 @@ dotenv.config();
 connectDB();
 
 /* =======================
-   EXPRESS
+   EXPRESS APP
 ======================= */
 const app = express();
 
-app.use(cors({
-  origin: "http://localhost:5173",
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 app.use(cookieParser());
 app.use("/uploads", express.static("uploads"));
 
+/* =======================
+   ROUTES
+======================= */
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/chatbot", chatbotRoutes);
 
 app.get("/", (_, res) => {
   res.send("🚀 RentKaro backend running");
@@ -86,7 +92,7 @@ io.on("connection", (socket) => {
     const chat = await Chat.findById(chatId);
     if (!chat) return;
 
-    if (!chat.users.some(u => u.toString() === socket.userId)) {
+    if (!chat.users.some((u) => u.toString() === socket.userId)) {
       console.log("❌ Unauthorized join");
       return;
     }
@@ -99,7 +105,7 @@ io.on("connection", (socket) => {
     const chat = await Chat.findById(chatId);
     if (!chat) return;
 
-    if (!chat.users.some(u => u.toString() === socket.userId)) {
+    if (!chat.users.some((u) => u.toString() === socket.userId)) {
       console.log("❌ Unauthorized message");
       return;
     }
@@ -125,8 +131,6 @@ io.on("connection", (socket) => {
     console.log("🔴 Socket disconnected:", socket.id);
   });
 });
-
-
 
 /* =======================
    START SERVER

@@ -100,175 +100,246 @@ function EditProfile() {
     }
   };
 
-  return (
-    <>
-      <NavBar />
+ return (
+  <>
+    <NavBar />
 
-      <div className="min-h-screen bg-black/5 px-6 py-32">
-        <div className="max-w-3xl mx-auto bg-white/70 backdrop-blur-xl border rounded-3xl p-10 shadow-xl space-y-8">
+    {/* PAGE BACKGROUND */}
+    <div
+      className="
+        w-full min-h-screen
+        bg-gray-500/10 backdrop-blur-lg
+        px-4 sm:px-6 md:px-12
+        pt-32 pb-20
+        flex justify-center
+      "
+    >
+      {/* GLASS CARD */}
+      <div
+        className="
+          w-full max-w-4xl
+          bg-gray-400/40
+          border border-gray-500/30
+          backdrop-blur-xl
+          rounded-3xl
+          p-8 sm:p-12
+          shadow-[0_8px_32px_rgba(31,38,135,0.37)]
+          space-y-10
+        "
+      >
+        {/* TITLE */}
+        <h1 className="text-4xl md:text-5xl font-extrabold text-black text-center">
+          Edit Profile
+        </h1>
 
-          <h1 className="text-4xl font-extrabold text-center">
-            Edit Profile
-          </h1>
-
-          {/* AVATAR (LOCKED) */}
-          <div className="flex flex-col items-center gap-3">
-            <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-white shadow-lg">
-              {avatar ? (
-                <img src={avatar} className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full bg-black text-white flex items-center justify-center text-4xl">
-                  {name.charAt(0)}
-                </div>
-              )}
-            </div>
-            <p className="text-sm text-gray-600">
-              Profile picture cannot be changed
-            </p>
-          </div>
-
-          {/* NAME (LOCKED) */}
-          <div>
-            <label className="font-semibold">Name</label>
-            <input
-              value={name}
-              disabled
-              className="w-full mt-1 px-4 py-3 rounded-xl bg-gray-200 cursor-not-allowed"
-            />
-          </div>
-          
-           {/* PHONE (LOCKED) */}
-          <div>
-            <label className="font-semibold">Phone Number</label>
-            <input
-              value={phone}
-              disabled
-              className="w-full mt-1 px-4 py-3 rounded-xl bg-gray-200 cursor-not-allowed"
-            />
-            <p className="text-sm text-gray-600 mt-1">
-              Phone number cannot be changed
-            </p>
-          </div>
-          {/* EMAIL (LOCKED) */}
-          <div>
-            <label className="font-semibold">Current Email</label>
-            <input
-              value={email}
-              disabled
-              className="w-full mt-1 px-4 py-3 rounded-xl bg-gray-200"
-            />
-            {emailVerified && (
-              <p className="text-green-600 font-semibold">
-                Email Verified ✓
-              </p>
-            )}
-          </div>
-
-         
-
-          {/* EMAIL CHANGE */}
-          <div className="space-y-3">
-            <label className="font-semibold">Change Email</label>
-
-            <input
-              value={newEmail}
-              onChange={(e) => setNewEmail(e.target.value)}
-              placeholder="New email"
-              className="w-full px-4 py-3 rounded-xl border"
-            />
-
-            {!otpSent && newEmail && (
-              <button
-                onClick={handleSendOtp}
-                className="w-full bg-black text-white py-3 rounded-xl"
-              >
-                Send OTP
-              </button>
-            )}
-
-            {otpSent && (
-              <div className="flex gap-3">
-                <input
-                  value={emailOtp}
-                  onChange={(e) => setEmailOtp(e.target.value)}
-                  placeholder="Enter OTP"
-                  className="flex-1 px-4 py-3 rounded-xl border"
-                />
-                <button
-                  onClick={handleVerifyOtp}
-                  className="bg-green-600 text-white px-6 rounded-xl"
-                >
-                  Verify
-                </button>
+        {/* AVATAR */}
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-white shadow-xl">
+            {avatar ? (
+              <img src={avatar} className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full bg-black text-white flex items-center justify-center text-4xl font-bold">
+                {name.charAt(0)}
               </div>
             )}
-
-            
           </div>
-
-          {/* ADDRESS */}
-          <div>
-            <label className="font-semibold">Address</label>
-            <input
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              placeholder="Address"
-              className="w-full mt-1 px-4 py-3 rounded-xl border"
-            />
-          </div>
-
-          {/* PASSWORD */}
-          <div className="border-t pt-8 space-y-4">
-            <h2 className="text-2xl font-bold text-center">
-              Change Password
-            </h2>
-
-            <input
-              type="password"
-              placeholder="Current Password"
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border"
-            />
-
-            <input
-              type="password"
-              placeholder="New Password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border"
-            />
-
-            <input
-              type="password"
-              placeholder="Confirm New Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border"
-            />
-
-            <button
-              onClick={handleChangePassword}
-              disabled={changing}
-              className="w-full bg-black text-white py-3 rounded-xl"
-            >
-              {changing ? "Updating..." : "Change Password"}
-            </button>
-          </div>
-
-          {/* SAVE */}
-          <button
-            onClick={handleSave}
-            disabled={saving || !emailVerified}
-            className="w-full bg-black text-white py-3 rounded-xl text-lg font-semibold"
-          >
-            Save Changes
-          </button>
-
+          <p className="text-sm text-gray-700">
+            Profile picture cannot be changed
+          </p>
         </div>
+
+        {/* NAME */}
+        <div>
+          <label className="font-semibold text-black">Name</label>
+          <input
+            value={name}
+            disabled
+            className="
+              w-full mt-2 px-4 py-3
+              rounded-xl
+              bg-gray-300/70
+              cursor-not-allowed
+            "
+          />
+        </div>
+
+        {/* PHONE */}
+        <div>
+          <label className="font-semibold text-black">Phone Number</label>
+          <input
+            value={phone}
+            disabled
+            className="
+              w-full mt-2 px-4 py-3
+              rounded-xl
+              bg-gray-300/70
+              cursor-not-allowed
+            "
+          />
+          <p className="text-sm text-gray-700 mt-1">
+            Phone number cannot be changed
+          </p>
+        </div>
+
+        {/* CURRENT EMAIL */}
+        <div>
+          <label className="font-semibold text-black">Current Email</label>
+          <input
+            value={email}
+            disabled
+            className="
+              w-full mt-2 px-4 py-3
+              rounded-xl
+              bg-gray-300/70
+            "
+          />
+          {emailVerified && (
+            <p className="text-green-700 font-semibold mt-1">
+              Email Verified ✓
+            </p>
+          )}
+        </div>
+
+        {/* CHANGE EMAIL */}
+        <div className="space-y-3">
+          <label className="font-semibold text-black">Change Email</label>
+
+          <input
+            value={newEmail}
+            onChange={(e) => setNewEmail(e.target.value)}
+            placeholder="New email"
+            className="
+              w-full px-4 py-3
+              rounded-xl
+              bg-white/70
+              border border-gray-400
+              outline-none
+            "
+          />
+
+          {!otpSent && newEmail && (
+            <button
+              onClick={handleSendOtp}
+              className="
+                w-full bg-black
+                text-white py-3
+                rounded-xl
+                font-semibold
+                hover:bg-gray-800
+              "
+            >
+              Send OTP
+            </button>
+          )}
+
+          {otpSent && (
+            <div className="flex gap-3">
+              <input
+                value={emailOtp}
+                onChange={(e) => setEmailOtp(e.target.value)}
+                placeholder="Enter OTP"
+                className="
+                  flex-1 px-4 py-3
+                  rounded-xl
+                  bg-white/70
+                  border border-gray-400
+                "
+              />
+              <button
+                onClick={handleVerifyOtp}
+                className="
+                  bg-black text-white
+                  px-6 rounded-xl
+                  font-semibold
+                  hover:bg-gray-800
+                "
+              >
+                Verify
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* ADDRESS */}
+        <div>
+          <label className="font-semibold text-black">Address</label>
+          <input
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            placeholder="Address"
+            className="
+              w-full mt-2 px-4 py-3
+              rounded-xl
+              bg-white/70
+              border border-gray-400
+            "
+          />
+        </div>
+
+        {/* CHANGE PASSWORD */}
+        <div className="border-t border-gray-400/40 pt-8 space-y-4">
+          <h2 className="text-2xl font-bold text-black text-center">
+            Change Password
+          </h2>
+
+          <input
+            type="password"
+            placeholder="Current Password"
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+            className="w-full px-4 py-3 rounded-xl bg-white/70 border"
+          />
+
+          <input
+            type="password"
+            placeholder="New Password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            className="w-full px-4 py-3 rounded-xl bg-white/70 border"
+          />
+
+          <input
+            type="password"
+            placeholder="Confirm New Password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            className="w-full px-4 py-3 rounded-xl bg-white/70 border"
+          />
+
+          <button
+            onClick={handleChangePassword}
+            disabled={changing}
+            className="
+              w-full bg-black
+              text-white py-3
+              rounded-xl
+              font-semibold
+              hover:bg-gray-800
+            "
+          >
+            {changing ? "Updating..." : "Change Password"}
+          </button>
+        </div>
+
+        {/* SAVE BUTTON */}
+        <button
+          onClick={handleSave}
+          disabled={saving || !emailVerified}
+          className="
+            w-full bg-black
+            text-white py-4
+            rounded-xl
+            text-lg font-semibold
+            hover:bg-gray-800
+            disabled:opacity-50
+          "
+        >
+          Save Changes
+        </button>
       </div>
-    </>
-  );
+    </div>
+  </>
+);
 }
 
 export default EditProfile;

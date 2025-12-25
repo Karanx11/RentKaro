@@ -10,15 +10,19 @@ import {
   LogOut,
   ChevronRight,
 } from "lucide-react";
+import { logout as logoutUtil } from "../utils/auth";
+
 
 export default function Settings() {
   const navigate = useNavigate();
   const [showLogout, setShowLogout] = useState(false);
 
   const handleLogout = () => {
-    setShowLogout(false);
-    navigate("/login");
-  };
+  logoutUtil();        // ✅ clears token + user
+  setShowLogout(false);
+  navigate("/login"); // ✅ redirect
+};
+
 
   return (
     <>
