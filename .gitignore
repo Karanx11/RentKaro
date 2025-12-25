@@ -10,6 +10,7 @@ lerna-debug.log*
 # Dependencies
 node_modules
 web-backend/node_modules
+web-backend/.env
 app-frontend/node_modules
 
 # Builds
@@ -19,7 +20,7 @@ app-frontend/dist
 app-frontend/build
 
 # Environment variables
-.env
+
 *.local
 
 # Uploads / temp
