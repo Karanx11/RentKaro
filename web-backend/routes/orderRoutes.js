@@ -1,112 +1,75 @@
 import express from "express";
 import protect from "../middleware/authMiddleware.js";
-import Product from "../models/Product.js";
 import Order from "../models/Order.js";
-import Chat from "../models/Chat.js";
+import Product from "../models/Product.js";
 
 const router = express.Router();
 
-/* =========================
+/* ======================
+   RENT PRODUCT
+====================== */
+router.post("/rent", protect, async (req, res) => {
+  try {
+    const { productId } = req.body;
+
+    if (!productId) {
+      return res.status(400).json({ message: "Product ID is required" });
+    }
+
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    const order = await Order.create({
+      user: req.user._id,
+      product: productId,
+      type: "rent",
+      price: product.price?.day || 0,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Rental request placed successfully",
+      order,
+    });
+  } catch (error) {
+    console.error("Rent order error:", error.message);
+    res.status(500).json({ message: "Rent failed" });
+  }
+});
+
+/* ======================
    BUY PRODUCT
-========================= */
+====================== */
 router.post("/buy", protect, async (req, res) => {
   try {
     const { productId } = req.body;
 
-    const product = await Product.findById(productId);
-    if (!product || !product.isAvailable) {
-      return res.status(400).json({
-        message: "Product not available",
-      });
+    if (!productId) {
+      return res.status(400).json({ message: "Product ID is required" });
     }
-
-    // CREATE ORDER
-    const order = await Order.create({
-      product: product._id,
-      buyer: req.user._id,
-      owner: product.owner,
-      orderType: "buy",
-      amount: product.price.sell,
-    });
-
-    // MARK PRODUCT SOLD
-    product.isAvailable = false;
-    await product.save();
-
-    // CREATE / FIND CHAT
-    let chat = await Chat.findOne({
-      users: { $all: [req.user._id, product.owner] },
-      product: product._id,
-    });
-
-    if (!chat) {
-      chat = await Chat.create({
-        users: [req.user._id, product.owner],
-        product: product._id,
-      });
-    }
-
-    res.status(201).json({
-      order,
-      chatId: chat._id,
-    });
-  } catch (error) {
-    console.error("Buy error:", error.message);
-    res.status(500).json({ message: "Server error" });
-  }
-});
-
-/* =========================
-   RENT PRODUCT
-========================= */
-router.post("/rent", protect, async (req, res) => {
-  try {
-    const { productId, rentStart, rentEnd } = req.body;
 
     const product = await Product.findById(productId);
-    if (!product || !product.isAvailable) {
-      return res.status(400).json({
-        message: "Product not available",
-      });
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
     }
-
-    // SIMPLE PRICE LOGIC (PER DAY)
-    const days =
-      (new Date(rentEnd) - new Date(rentStart)) /
-      (1000 * 60 * 60 * 24);
-
-    const amount = Math.ceil(days) * product.price.day;
 
     const order = await Order.create({
-      product: product._id,
-      buyer: req.user._id,
-      owner: product.owner,
-      orderType: "rent",
-      rentStart,
-      rentEnd,
-      amount,
+      user: req.user._id,
+      product: productId,
+      type: "buy",
+      price: product.price?.sell || 0,
     });
-
-    // CREATE / FIND CHAT
-    let chat = await Chat.findOne({
-      users: { $all: [req.user._id, product.owner] },
-      product: product._id,
-    });
-
-    if (!chat) {
-      chat = await Chat.create({
-        users: [req.user._id, product.owner],
-        product: product._id,
-      });
-    }
 
     res.status(201).json({
+      success: true,
+      message: "Purchase successful",
       order,
-      chatId: chat._id,
     });
   } catch (error) {
-    console.error("Rent error:", error.message);
-    res.status(500).json({ message: "Server error" });
+    console.error("Buy order error:", error.message);
+    res.status(500).json({ message: "Buy failed" });
   }
 });
 

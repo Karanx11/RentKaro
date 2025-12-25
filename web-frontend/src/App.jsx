@@ -1,7 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
-import { connectSocket } from "./services/socket";
-import ChatHistory from "./pages/ChatHistory";
 
 import Home from "./pages/Home";
 import Sell from "./pages/Sell";
@@ -19,15 +17,14 @@ import HelpSupport from "./pages/HelpSupport";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import ResetPassword from "./pages/ResetPassword";
-import MyListings from "./pages/MyListings"
-import EditListing from "./pages/EditListing"
+import MyListings from "./pages/MyListings";
+import EditListing from "./pages/EditListing";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
 
-  // 🔔 REGISTER SERVICE WORKER (ONCE)
+  // ✅ SERVICE WORKER ONLY (NO SOCKET)
   useEffect(() => {
-    connectSocket();
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js");
     }
@@ -48,14 +45,11 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot" element={<ForgotPassword />} />
-        
+
         <Route path="/help-support" element={<HelpSupport />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
-        <Route path="/edit-listing/:id" element={<EditListing />} />
-        <Route path="/chat-history" element={<ChatHistory />} />
-
 
         {/* 🔒 PROTECTED ROUTES */}
         <Route
@@ -66,6 +60,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/chatbot"
           element={
@@ -101,18 +96,25 @@ function App() {
             </ProtectedRoute>
           }
         />
-         <Route
-  path="/my-listings"
-  element={
-    <ProtectedRoute>
-      <MyListings />
-    </ProtectedRoute>
-  }
-/>
+
+        <Route
+          path="/my-listings"
+          element={
+            <ProtectedRoute>
+              <MyListings />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/edit-listing/:id"
+          element={
+            <ProtectedRoute>
+              <EditListing />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
-    
-
-
     </BrowserRouter>
   );
 }

@@ -9,27 +9,77 @@ function KokkieBot() {
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
 
-  /* 🔹 LOAD CHAT FROM LOCAL STORAGE */
-  const [messages, setMessages] = useState(() => {
-    const saved = localStorage.getItem("kokkie-chat");
-    return saved
-      ? JSON.parse(saved)
-      : [{ from: "bot", text: "Hi! I'm Kokkie 🤖 How can I help you today?" }];
+  const token = localStorage.getItem("token");
+
+  /* =========================
+     SESSION ID (IMPORTANT)
+  ========================= */
+  const [sessionId] = useState(() => {
+    const existing = localStorage.getItem("kokkie-session");
+    if (existing) return existing;
+
+    const id = crypto.randomUUID();
+    localStorage.setItem("kokkie-session", id);
+    return id;
   });
 
-  /* 🔽 AUTO SCROLL */
+  /* =========================
+     CHAT STATE
+  ========================= */
+  const [messages, setMessages] = useState([
+    { from: "bot", text: "Hi! I'm Kokkie 🤖 How can I help you today?" }
+  ]);
+
+  /* =========================
+     LOAD CHAT HISTORY (ON LOGIN)
+  ========================= */
+  useEffect(() => {
+    if (!token) {
+      setMessages([
+        { from: "bot", text: "Hi! I'm Kokkie 🤖 How can I help you today?" }
+      ]);
+      return;
+    }
+
+    const fetchHistory = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/chatbot/history`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        const data = await res.json();
+
+        if (Array.isArray(data) && data.length > 0) {
+          setMessages(
+            data.map((chat) => ({
+              from: chat.sender,
+              text: chat.message,
+              products: chat.products || []
+            }))
+          );
+        }
+      } catch (err) {
+        console.error("Failed to load chatbot history", err);
+      }
+    };
+
+    fetchHistory();
+  }, [token]);
+
+  /* =========================
+     AUTO SCROLL
+  ========================= */
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  /* 💾 SAVE CHAT */
-  useEffect(() => {
-    localStorage.setItem("kokkie-chat", JSON.stringify(messages));
-  }, [messages]);
-
-  /* ✉️ SEND MESSAGE */
+  /* =========================
+     SEND MESSAGE
+  ========================= */
   const sendMessage = async () => {
-    if (!input.trim() || isTyping) return;
+    if (!input.trim() || isTyping || !token) return;
 
     const userMessage = input;
     setInput("");
@@ -44,8 +94,14 @@ function KokkieBot() {
     try {
       const res = await fetch(`${API_URL}/api/chatbot`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userMessage })
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          message: userMessage,
+          sessionId
+        })
       });
 
       const data = await res.json();
@@ -53,11 +109,10 @@ function KokkieBot() {
       setMessages((prev) => {
         const updated = [...prev];
         updated[updated.length - 1] = {
-        from: "bot",
-        text: data?.reply || "Sorry 😅 I didn’t get that.",
-        products: data?.products || []
-      };
-
+          from: "bot",
+          text: data?.reply || "Sorry 😅 I didn’t get that.",
+          products: data?.products || []
+        };
         return updated;
       });
     } catch (error) {
@@ -75,9 +130,10 @@ function KokkieBot() {
     }
   };
 
-  /* 🧹 CLEAR CHAT */
+  /* =========================
+     CLEAR CHAT (UI ONLY)
+  ========================= */
   const clearChat = () => {
-    localStorage.removeItem("kokkie-chat");
     setMessages([
       { from: "bot", text: "Hi! I'm Kokkie 🤖 How can I help you today?" }
     ]);
@@ -111,7 +167,6 @@ function KokkieBot() {
           {/* HEADER */}
           <div className="bg-black text-white px-4 py-3 flex justify-between items-center">
             <h2 className="text-lg font-bold">Kokkie Bot</h2>
-
             <div className="flex items-center gap-4">
               <IoTrash
                 title="Clear chat"
@@ -137,49 +192,47 @@ function KokkieBot() {
                       : "bg-black text-white ml-auto"
                   }`}
               >
-                {/* TEXT MESSAGE */}
-{msg.text && <p>{msg.text}</p>}
+                {msg.text && <p>{msg.text}</p>}
 
-{/* PRODUCT CARDS */}
-{msg.products && msg.products.length > 0 && (
-  <div className="mt-3 space-y-3">
-    {msg.products.map((product) => (
-      <div
-        key={product.id}
-        className="flex gap-3 p-2 border rounded-lg bg-white shadow-sm"
-      >
-        {/* IMAGE */}
-        {product.image ? (
-          <img
-            src={`http://localhost:5000${product.image}`}
-            alt={product.title}
-            className="w-16 h-16 object-cover rounded-md"
-          />
-        ) : (
-          <div className="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center text-xs">
-            No Image
-          </div>
-        )}
+                {msg.products && msg.products.length > 0 && (
+                  <div className="mt-3 space-y-3">
+                    {msg.products.map((product) => (
+                      <div
+                        key={product.id}
+                        className="flex gap-3 p-2 border rounded-lg bg-white shadow-sm"
+                      >
+                        {product.image ? (
+                          <img
+                            src={`${API_URL}${product.image}`}
+                            alt={product.title}
+                            className="w-16 h-16 object-cover rounded-md"
+                          />
+                        ) : (
+                          <div className="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center text-xs">
+                            No Image
+                          </div>
+                        )}
 
-        {/* INFO */}
-        <div className="flex-1">
-          <h4 className="font-semibold text-sm">{product.title}</h4>
-          <p className="text-xs text-gray-600">
-            ₹{product.price} {product.type === "rent" && "/ day"}
-          </p>
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-sm">
+                            {product.title}
+                          </h4>
+                          <p className="text-xs text-gray-600">
+                            ₹{product.price}{" "}
+                            {product.type === "rent" && "/ day"}
+                          </p>
 
-          <a
-            href={`/products/${product.id}`}
-            className="inline-block mt-1 text-xs text-blue-600 underline"
-          >
-            View Product
-          </a>
-        </div>
-      </div>
-    ))}
-  </div>
-)}
-
+                          <a
+                            href={`/products/${product.id}`}
+                            className="inline-block mt-1 text-xs text-blue-600 underline"
+                          >
+                            View Product
+                          </a>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
             <div ref={messagesEndRef} />
