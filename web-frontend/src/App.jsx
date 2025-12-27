@@ -1,6 +1,10 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
 
+import InstallAppButton from "./components/InstallAppButton";
+import KokkieBot from "./components/KokkieBot";
+import ProtectedRoute from "./components/ProtectedRoute";
+
 import Home from "./pages/Home";
 import Sell from "./pages/Sell";
 import Profile from "./pages/Profile";
@@ -9,7 +13,6 @@ import Login from "./pages/Login";
 import Market from "./pages/Market";
 import EditProfile from "./components/EditProfile";
 import ProductDetails from "./components/ProductDetails";
-import KokkieBot from "./components/KokkieBot";
 import Settings from "./pages/Settings";
 import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -19,11 +22,10 @@ import Privacy from "./pages/Privacy";
 import ResetPassword from "./pages/ResetPassword";
 import MyListings from "./pages/MyListings";
 import EditListing from "./pages/EditListing";
-import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
 
-  // ✅ SERVICE WORKER ONLY (NO SOCKET)
+  // ✅ SERVICE WORKER REGISTER
   useEffect(() => {
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js");
@@ -33,9 +35,7 @@ function App() {
   return (
     <BrowserRouter>
 
-      {/* Floating chatbot visible everywhere */}
-      <KokkieBot />
-
+      {/* 🔹 ROUTES ONLY */}
       <Routes>
         {/* PUBLIC ROUTES */}
         <Route path="/" element={<Home />} />
@@ -115,6 +115,12 @@ function App() {
           }
         />
       </Routes>
+      
+
+      {/* 🔹 FLOATING GLOBAL COMPONENTS */}
+     
+      <KokkieBot />
+
     </BrowserRouter>
   );
 }
