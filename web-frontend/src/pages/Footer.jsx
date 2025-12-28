@@ -40,7 +40,7 @@ function Footer() {
               <a href="/sell" className="hover:text-[#C76A46] transition">Rent/Sell</a>
             </li>
             <li>
-              <a href="/chat" className="hover:text-[#C76A46] transition">Chat</a>
+              <a href="/my-listings" className="hover:text-[#C76A46] transition">Listings</a>
             </li>
             <li>
               <a href="/settings" className="hover:text-[#C76A46] transition">Settings</a>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import allImg from "../assets/All.jpeg";
 import booksImg from "../assets/book.jpg";
 import computersImg from "../assets/computers.jpg";
@@ -21,14 +21,37 @@ const CATEGORIES = [
 
 function Categories({ onSelect }) {
   const [active, setActive] = useState("All");
+  const scrollRef = useRef(null);
 
   const handleSelect = (cat) => {
     setActive(cat);
-    onSelect?.(cat.toLowerCase()); // 👈 normalize
+    onSelect?.(cat.toLowerCase());
   };
 
+  // ✅ HARD STOP PAGE SCROLL
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const onWheel = (e) => {
+      e.preventDefault();       // ⛔ stop page scroll
+      e.stopPropagation();
+      el.scrollLeft += e.deltaY;
+    };
+
+    // ⚠️ passive: false is REQUIRED
+    el.addEventListener("wheel", onWheel, { passive: false });
+
+    return () => {
+      el.removeEventListener("wheel", onWheel);
+    };
+  }, []);
+
   return (
-    <div className="flex gap-4 overflow-x-auto pb-3 scrollbar-hide">
+    <div
+      ref={scrollRef}
+      className="flex gap-4 overflow-x-auto scrollbar-hide overscroll-x-contain"
+    >
       {CATEGORIES.map((cat) => (
         <button
           key={cat.name}

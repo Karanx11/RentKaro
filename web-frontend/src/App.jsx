@@ -117,7 +117,7 @@ function App() {
       </Routes>
       
 
-      {/* 🔹 FLOATING GLOBAL COMPONENTS */}
+      {/*FLOATING GLOBAL COMPONENTS */}
      
       <KokkieBot />
 

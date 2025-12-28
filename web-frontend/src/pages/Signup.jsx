@@ -120,7 +120,7 @@ function Signup() {
             <>
               <Input icon={<FiUser />} name="name" placeholder="Full Name" value={form.name} onChange={handleChange} />
               <Input icon={<FiMail />} name="email" placeholder="Email Address" value={form.email} onChange={handleChange} />
-              <Input icon={<FiPhone />} name="phone" placeholder="WhatsApp Number" value={form.phone} onChange={handleChange} />
+              <Input icon={<FiPhone />} name="phone" placeholder="Phone Number" value={form.phone} onChange={handleChange} />
 
               <PasswordInput
                 label="Password"

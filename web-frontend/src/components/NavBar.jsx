@@ -13,7 +13,9 @@ function NavBar() {
   const isHomePage = location.pathname === "/";
   const isMarketPage = location.pathname === "/market";
 
-  const user = JSON.parse(localStorage.getItem("user"));
+ const userStr = localStorage.getItem("user");
+const user = userStr ? JSON.parse(userStr) : null;
+
   const isLoggedIn = !!localStorage.getItem("token");
 
   const [showLogout, setShowLogout] = useState(false);
