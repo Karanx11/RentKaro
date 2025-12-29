@@ -9,39 +9,24 @@ function MyListings() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  const token = localStorage.getItem("token");
+
   useEffect(() => {
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
     const fetchMyListings = async () => {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        navigate("/login");
-        return;
-      }
-
       try {
         const res = await fetch(`${API_URL}/api/products/my/listings`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
 
         const data = await res.json();
-
-        // 🔐 AUTH / ERROR SAFETY
-        if (!res.ok) {
-          console.error("My listings error:", data);
-          setProducts([]); // prevent crash
-          return;
-        }
-
-        // ✅ ENSURE ARRAY
-        if (Array.isArray(data)) {
-          setProducts(data);
-        } else {
-          setProducts([]);
-        }
-      } catch (error) {
-        console.error("Failed to fetch listings", error);
+        setProducts(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error("Failed to fetch listings", err);
         setProducts([]);
       } finally {
         setLoading(false);
@@ -49,7 +34,7 @@ function MyListings() {
     };
 
     fetchMyListings();
-  }, [navigate]);
+  }, [navigate, token]);
 
   if (loading) {
     return <p className="text-center mt-40">Loading...</p>;
@@ -98,14 +83,9 @@ function MyListings() {
                     </h2>
 
                     <p className="text-gray-700 mt-1">
-                      {product.listingType === "rent" ? (
-                        <>
-                          ₹{product.price?.day}
-                          <span className="text-sm"> / day</span>
-                        </>
-                      ) : (
-                        <>₹{product.price?.sell}</>
-                      )}
+                      {product.listingType === "rent"
+                        ? `₹${product.price?.day} / day`
+                        : `₹${product.price?.sell}`}
                     </p>
 
                     <p className="text-gray-600 text-sm mt-1">

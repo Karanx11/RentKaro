@@ -22,10 +22,33 @@ import Privacy from "./pages/Privacy";
 import ResetPassword from "./pages/ResetPassword";
 import MyListings from "./pages/MyListings";
 import EditListing from "./pages/EditListing";
+import MyRequests from "./pages/MyRequests";
+
+import { socket } from "./services/socket";
 
 function App() {
+  /* =====================
+     SOCKET CONNECTION
+  ===================== */
+  useEffect(() => {
+    const userStr = localStorage.getItem("user");
+    if (!userStr || userStr === "undefined") return;
 
-  // ✅ SERVICE WORKER REGISTER
+    const user = JSON.parse(userStr);
+
+    socket.connect();
+    socket.emit("join", user._id);
+
+    console.log("🟢 Socket connecting for user:", user._id);
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
+  /* =====================
+     SERVICE WORKER
+  ===================== */
   useEffect(() => {
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js");
@@ -34,8 +57,7 @@ function App() {
 
   return (
     <BrowserRouter>
-
-      {/* 🔹 ROUTES ONLY */}
+      {/* 🔹 ROUTES */}
       <Routes>
         {/* PUBLIC ROUTES */}
         <Route path="/" element={<Home />} />
@@ -107,6 +129,15 @@ function App() {
         />
 
         <Route
+          path="/my-requests"
+          element={
+            <ProtectedRoute>
+              <MyRequests />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
           path="/edit-listing/:id"
           element={
             <ProtectedRoute>
@@ -115,12 +146,9 @@ function App() {
           }
         />
       </Routes>
-      
 
-      {/*FLOATING GLOBAL COMPONENTS */}
-     
+      {/* FLOATING GLOBAL COMPONENTS */}
       <KokkieBot />
-
     </BrowserRouter>
   );
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { IoLocationOutline, IoLogoWhatsapp } from "react-icons/io5";
+import { IoLocationOutline } from "react-icons/io5";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import NavBar from "../components/NavBar";
@@ -13,9 +13,11 @@ function ProductDetails() {
   const [product, setProduct] = useState(null);
   const [selectedImage, setSelectedImage] = useState("");
   const [loading, setLoading] = useState(true);
+  const [requesting, setRequesting] = useState(false);
 
   // auth info
-  const loggedInUser = JSON.parse(localStorage.getItem("user"));
+  const userStr = localStorage.getItem("user");
+  const loggedInUser = userStr && userStr !== "undefined" ? JSON.parse(userStr) : null;
   const loggedInUserId = loggedInUser?._id;
   const isLoggedIn = !!localStorage.getItem("token");
 
@@ -47,26 +49,39 @@ function ProductDetails() {
     localStorage.setItem("recentlyViewed", JSON.stringify(viewed.slice(0, 6)));
   }, [product]);
 
-  /* ================= WHATSAPP CHAT ================= */
-  const handleWhatsApp = () => {
-    // 🔒 block if not logged in
+  /* ================= REQUEST CHAT ================= */
+  const handleRequestChat = async () => {
     if (!isLoggedIn) {
-      alert("Please login to chat with the owner");
+      alert("Please login to request chat");
       navigate("/login");
       return;
     }
 
-    if (!product?.owner?.phone) {
-      alert("Owner contact not available");
-      return;
+    try {
+      setRequesting(true);
+
+      await axios.post(
+        `${API_URL}/api/chat-request/request`,
+        {
+          sellerId: product.owner._id,
+          productId: product._id,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      alert("Chat request sent! Wait for seller approval.");
+    } catch (err) {
+      alert(
+        err.response?.data?.message ||
+          "Failed to send chat request"
+      );
+    } finally {
+      setRequesting(false);
     }
-
-    const message = encodeURIComponent(
-      `Hi, I'm interested in your product: ${product.title}`
-    );
-
-    const phone = product.owner.phone.replace(/\D/g, "");
-    window.open(`https://wa.me/91${phone}?text=${message}`, "_blank");
   };
 
   /* ================= STATES ================= */
@@ -87,7 +102,6 @@ function ProductDetails() {
 
       <div className="w-full min-h-screen bg-gray-500/10 px-6 md:px-20 py-32">
         <div className="max-w-6xl mx-auto">
-
           <div className="bg-gray-400/40 backdrop-blur-xl border border-gray-500/30 rounded-3xl shadow-xl p-10 flex flex-col lg:flex-row gap-12">
 
             {/* ================= IMAGES ================= */}
@@ -118,9 +132,7 @@ function ProductDetails() {
 
             {/* ================= DETAILS ================= */}
             <div className="w-full lg:w-1/2 flex flex-col justify-between">
-
               <div>
-                {/* PRODUCT NAME */}
                 <h1 className="text-4xl font-extrabold text-black">
                   {product.title}
                 </h1>
@@ -172,21 +184,25 @@ function ProductDetails() {
                 </div>
               </div>
 
-              {/* ================= ACTION BUTTON ================= */}
+              {/* ================= ACTION ================= */}
               {!isOwner && (
                 <div className="mt-10">
                   <button
-                    onClick={handleWhatsApp}
-                    className={`
-                      w-full bg-green-600 hover:bg-green-700
+                    onClick={handleRequestChat}
+                    disabled={requesting}
+                    className="
+                      w-full bg-black hover:bg-gray-800
                       text-white px-8 py-4 rounded-xl
                       text-lg font-bold shadow-xl
-                      flex items-center justify-center gap-3
-                    `}
+                      disabled:opacity-50
+                    "
                   >
-                    <IoLogoWhatsapp className="text-2xl" />
-                    Chat on WhatsApp
+                    {requesting ? "Sending Request..." : "Request Chat"}
                   </button>
+
+                  <p className="mt-3 text-center text-sm text-gray-600">
+                    Seller will approve before chat starts
+                  </p>
                 </div>
               )}
 
