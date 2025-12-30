@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
 
-import InstallAppButton from "./components/InstallAppButton";
 import KokkieBot from "./components/KokkieBot";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -23,26 +22,37 @@ import ResetPassword from "./pages/ResetPassword";
 import MyListings from "./pages/MyListings";
 import EditListing from "./pages/EditListing";
 import MyRequests from "./pages/MyRequests";
+import Notifications from "./pages/Notifications";
 
 import { socket } from "./services/socket";
 
 function App() {
+
   /* =====================
      SOCKET CONNECTION
   ===================== */
   useEffect(() => {
     const userStr = localStorage.getItem("user");
-    if (!userStr || userStr === "undefined") return;
+    const token = localStorage.getItem("token");
 
-    const user = JSON.parse(userStr);
+    if (!userStr || !token || userStr === "undefined") return;
+
+    let user;
+    try {
+      user = JSON.parse(userStr);
+    } catch {
+      console.warn("Invalid user in localStorage");
+      return;
+    }
 
     socket.connect();
     socket.emit("join", user._id);
 
-    console.log("🟢 Socket connecting for user:", user._id);
+    console.log("🟢 Socket connected for user:", user._id);
 
     return () => {
       socket.disconnect();
+      console.log("🔴 Socket disconnected");
     };
   }, []);
 
@@ -57,9 +67,10 @@ function App() {
 
   return (
     <BrowserRouter>
-      {/* 🔹 ROUTES */}
+
       <Routes>
-        {/* PUBLIC ROUTES */}
+
+        {/* ===== PUBLIC ROUTES ===== */}
         <Route path="/" element={<Home />} />
         <Route path="/market" element={<Market />} />
         <Route path="/product/:id" element={<ProductDetails />} />
@@ -73,12 +84,21 @@ function App() {
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-        {/* 🔒 PROTECTED ROUTES */}
+        {/* ===== PROTECTED ROUTES ===== */}
         <Route
           path="/sell"
           element={
             <ProtectedRoute>
               <Sell />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/notifications"
+          element={
+            <ProtectedRoute>
+              <Notifications />
             </ProtectedRoute>
           }
         />
@@ -145,10 +165,12 @@ function App() {
             </ProtectedRoute>
           }
         />
+
       </Routes>
 
-      {/* FLOATING GLOBAL COMPONENTS */}
+      {/* GLOBAL FLOATING COMPONENT */}
       <KokkieBot />
+
     </BrowserRouter>
   );
 }
