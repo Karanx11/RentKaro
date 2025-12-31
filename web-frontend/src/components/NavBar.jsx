@@ -4,6 +4,7 @@ import { MdStorefront } from "react-icons/md";
 import { useState, useEffect } from "react";
 import { logout as logoutUtil } from "../utils/auth";
 import { ArrowLeft, LogOut, Bell } from "lucide-react";
+import { socket } from "../services/socket";
 
 const API_URL = "http://localhost:5000";
 
@@ -14,18 +15,13 @@ function NavBar() {
   const isHomePage = location.pathname === "/";
   const isMarketPage = location.pathname === "/market";
 
-  /* ================= SAFE USER PARSE ================= */
+  /* ========== SAFE USER PARSE ========== */
   let user = null;
-  const userStr = localStorage.getItem("user");
-
-  if (userStr) {
-    try {
-      user = JSON.parse(userStr);
-    } catch (err) {
-      console.warn("Invalid user in localStorage", err);
-      localStorage.removeItem("user");
-      user = null;
-    }
+  try {
+    const userStr = localStorage.getItem("user");
+    if (userStr) user = JSON.parse(userStr);
+  } catch {
+    localStorage.removeItem("user");
   }
 
   const token = localStorage.getItem("token");
@@ -33,47 +29,86 @@ function NavBar() {
 
   const [showLogout, setShowLogout] = useState(false);
   const [requestCount, setRequestCount] = useState(0);
+useEffect(() => {
+  if (!isLoggedIn || !user) return;
 
-  /* ================= FETCH NOTIFICATION COUNT ================= */
+  const onSellerNew = () => {
+    setRequestCount((prev) => prev + 1);
+  };
+
+  socket.on("seller-new-request", onSellerNew);
+
+  return () => {
+    socket.off("seller-new-request", onSellerNew);
+  };
+}, [isLoggedIn, user]);
+
+useEffect(() => {
+  if (!token || !user) return;
+
+  fetch(`${API_URL}/api/chat-request/seller/notifications`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (Array.isArray(data)) {
+        setRequestCount(data.length);
+      }
+    });
+}, [token, user]);
+
+
+  /* ========== FETCH COUNT (ON LOAD ONLY) ========== */
   useEffect(() => {
-    if (!token) {
-      return;
-    }
+    if (!token) return;
 
     const fetchCount = async () => {
       try {
-        const res = await fetch(`${API_URL}/api/chat-request/buyer`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await fetch(
+          `${API_URL}/api/chat-request/buyer/notifications`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
-        if (!res.ok) {
-          setRequestCount(0);
-          return;
-        }
+        if (!res.ok) return;
 
         const data = await res.json();
-
         if (Array.isArray(data)) {
-          const unseen = data.filter(
-            (r) =>
-              r.status === "accepted" &&
-              r.whatsappAllowed === true &&
-              r.isSeenByBuyer === false
-          );
-          setRequestCount(unseen.length);
-        } else {
-          setRequestCount(0);
+          setRequestCount(data.length);
         }
-      } catch (err) {
-        console.warn("Invalid user in localStorage", err);
-        setRequestCount(0);
+      } catch {
+        // silent
       }
     };
 
     fetchCount();
   }, [token]);
 
-  /* ================= LOGOUT ================= */
+  /* ========== SOCKET REAL-TIME ========== */
+  useEffect(() => {
+    if (!isLoggedIn) return;
+
+    const onSellerNew = () =>
+      setRequestCount((prev) => prev + 1);
+
+    const onBuyerAccepted = () =>
+      setRequestCount((prev) => prev + 1);
+
+    const onCleared = () => setRequestCount(0);
+
+    socket.on("seller-new-request", onSellerNew);
+    socket.on("buyer-request-accepted", onBuyerAccepted);
+    socket.on("buyer-notifications-cleared", onCleared);
+
+    return () => {
+      socket.off("seller-new-request", onSellerNew);
+      socket.off("buyer-request-accepted", onBuyerAccepted);
+      socket.off("buyer-notifications-cleared", onCleared);
+    };
+  }, [isLoggedIn]);
+
+  /* ========== LOGOUT ========== */
   const handleLogout = () => {
     localStorage.clear();
     logoutUtil();

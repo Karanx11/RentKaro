@@ -40,21 +40,27 @@ function App() {
     let user;
     try {
       user = JSON.parse(userStr);
-    } catch {
-      console.warn("Invalid user in localStorage");
+    } catch (err) {
+      console.warn("Invalid user in localStorage", err);
       return;
     }
 
-    socket.connect();
-    socket.emit("join", user._id);
+    // 🔌 Connect socket once
+    if (!socket.connected) {
+      socket.connect();
+    }
 
-    console.log("🟢 Socket connected for user:", user._id);
+    // 👤 Join user room
+    socket.emit("join", user._id);
+    console.log("🟢 Socket joined room for user:", user._id);
 
     return () => {
+      socket.off("connect");
+      socket.off("disconnect");
       socket.disconnect();
       console.log("🔴 Socket disconnected");
     };
-  }, []);
+  }, []); // ⛔ DO NOT add token/user here
 
   /* =====================
      SERVICE WORKER
@@ -67,7 +73,6 @@ function App() {
 
   return (
     <BrowserRouter>
-
       <Routes>
 
         {/* ===== PUBLIC ROUTES ===== */}
@@ -168,9 +173,8 @@ function App() {
 
       </Routes>
 
-      {/* GLOBAL FLOATING COMPONENT */}
+      {/* ===== GLOBAL FLOATING COMPONENT ===== */}
       <KokkieBot />
-
     </BrowserRouter>
   );
 }

@@ -27,34 +27,6 @@ connectDB();
 const app = express();
 
 /* =======================
-   HTTP SERVER + SOCKET
-======================= */
-const server = http.createServer(app);
-
-export const io = new Server(server, {
-  cors: {
-    origin: "http://localhost:5173",
-    credentials: true,
-  },
-});
-
-/* =======================
-   SOCKET CONNECTION
-======================= */
-io.on("connection", (socket) => {
-  console.log("🔌 Socket connected:", socket.id);
-
-  socket.on("join", (userId) => {
-    socket.join(userId);
-    console.log(`👤 User joined room: ${userId}`);
-  });
-
-  socket.on("disconnect", () => {
-    console.log("❌ Socket disconnected:", socket.id);
-  });
-});
-
-/* =======================
    MIDDLEWARE
 ======================= */
 app.use(
@@ -67,7 +39,9 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-// STATIC FILES
+/* =======================
+   STATIC FILES
+======================= */
 app.use("/uploads", express.static("uploads"));
 
 /* =======================
@@ -88,6 +62,35 @@ app.get("/", (req, res) => {
 });
 
 /* =======================
+   HTTP SERVER + SOCKET.IO
+======================= */
+const server = http.createServer(app);
+
+export const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173",
+    credentials: true,
+  },
+});
+
+/* =======================
+   SOCKET EVENTS
+======================= */
+io.on("connection", (socket) => {
+  console.log("🔌 Socket connected:", socket.id);
+
+  socket.on("join", (userId) => {
+    if (!userId) return;
+    socket.join(userId);
+    console.log(`👤 User joined room: ${userId}`);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("❌ Socket disconnected:", socket.id);
+  });
+});
+
+/* =======================
    START SERVER
 ======================= */
 const PORT = process.env.PORT || 5000;
@@ -95,3 +98,5 @@ const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
+
+export default server;
