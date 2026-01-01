@@ -2,9 +2,8 @@ import express from "express";
 import { upload } from "../config/multer.js";
 import Product from "../models/Product.js";
 import protect from "../middleware/authMiddleware.js";
-
+import { voteProduct } from "../controllers/productController.js";
 const router = express.Router();
-
 /* =========================
    CREATE PRODUCT
 ========================= */
@@ -213,6 +212,8 @@ router.put("/:id", protect, async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+//Like Dislike Product
+router.post("/:id/vote", protect, voteProduct);
 
 // =========================
 // DELETE PRODUCT

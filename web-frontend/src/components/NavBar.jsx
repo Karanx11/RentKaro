@@ -1,21 +1,19 @@
 import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { FaUserCircle, FaCog, FaPlus, FaList } from "react-icons/fa";
 import { MdStorefront } from "react-icons/md";
-import { useState, useEffect } from "react";
+import { ArrowLeft, LogOut } from "lucide-react";
+import { useState } from "react";
 import { logout as logoutUtil } from "../utils/auth";
-import { ArrowLeft, LogOut, Bell } from "lucide-react";
-import { socket } from "../services/socket";
-
-const API_URL = "http://localhost:5000";
 
 function NavBar() {
   const navigate = useNavigate();
   const location = useLocation();
 
   const isHomePage = location.pathname === "/";
-  const isMarketPage = location.pathname === "/market";
 
-  /* ========== SAFE USER PARSE ========== */
+  const token = localStorage.getItem("token");
+  const isLoggedIn = !!token;
+
   let user = null;
   try {
     const userStr = localStorage.getItem("user");
@@ -24,215 +22,179 @@ function NavBar() {
     localStorage.removeItem("user");
   }
 
-  const token = localStorage.getItem("token");
-  const isLoggedIn = !!token;
-
   const [showLogout, setShowLogout] = useState(false);
-  const [requestCount, setRequestCount] = useState(0);
-useEffect(() => {
-  if (!isLoggedIn || !user) return;
 
-  const onSellerNew = () => {
-    setRequestCount((prev) => prev + 1);
-  };
-
-  socket.on("seller-new-request", onSellerNew);
-
-  return () => {
-    socket.off("seller-new-request", onSellerNew);
-  };
-}, [isLoggedIn, user]);
-
-useEffect(() => {
-  if (!token || !user) return;
-
-  fetch(`${API_URL}/api/chat-request/seller/notifications`, {
-    headers: { Authorization: `Bearer ${token}` },
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      if (Array.isArray(data)) {
-        setRequestCount(data.length);
-      }
-    });
-}, [token, user]);
-
-
-  /* ========== FETCH COUNT (ON LOAD ONLY) ========== */
-  useEffect(() => {
-    if (!token) return;
-
-    const fetchCount = async () => {
-      try {
-        const res = await fetch(
-          `${API_URL}/api/chat-request/buyer/notifications`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-
-        if (!res.ok) return;
-
-        const data = await res.json();
-        if (Array.isArray(data)) {
-          setRequestCount(data.length);
-        }
-      } catch {
-        // silent
-      }
-    };
-
-    fetchCount();
-  }, [token]);
-
-  /* ========== SOCKET REAL-TIME ========== */
-  useEffect(() => {
-    if (!isLoggedIn) return;
-
-    const onSellerNew = () =>
-      setRequestCount((prev) => prev + 1);
-
-    const onBuyerAccepted = () =>
-      setRequestCount((prev) => prev + 1);
-
-    const onCleared = () => setRequestCount(0);
-
-    socket.on("seller-new-request", onSellerNew);
-    socket.on("buyer-request-accepted", onBuyerAccepted);
-    socket.on("buyer-notifications-cleared", onCleared);
-
-    return () => {
-      socket.off("seller-new-request", onSellerNew);
-      socket.off("buyer-request-accepted", onBuyerAccepted);
-      socket.off("buyer-notifications-cleared", onCleared);
-    };
-  }, [isLoggedIn]);
-
-  /* ========== LOGOUT ========== */
   const handleLogout = () => {
     localStorage.clear();
     logoutUtil();
-    setShowLogout(false);
     navigate("/login");
   };
 
+  /* ================= ACTIVE LINK STYLES ================= */
+
+  // 🔝 DESKTOP TOP NAV
+  const topNavClass = ({ isActive }) =>
+    `px-5 py-2 rounded-xl text-lg font-medium transition-all duration-300
+     ${
+       isActive
+         ? "bg-white text-black shadow-lg"
+         : "text-gray-300 hover:text-white"
+     }`;
+
+  // 🔻 MOBILE / BOTTOM NAV
+  const bottomNavClass = ({ isActive }) =>
+    `flex flex-col items-center justify-center
+     transition-all duration-300
+     ${
+       isActive
+         ? "bg-white text-black scale-110 shadow-xl"
+         : "text-gray-300 hover:text-white"
+     }
+     rounded-2xl px-4 py-2`;
+
   return (
     <>
-      {/* ================= DESKTOP NAV ================= */}
-      <nav className="hidden md:block fixed top-0 w-full z-50 bg-primary/80 backdrop-blur-xl border-b">
-        <div className="flex justify-between items-center px-10 py-5">
+      {/* ================= DESKTOP TOP NAV ================= */}
+      <nav className="hidden md:block fixed top-0 w-full h-22 z-50
+        bg-gray-500/60 backdrop-blur-xl border-b border-white/20 shadow-xl">
+        <div className="flex justify-between items-center px-12 py-6">
 
-          <Link to="/" className="text-3xl font-bold text-light">
+          {/* LOGO */}
+          <Link
+            to="/"
+            className="text-5xl font-[cursive] tracking-wide text-[#d6a100]"
+          >
             RentKaro
           </Link>
 
-          <ul className="flex gap-10 text-light">
-            <li><Link to="/">Home</Link></li>
-            <li><Link to="/market">Market</Link></li>
-            <li><Link to="/sell">Rent / Sell</Link></li>
-            {isLoggedIn && <li><Link to="/my-listings">My Listings</Link></li>}
-            <li><Link to="/settings">Settings</Link></li>
+          {/* LINKS */}
+          <ul className="flex gap-6">
+            <li><NavLink to="/" className={topNavClass}>Home</NavLink></li>
+            <li><NavLink to="/market" className={topNavClass}>Market</NavLink></li>
+            <li><NavLink to="/sell" className={topNavClass}>Rent / Sell</NavLink></li>
+            {isLoggedIn && (
+              <li>
+                <NavLink to="/my-listings" className={topNavClass}>
+                  My Listings
+                </NavLink>
+              </li>
+            )}
+            <li><NavLink to="/settings" className={topNavClass}>Settings</NavLink></li>
           </ul>
 
-          <div className="flex items-center gap-5">
+          {/* USER */}
+          {isLoggedIn ? (
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => navigate("/profile")}
+                className="flex items-center gap-3"
+              >
+                <div className="w-11 h-11 rounded-full bg-black/50 border border-white/20
+                  flex items-center justify-center text-white font-semibold text-lg">
+                  {user?.name?.[0]?.toUpperCase()}
+                </div>
+                <span className="text-lg text-gray-200">{user?.name}</span>
+              </button>
 
-            {/* 🔔 BELL */}
-            <button
-              onClick={() =>
-                isLoggedIn ? navigate("/notifications") : navigate("/login")
-              }
-              className="relative"
-            >
-              <Bell size={22} className="text-black" />
-              {requestCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
-                  {requestCount}
-                </span>
-              )}
-            </button>
-
-            {isLoggedIn ? (
-              <>
-                <button
-                  onClick={() => navigate("/profile")}
-                  className="flex items-center gap-2"
-                >
-                  <div className="w-9 h-9 bg-black text-white rounded-full flex items-center justify-center">
-                    {user?.name?.[0]?.toUpperCase()}
-                  </div>
-                  <span>{user?.name}</span>
-                </button>
-
-                <button onClick={() => setShowLogout(true)}>
-                  Logout
-                </button>
-              </>
-            ) : (
-              <Link to="/login">Login</Link>
-            )}
-          </div>
+              <button
+                onClick={() => setShowLogout(true)}
+                className="text-red-400 hover:text-red-500"
+              >
+                <LogOut size={24} />
+              </button>
+            </div>
+          ) : (
+            <Link className="text-xl text-[#d6a100]" to="/login">
+              Login
+            </Link>
+          )}
         </div>
       </nav>
 
       {/* ================= MOBILE TOP NAV ================= */}
-      <nav className="md:hidden fixed top-0 w-full z-40 bg-primary/95 backdrop-blur-xl border-b">
-        <div className="flex justify-between items-center px-4 py-4">
+      <nav className="md:hidden fixed top-0 w-full z-40
+        bg-gray-500/60 backdrop-blur-xl border-b border-white/10">
+        <div className="flex justify-between items-center px-4 py-4 text-white">
 
           {isHomePage ? (
-            <span className="text-xl font-bold text-light">Home</span>
-          ) : isMarketPage ? (
-            <button onClick={() => navigate("/")}>RentKaro</button>
+            <span className="text-3xl font-[cursive] text-[#d6a100]">
+              RentKaro
+            </span>
           ) : (
-            <button onClick={() => navigate(-1)} className="flex gap-1">
-              <ArrowLeft size={20} /> Back
+            <button
+              onClick={() => navigate(-1)}
+              className="flex items-center gap-2 bg-white/10 px-3 py-2 rounded-xl"
+            >
+              <ArrowLeft size={20} />
+              <span className="text-base">Back</span>
             </button>
           )}
 
-          <div className="flex gap-4">
+          {isLoggedIn && (
             <button
-              onClick={() =>
-                isLoggedIn ? navigate("/notifications") : navigate("/login")
-              }
-              className="relative"
+              onClick={() => setShowLogout(true)}
+              className="bg-white/10 p-2 rounded-xl"
             >
-              <Bell size={22} className="text-black" />
-              {requestCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
-                  {requestCount}
-                </span>
-              )}
+              <LogOut size={22} />
             </button>
-
-            {isLoggedIn && (
-              <button onClick={() => setShowLogout(true)}>
-                <LogOut size={22} />
-              </button>
-            )}
-          </div>
+          )}
         </div>
       </nav>
 
       {/* ================= MOBILE BOTTOM NAV ================= */}
-      <nav className="md:hidden fixed bottom-1 w-full z-50 bg-primary/95 border-t">
-        <div className="flex justify-around py-2">
-          <NavLink to="/market"><MdStorefront /></NavLink>
-          {isLoggedIn && <NavLink to="/my-listings"><FaList /></NavLink>}
-          <NavLink to="/sell"><FaPlus /></NavLink>
-          <NavLink to="/profile"><FaUserCircle /></NavLink>
-          <NavLink to="/settings"><FaCog /></NavLink>
+      <nav className="md:hidden fixed bottom-2 h-16 left-3 right-3 z-50
+  bg-gray-500/60 backdrop-blur-xl border border-white/20
+  rounded-3xl shadow-2xl flex items-center">
+
+  <div className="flex justify-around items-center h-full w-full text-2xl">
+
+    <NavLink to="/market" className={bottomNavClass}>
+      <MdStorefront size={28} />
+    </NavLink>
+
+    {isLoggedIn && (
+      <NavLink to="/my-listings" className={bottomNavClass}>
+        <FaList size={26} />
+      </NavLink>
+    )}
+
+          {/* CENTER SELL */}
+          <NavLink
+            to="/sell"
+            className="bg-[#d6a100] text-black p-5 rounded-full -mt-10
+              shadow-[0_10px_30px_rgba(214,161,0,0.6)]"
+          >
+            <FaPlus size={26} />
+          </NavLink>
+
+          <NavLink to="/profile" className={bottomNavClass}>
+            <FaUserCircle size={26} />
+          </NavLink>
+
+          <NavLink to="/settings" className={bottomNavClass}>
+            <FaCog size={26} />
+          </NavLink>
+
         </div>
       </nav>
 
       {/* ================= LOGOUT MODAL ================= */}
       {showLogout && (
-        <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-[100]">
-          <div className="bg-white p-6 rounded-xl text-center">
-            <p className="mb-4">Logout?</p>
-            <div className="flex gap-4">
-              <button onClick={() => setShowLogout(false)}>Cancel</button>
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm
+          flex justify-center items-center z-[100]">
+          <div className="bg-black/80 border border-white/20 p-6 rounded-2xl
+            text-center text-white w-72">
+            <p className="mb-4 text-lg">Logout?</p>
+            <div className="flex gap-4 justify-center">
+              <button
+                onClick={() => setShowLogout(false)}
+                className="px-4 py-2 rounded bg-white/10"
+              >
+                Cancel
+              </button>
               <button
                 onClick={handleLogout}
-                className="bg-red-600 text-white px-4 py-2 rounded"
+                className="px-4 py-2 rounded bg-red-600 text-white"
               >
                 Logout
               </button>

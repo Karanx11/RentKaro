@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { IoLocationOutline } from "react-icons/io5";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 import NavBar from "../components/NavBar";
 
@@ -8,28 +8,45 @@ const API_URL = "http://localhost:5000";
 
 function ProductDetails() {
   const { id } = useParams();
-  const navigate = useNavigate();
 
   const [product, setProduct] = useState(null);
   const [selectedImage, setSelectedImage] = useState("");
   const [loading, setLoading] = useState(true);
-  const [requesting, setRequesting] = useState(false);
 
-  // auth info
+  /* ================= AUTH ================= */
   const userStr = localStorage.getItem("user");
-  const loggedInUser = userStr && userStr !== "undefined" ? JSON.parse(userStr) : null;
+  const loggedInUser = userStr ? JSON.parse(userStr) : null;
   const loggedInUserId = loggedInUser?._id;
-  const isLoggedIn = !!localStorage.getItem("token");
+  const token = localStorage.getItem("token");
+
+  /* ================= TRUST ================= */
+  const [likes, setLikes] = useState(0);
+  const [dislikes, setDislikes] = useState(0);
+  const [voted, setVoted] = useState(false);
+
+  /* ================= SAFETY MODAL ================= */
+  const [showSafety, setShowSafety] = useState(false);
 
   /* ================= FETCH PRODUCT ================= */
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         const res = await axios.get(`${API_URL}/api/products/${id}`);
-        setProduct(res.data);
-        setSelectedImage(`${API_URL}${res.data.images[0]}`);
-      } catch (error) {
-        console.error("Failed to load product", error);
+        const data = res.data;
+
+        setProduct(data);
+        setLikes(data.likes || 0);
+        setDislikes(data.dislikes || 0);
+        setSelectedImage(`${API_URL}${data.images[0]}`);
+
+        if (loggedInUser && data.voters) {
+          const alreadyVoted = data.voters.some(
+            (v) => v.user === loggedInUser._id
+          );
+          setVoted(alreadyVoted);
+        }
+      } catch (err) {
+        console.error("Failed to load product", err);
       } finally {
         setLoading(false);
       }
@@ -38,63 +55,45 @@ function ProductDetails() {
     fetchProduct();
   }, [id]);
 
-  /* ================= RECENTLY VIEWED ================= */
-  useEffect(() => {
-    if (!product?._id) return;
+  if (loading) return <p className="text-center mt-40">Loading...</p>;
+  if (!product) return <p className="text-center mt-40">Product not found</p>;
 
-    let viewed = JSON.parse(localStorage.getItem("recentlyViewed")) || [];
-    viewed = viewed.filter((pid) => pid !== product._id);
-    viewed.unshift(product._id);
+  const isOwner = loggedInUserId === product.owner?._id;
 
-    localStorage.setItem("recentlyViewed", JSON.stringify(viewed.slice(0, 6)));
-  }, [product]);
-
-  /* ================= REQUEST CHAT ================= */
-  const handleRequestChat = async () => {
-    if (!isLoggedIn) {
-      alert("Please login to request chat");
-      navigate("/login");
+  /* ================= VOTE ================= */
+  const handleVote = async (voteType) => {
+    if (!token) {
+      alert("Login required to vote");
       return;
     }
 
+    if (isOwner) return;
+
     try {
-      setRequesting(true);
-
-      await axios.post(
-        `${API_URL}/api/chat-request/request`,
-        {
-          sellerId: product.owner._id,
-          productId: product._id,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
+      const res = await axios.post(
+        `${API_URL}/api/products/${id}/vote`,
+        { vote: voteType },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      alert("Chat request sent! Wait for seller approval.");
+      setLikes(res.data.likes);
+      setDislikes(res.data.dislikes);
+      setVoted(true);
     } catch (err) {
-      alert(
-        err.response?.data?.message ||
-          "Failed to send chat request"
-      );
-    } finally {
-      setRequesting(false);
+      alert(err.response?.data?.message || "Voting failed");
     }
   };
 
-  /* ================= STATES ================= */
-  if (loading) {
-    return <p className="text-center mt-40">Loading...</p>;
-  }
+  /* ================= WHATSAPP ================= */
+  const whatsappNumber = product.owner?.phone || "";
+  const whatsappMessage = encodeURIComponent(
+    `Hi, I found your product "${product.title}" on RentKaro. Is it available?`
+  );
+  const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
 
-  if (!product) {
-    return <p className="text-center mt-40">Product not found</p>;
-  }
-
-  // 🔒 OWNER CHECK
-  const isOwner = loggedInUserId === product.owner?._id;
+  const totalVotes = likes + dislikes;
+  const trustPercent =
+    totalVotes === 0 ? 0 : Math.round((likes / totalVotes) * 100);
 
   return (
     <>
@@ -102,11 +101,11 @@ function ProductDetails() {
 
       <div className="w-full min-h-screen bg-gray-500/10 px-6 md:px-20 py-32">
         <div className="max-w-6xl mx-auto">
-          <div className="bg-gray-400/40 backdrop-blur-xl border border-gray-500/30 rounded-3xl shadow-xl p-10 flex flex-col lg:flex-row gap-12">
+          <div className="bg-gray-400/40 backdrop-blur-xl border rounded-3xl shadow-xl p-10 flex flex-col lg:flex-row gap-12">
 
             {/* ================= IMAGES ================= */}
             <div className="w-full lg:w-1/2">
-              <div className="h-[400px] rounded-2xl overflow-hidden shadow-xl">
+              <div className="h-[400px] rounded-2xl overflow-hidden">
                 <img
                   src={selectedImage}
                   alt={product.title}
@@ -120,7 +119,7 @@ function ProductDetails() {
                     key={i}
                     src={`${API_URL}${img}`}
                     onClick={() => setSelectedImage(`${API_URL}${img}`)}
-                    className={`w-24 h-24 rounded-xl object-cover cursor-pointer border ${
+                    className={`w-24 h-24 rounded-xl cursor-pointer border ${
                       selectedImage.includes(img)
                         ? "border-black"
                         : "border-gray-400"
@@ -133,88 +132,122 @@ function ProductDetails() {
             {/* ================= DETAILS ================= */}
             <div className="w-full lg:w-1/2 flex flex-col justify-between">
               <div>
-                <h1 className="text-4xl font-extrabold text-black">
+                <h1 className="text-4xl font-extrabold">
                   {product.title}
                 </h1>
 
+                {/* ===== TRUST SCORE (VISIBLE TO ALL) ===== */}
+                <div className="mt-4 flex items-center gap-6">
+                  <button
+                    disabled={voted || isOwner}
+                    onClick={() => handleVote("like")}
+                    className="px-4 py-2 rounded-lg bg-green-100 text-green-700 font-semibold disabled:opacity-50"
+                  >
+                    👍 {likes}
+                  </button>
+
+                  <button
+                    disabled={voted || isOwner}
+                    onClick={() => handleVote("dislike")}
+                    className="px-4 py-2 rounded-lg bg-red-100 text-red-700 font-semibold disabled:opacity-50"
+                  >
+                    👎 {dislikes}
+                  </button>
+
+                  <span className="text-sm font-semibold text-gray-700">
+                    {trustPercent}% users trust this listing
+                  </span>
+                </div>
+
+                {isOwner && (
+                  <p className="mt-2 text-xs text-gray-500">
+                    ℹ️ You can see votes but cannot vote on your own product
+                  </p>
+                )}
+
+                {!isOwner && (
+                  <p className="mt-2 text-xs text-gray-500">
+                    ⚠️ One vote per user
+                  </p>
+                )}
+
                 {/* LOCATION */}
-                <div className="mt-4">
-                  <h3 className="text-lg font-bold text-gray-800 mb-1">
-                    Location
-                  </h3>
-                  <p className="flex items-center gap-2 text-gray-700">
-                    <IoLocationOutline className="text-xl" />
+                <div className="mt-6">
+                  <h3 className="font-bold">Location</h3>
+                  <p className="flex items-center gap-2">
+                    <IoLocationOutline />
                     {product.location}
                   </p>
                 </div>
 
                 {/* DESCRIPTION */}
                 <div className="mt-6">
-                  <h3 className="text-lg font-bold text-gray-800 mb-2">
-                    Description
-                  </h3>
-                  <p className="text-gray-800 leading-relaxed">
-                    {product.description}
-                  </p>
-                </div>
-
-                {/* PRICING */}
-                <div className="mt-8">
-                  <h3 className="text-lg font-bold text-gray-800 mb-3">
-                    Pricing
-                  </h3>
-
-                  {product.listingType === "rent" ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                      <div className="bg-gray-300/50 p-4 rounded-xl font-semibold">
-                        ₹{product.price.day} / day
-                      </div>
-                      <div className="bg-gray-300/50 p-4 rounded-xl font-semibold">
-                        ₹{product.price.month} / month
-                      </div>
-                      <div className="bg-gray-300/50 p-4 rounded-xl font-semibold">
-                        ₹{product.price.year} / year
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="bg-gray-300/50 p-4 rounded-xl font-semibold">
-                      ₹{product.price.sell}
-                    </div>
-                  )}
+                  <h3 className="font-bold">Description</h3>
+                  <p>{product.description}</p>
                 </div>
               </div>
 
-              {/* ================= ACTION ================= */}
-              {!isOwner && (
-                <div className="mt-10">
-                  <button
-                    onClick={handleRequestChat}
-                    disabled={requesting}
-                    className="
-                      w-full bg-black hover:bg-gray-800
-                      text-white px-8 py-4 rounded-xl
-                      text-lg font-bold shadow-xl
-                      disabled:opacity-50
-                    "
-                  >
-                    {requesting ? "Sending Request..." : "Request Chat"}
-                  </button>
-
-                  <p className="mt-3 text-center text-sm text-gray-600">
-                    Seller will approve before chat starts
-                  </p>
-                </div>
-              )}
-
-              {isOwner && (
-                <p className="mt-10 text-center text-gray-600 font-semibold">
-                  This is your listing
-                </p>
-              )}
+              {/* ================= BOTTOM ACTION ================= */}
+              <div className="mt-10">
+                {isOwner ? (
+                  <div className="bg-blue-100 border border-blue-300 rounded-xl p-5 text-center">
+                    <p className="font-bold text-blue-900">
+                      👤 This is your own product
+                    </p>
+                    <p className="text-sm text-blue-700">
+                      Buyers will contact you on WhatsApp
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => setShowSafety(true)}
+                      className="w-full bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl font-bold"
+                    >
+                      Chat on WhatsApp
+                    </button>
+                    <p className="mt-3 text-center text-sm text-gray-600">
+                      Direct chat • Use caution
+                    </p>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* ================= SAFETY MODAL ================= */}
+      {showSafety && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[200]">
+          <div className="bg-white rounded-2xl p-6 w-[90%] max-w-md">
+            <h2 className="font-bold mb-3">Safety First ⚠️</h2>
+
+            <ul className="text-sm space-y-2 mb-5">
+              <li>• Meet in public places</li>
+              <li>• Avoid advance payments</li>
+              <li>• Verify product condition</li>
+            </ul>
+
+            <div className="flex gap-4">
+              <button
+                onClick={() => setShowSafety(false)}
+                className="flex-1 border py-2 rounded-lg"
+              >
+                Cancel
+              </button>
+              <a
+                href={whatsappLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 bg-green-600 text-white py-2 rounded-lg text-center font-semibold"
+              >
+                Continue
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

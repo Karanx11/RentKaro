@@ -2,8 +2,18 @@ import mongoose from "mongoose";
 
 const productSchema = new mongoose.Schema(
   {
-    title: { type: String, required: true },
-    description: { type: String, required: true },
+    /* ================= BASIC INFO ================= */
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    description: {
+      type: String,
+      required: true,
+      trim: true,
+    },
 
     listingType: {
       type: String,
@@ -11,18 +21,27 @@ const productSchema = new mongoose.Schema(
       required: true,
     },
 
-    category: { type: String, required: true },
-
-    price: {
-      day: Number,
-      month: Number,
-      year: Number,
-      sell: Number,
+    category: {
+      type: String,
+      required: true,
     },
 
-    images: [String],
+    price: {
+      day: { type: Number },
+      month: { type: Number },
+      year: { type: Number },
+      sell: { type: Number },
+    },
 
-    location: { type: String, required: true, },
+    images: {
+      type: [String],
+      required: true,
+    },
+
+    location: {
+      type: String,
+      required: true,
+    },
 
     owner: {
       type: mongoose.Schema.Types.ObjectId,
@@ -30,9 +49,41 @@ const productSchema = new mongoose.Schema(
       required: true,
     },
 
-    isAvailable: { type: Boolean, default: true },
+    isAvailable: {
+      type: Boolean,
+      default: true,
+    },
+
+    /* ================= TRUST SYSTEM ================= */
+    likes: {
+      type: Number,
+      default: 0,
+    },
+
+    dislikes: {
+      type: Number,
+      default: 0,
+    },
+
+    // 🔒 Prevent fake likes / dislikes
+    voters: [
+      {
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+        vote: {
+          type: String,
+          enum: ["like", "dislike"],
+          required: true,
+        },
+      },
+    ],
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
 export default mongoose.model("Product", productSchema);
