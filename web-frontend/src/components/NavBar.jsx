@@ -53,10 +53,11 @@ function NavBar() {
   return (
     <>
       {/* ================= DESKTOP TOP NAV ================= */}
-      <nav className="hidden md:block fixed top-0 w-full h-22 z-50
+      <nav className="hidden md:block fixed top-0 w-full z-50
         bg-gray-500/60 backdrop-blur-xl border-b border-white/20 shadow-xl">
         <div className="flex justify-between items-center px-12 py-6">
 
+          {/* LOGO */}
           <Link
             to="/"
             className="text-4xl font-[cursive] tracking-wide text-[#C76A46]"
@@ -64,20 +65,16 @@ function NavBar() {
             RentKaro
           </Link>
 
+          {/* LINKS */}
           <ul className="flex gap-6">
             <li><NavLink to="/" className={topNavClass}>Home</NavLink></li>
             <li><NavLink to="/market" className={topNavClass}>Market</NavLink></li>
             <li><NavLink to="/sell" className={topNavClass}>Rent / Sell</NavLink></li>
-            {isLoggedIn && (
-              <li>
-                <NavLink to="/my-listings" className={topNavClass}>
-                  My Listings
-                </NavLink>
-              </li>
-            )}
+            <li><NavLink to="/my-listings" className={topNavClass}>My Listings</NavLink></li>
             <li><NavLink to="/settings" className={topNavClass}>Settings</NavLink></li>
           </ul>
 
+          {/* USER */}
           {isLoggedIn ? (
             <div className="flex items-center gap-4">
               <button
@@ -113,7 +110,6 @@ function NavBar() {
         bg-gray-500/60 backdrop-blur-xl border-b border-white/10">
         <div className="flex justify-between items-center px-4 py-4 text-white">
 
-          {/* HOME & MARKET → RentKaro | OTHER → BACK */}
           {(isHomePage || isMarketPage) ? (
             <button
               onClick={() => navigate("/")}
@@ -152,11 +148,9 @@ function NavBar() {
             <MdStorefront size={28} />
           </NavLink>
 
-          {isLoggedIn && (
-            <NavLink to="/my-listings" className={bottomNavClass}>
-              <FaList size={26} />
-            </NavLink>
-          )}
+          <NavLink to="/my-listings" className={bottomNavClass}>
+            <FaList size={26} />
+          </NavLink>
 
           <NavLink
             to="/sell"
