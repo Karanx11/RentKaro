@@ -125,7 +125,7 @@ function Login() {
           <button
             onClick={handleLogin}
             disabled={loading}
-            className="bg-black text-white py-3 rounded-xl"
+            className="bg-black hover:text-[#C76A46] hover:bg-gray-800 text-white py-3 rounded-xl"
           >
             {loading ? "Logging in..." : "Login"}
           </button>

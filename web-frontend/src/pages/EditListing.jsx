@@ -216,7 +216,7 @@ function EditListing() {
           <div className="flex gap-6">
             <button
               onClick={handleSave}
-              className="flex-1 bg-black hover:bg-gray-800 text-white py-4 rounded-xl text-lg font-bold shadow-lg"
+              className="flex-1 bg-black hover:text-[#C76A46] hover:bg-gray-800 text-white py-4 rounded-xl text-lg font-bold shadow-lg"
             >
               Save Changes
             </button>

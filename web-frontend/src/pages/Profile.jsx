@@ -129,14 +129,14 @@ function Profile() {
               <div className="flex gap-4 mt-6 flex-wrap">
                 <button
                   onClick={() => navigate("/editprofile")}
-                  className="px-6 py-3 bg-black text-white rounded-xl flex items-center gap-2"
+                  className="px-6 py-3 bg-black hover:bg-gray-800 hover:text-[#C76A46] text-white rounded-xl flex items-center gap-2"
                 >
                   <FiEdit3 /> Edit Profile
                 </button>
 
                 <button
                   onClick={() => setShowDeleteConfirm(true)}
-                  className="px-6 py-3 bg-red-600 text-white rounded-xl flex items-center gap-2"
+                  className="px-6 py-3 bg-red-600 hover:bg-red-400 text-white rounded-xl flex items-center gap-2"
                 >
                   <FiTrash2 /> Delete Account
                 </button>

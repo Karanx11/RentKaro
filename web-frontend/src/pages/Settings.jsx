@@ -112,7 +112,7 @@ export default function Settings() {
         >
           <div
             className="
-              bg-gray-400/40 backdrop-blur-xl
+              bg-gray-300/40 backdrop-blur-xl
               border border-gray-500/30
               rounded-2xl p-7
               w-[90%] max-w-sm
@@ -128,7 +128,7 @@ export default function Settings() {
               Logout
             </h2>
 
-            <p className="text-gray-700 mt-2">
+            <p className="text-gray-300 mt-2">
               Are you sure you want to logout?
             </p>
 

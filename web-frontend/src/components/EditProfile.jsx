@@ -225,6 +225,7 @@ function EditProfile() {
                 text-white py-3
                 rounded-xl
                 font-semibold
+                hover:text-[#C76A46]
                 hover:bg-gray-800
               "
             >
@@ -251,6 +252,7 @@ function EditProfile() {
                   bg-black text-white
                   px-6 rounded-xl
                   font-semibold
+                  hover:text-[#C76A46]
                   hover:bg-gray-800
                 "
               >
@@ -314,6 +316,7 @@ function EditProfile() {
               text-white py-3
               rounded-xl
               font-semibold
+              hover:text-[#C76A46]
               hover:bg-gray-800
             "
           >
@@ -331,6 +334,7 @@ function EditProfile() {
             rounded-xl
             text-lg font-semibold
             hover:bg-gray-800
+            hover:text-[#C76A46]
             disabled:opacity-50
           "
         >

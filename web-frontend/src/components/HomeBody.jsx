@@ -88,23 +88,23 @@ function HomeBody() {
           <div className="flex gap-6 mt-8 flex-wrap justify-center lg:justify-start">
             <button
               onClick={() => navigate("/market")}
-              className="bg-black px-10 py-3 rounded-xl text-white font-semibold shadow-lg"
+              className="bg-black  hover:text-[#C76A46] px-10 py-3 rounded-xl text-white font-semibold shadow-lg"
             >
               Market
             </button>
 
             <button
               onClick={() => navigate("/sell")}
-              className="bg-black px-10 py-3 rounded-xl text-white font-semibold shadow-lg"
+              className="bg-black hover:text-[#C76A46] px-10 py-3 rounded-xl text-white font-semibold shadow-lg"
             >
               Rent / Sell
             </button>
 
             <button
-              onClick={() => navigate("/chat")}
-              className="bg-black px-10 py-3 rounded-xl text-white font-semibold shadow-lg"
+              onClick={() => navigate("/my-listings")}
+              className="bg-black hover:text-[#C76A46] px-10 py-3 rounded-xl text-white font-semibold shadow-lg"
             >
-              Chats
+              My Listings
             </button>
           </div>
         </div>

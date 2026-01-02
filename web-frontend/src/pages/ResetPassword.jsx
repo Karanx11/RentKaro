@@ -106,7 +106,7 @@ function ResetPassword() {
           <button
             onClick={handleReset}
             disabled={loading}
-            className="w-full bg-black hover:bg-gray-800 text-white hover:text-[#C76A46] rounded-xl py-3 text-lg font-semibold shadow-lg transition disabled:opacity-50"
+            className="w-full bg-black hover:text-[#C76A46] hover:bg-gray-800 text-white hover:text-[#C76A46] rounded-xl py-3 text-lg font-semibold shadow-lg transition disabled:opacity-50"
           >
             {loading ? "Resetting..." : "Reset Password"}
           </button>

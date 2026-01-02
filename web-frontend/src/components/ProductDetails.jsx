@@ -11,13 +11,16 @@ function ProductDetails() {
 
   const [product, setProduct] = useState(null);
   const [selectedImage, setSelectedImage] = useState("");
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
 
   /* ================= AUTH ================= */
   const userStr = localStorage.getItem("user");
-  const loggedInUser = userStr ? JSON.parse(userStr) : null;
+  const loggedInUser =
+    userStr && userStr !== "undefined" ? JSON.parse(userStr) : null;
   const loggedInUserId = loggedInUser?._id;
   const token = localStorage.getItem("token");
+  const isLoggedIn = !!token;
 
   /* ================= TRUST ================= */
   const [likes, setLikes] = useState(0);
@@ -55,6 +58,25 @@ function ProductDetails() {
     fetchProduct();
   }, [id]);
 
+  /* ================= IMAGE SLIDER ================= */
+  useEffect(() => {
+    if (!product?.images?.length) return;
+
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) =>
+        prev === product.images.length - 1 ? 0 : prev + 1
+      );
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [product]);
+
+  useEffect(() => {
+    if (product?.images?.length) {
+      setSelectedImage(`${API_URL}${product.images[currentIndex]}`);
+    }
+  }, [currentIndex, product]);
+
   if (loading) return <p className="text-center mt-40">Loading...</p>;
   if (!product) return <p className="text-center mt-40">Product not found</p>;
 
@@ -62,7 +84,7 @@ function ProductDetails() {
 
   /* ================= VOTE ================= */
   const handleVote = async (voteType) => {
-    if (!token) {
+    if (!isLoggedIn) {
       alert("Login required to vote");
       return;
     }
@@ -85,6 +107,14 @@ function ProductDetails() {
   };
 
   /* ================= WHATSAPP ================= */
+  const handleWhatsAppClick = () => {
+    if (!isLoggedIn) {
+      alert("Please login to chat with the seller");
+      return;
+    }
+    setShowSafety(true);
+  };
+
   const whatsappNumber = product.owner?.phone || "";
   const whatsappMessage = encodeURIComponent(
     `Hi, I found your product "${product.title}" on RentKaro. Is it available?`
@@ -118,9 +148,12 @@ function ProductDetails() {
                   <img
                     key={i}
                     src={`${API_URL}${img}`}
-                    onClick={() => setSelectedImage(`${API_URL}${img}`)}
+                    onClick={() => {
+                      setCurrentIndex(i);
+                      setSelectedImage(`${API_URL}${img}`);
+                    }}
                     className={`w-24 h-24 rounded-xl cursor-pointer border ${
-                      selectedImage.includes(img)
+                      currentIndex === i
                         ? "border-black"
                         : "border-gray-400"
                     }`}
@@ -131,12 +164,13 @@ function ProductDetails() {
 
             {/* ================= DETAILS ================= */}
             <div className="w-full lg:w-1/2 flex flex-col justify-between">
+
               <div>
                 <h1 className="text-4xl font-extrabold">
                   {product.title}
                 </h1>
 
-                {/* ===== TRUST SCORE (VISIBLE TO ALL) ===== */}
+                {/* TRUST */}
                 <div className="mt-4 flex items-center gap-6">
                   <button
                     disabled={voted || isOwner}
@@ -159,18 +193,6 @@ function ProductDetails() {
                   </span>
                 </div>
 
-                {isOwner && (
-                  <p className="mt-2 text-xs text-gray-500">
-                    ℹ️ You can see votes but cannot vote on your own product
-                  </p>
-                )}
-
-                {!isOwner && (
-                  <p className="mt-2 text-xs text-gray-500">
-                    ⚠️ One vote per user
-                  </p>
-                )}
-
                 {/* LOCATION */}
                 <div className="mt-6">
                   <h3 className="font-bold">Location</h3>
@@ -185,9 +207,32 @@ function ProductDetails() {
                   <h3 className="font-bold">Description</h3>
                   <p>{product.description}</p>
                 </div>
+
+                {/* PRICING */}
+                <div className="mt-8">
+                  <h3 className="font-bold mb-3">Pricing</h3>
+
+                  {product.listingType === "rent" ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div className="bg-gray-300/50 p-4 rounded-xl font-semibold">
+                        ₹{product.price.day} / day
+                      </div>
+                      <div className="bg-gray-300/50 p-4 rounded-xl font-semibold">
+                        ₹{product.price.month} / month
+                      </div>
+                      <div className="bg-gray-300/50 p-4 rounded-xl font-semibold">
+                        ₹{product.price.year} / year
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-gray-300/50 p-4 rounded-xl font-semibold">
+                      ₹{product.price.sell}
+                    </div>
+                  )}
+                </div>
               </div>
 
-              {/* ================= BOTTOM ACTION ================= */}
+              {/* ================= ACTION ================= */}
               <div className="mt-10">
                 {isOwner ? (
                   <div className="bg-blue-100 border border-blue-300 rounded-xl p-5 text-center">
@@ -199,17 +244,12 @@ function ProductDetails() {
                     </p>
                   </div>
                 ) : (
-                  <>
-                    <button
-                      onClick={() => setShowSafety(true)}
-                      className="w-full bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl font-bold"
-                    >
-                      Chat on WhatsApp
-                    </button>
-                    <p className="mt-3 text-center text-sm text-gray-600">
-                      Direct chat • Use caution
-                    </p>
-                  </>
+                  <button
+                    onClick={handleWhatsAppClick}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl font-bold"
+                  >
+                    Chat on WhatsApp
+                  </button>
                 )}
               </div>
             </div>

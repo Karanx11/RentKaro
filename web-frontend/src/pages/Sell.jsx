@@ -284,7 +284,7 @@ function Sell() {
                 type="button"
                 onClick={() => setMode("rent")}
                 className={`px-10 py-3 rounded-xl ${
-                  mode === "rent" ? "bg-black text-white" : "bg-white"
+                  mode === "rent" ? "bg-black hover:bg-gray-800 hover:text-[#C76A46] text-white" : "bg-white"
                 }`}
               >
                 Rent
@@ -293,7 +293,7 @@ function Sell() {
                 type="button"
                 onClick={() => setMode("sell")}
                 className={`px-10 py-3 rounded-xl ${
-                  mode === "sell" ? "bg-black text-white" : "bg-white"
+                  mode === "sell" ? "bg-black hover:bg-gray-800 hover:text-[#C76A46] text-white" : "bg-white"
                 }`}
               >
                 Sell
@@ -304,7 +304,7 @@ function Sell() {
             <div className="text-center">
               <button
                 onClick={handleSubmit}
-                className="px-14 py-4 bg-[#C76A46] text-white rounded-2xl text-xl font-bold"
+                className="px-14 py-4 hover:bg-[#d48a6d] bg-[#C76A46] text-white rounded-2xl text-xl font-bold"
               >
                 Submit Listing
               </button>

@@ -10,6 +10,7 @@ function NavBar() {
   const location = useLocation();
 
   const isHomePage = location.pathname === "/";
+  const isMarketPage = location.pathname === "/market";
 
   const token = localStorage.getItem("token");
   const isLoggedIn = !!token;
@@ -32,23 +33,20 @@ function NavBar() {
 
   /* ================= ACTIVE LINK STYLES ================= */
 
-  // 🔝 DESKTOP TOP NAV
   const topNavClass = ({ isActive }) =>
     `px-5 py-2 rounded-xl text-lg font-medium transition-all duration-300
      ${
        isActive
          ? "bg-white text-black shadow-lg"
-         : "text-gray-300 hover:text-white"
+         : "text-white hover:text-[#C76A46]"
      }`;
 
-  // 🔻 MOBILE / BOTTOM NAV
   const bottomNavClass = ({ isActive }) =>
-    `flex flex-col items-center justify-center
-     transition-all duration-300
+    `flex flex-col items-center justify-center transition-all duration-300
      ${
        isActive
          ? "bg-white text-black scale-110 shadow-xl"
-         : "text-gray-300 hover:text-white"
+         : "text-white hover:text-[#C76A46]"
      }
      rounded-2xl px-4 py-2`;
 
@@ -59,15 +57,13 @@ function NavBar() {
         bg-gray-500/60 backdrop-blur-xl border-b border-white/20 shadow-xl">
         <div className="flex justify-between items-center px-12 py-6">
 
-          {/* LOGO */}
           <Link
             to="/"
-            className="text-5xl font-[cursive] tracking-wide text-[#d6a100]"
+            className="text-4xl font-[cursive] tracking-wide text-[#C76A46]"
           >
             RentKaro
           </Link>
 
-          {/* LINKS */}
           <ul className="flex gap-6">
             <li><NavLink to="/" className={topNavClass}>Home</NavLink></li>
             <li><NavLink to="/market" className={topNavClass}>Market</NavLink></li>
@@ -82,7 +78,6 @@ function NavBar() {
             <li><NavLink to="/settings" className={topNavClass}>Settings</NavLink></li>
           </ul>
 
-          {/* USER */}
           {isLoggedIn ? (
             <div className="flex items-center gap-4">
               <button
@@ -93,18 +88,20 @@ function NavBar() {
                   flex items-center justify-center text-white font-semibold text-lg">
                   {user?.name?.[0]?.toUpperCase()}
                 </div>
-                <span className="text-lg text-gray-200">{user?.name}</span>
+                <span className="text-lg text-white hover:text-[#C76A46]">
+                  {user?.name}
+                </span>
               </button>
 
               <button
                 onClick={() => setShowLogout(true)}
-                className="text-red-400 hover:text-red-500"
+                className="text-[#C76A46] hover:text-red-500"
               >
                 <LogOut size={24} />
               </button>
             </div>
           ) : (
-            <Link className="text-xl text-[#d6a100]" to="/login">
+            <Link className="text-xl text-[#C76A46]" to="/login">
               Login
             </Link>
           )}
@@ -116,10 +113,14 @@ function NavBar() {
         bg-gray-500/60 backdrop-blur-xl border-b border-white/10">
         <div className="flex justify-between items-center px-4 py-4 text-white">
 
-          {isHomePage ? (
-            <span className="text-3xl font-[cursive] text-[#d6a100]">
+          {/* HOME & MARKET → RentKaro | OTHER → BACK */}
+          {(isHomePage || isMarketPage) ? (
+            <button
+              onClick={() => navigate("/")}
+              className="text-3xl font-[cursive] text-[#C76A46]"
+            >
               RentKaro
-            </span>
+            </button>
           ) : (
             <button
               onClick={() => navigate(-1)}
@@ -143,26 +144,24 @@ function NavBar() {
 
       {/* ================= MOBILE BOTTOM NAV ================= */}
       <nav className="md:hidden fixed bottom-2 h-16 left-3 right-3 z-50
-  bg-gray-500/60 backdrop-blur-xl border border-white/20
-  rounded-3xl shadow-2xl flex items-center">
+        bg-gray-500/60 backdrop-blur-xl border border-white/20
+        rounded-3xl shadow-2xl flex items-center">
+        <div className="flex justify-around items-center h-full w-full text-2xl">
 
-  <div className="flex justify-around items-center h-full w-full text-2xl">
+          <NavLink to="/market" className={bottomNavClass}>
+            <MdStorefront size={28} />
+          </NavLink>
 
-    <NavLink to="/market" className={bottomNavClass}>
-      <MdStorefront size={28} />
-    </NavLink>
+          {isLoggedIn && (
+            <NavLink to="/my-listings" className={bottomNavClass}>
+              <FaList size={26} />
+            </NavLink>
+          )}
 
-    {isLoggedIn && (
-      <NavLink to="/my-listings" className={bottomNavClass}>
-        <FaList size={26} />
-      </NavLink>
-    )}
-
-          {/* CENTER SELL */}
           <NavLink
             to="/sell"
-            className="bg-[#d6a100] text-black p-5 rounded-full -mt-10
-              shadow-[0_10px_30px_rgba(214,161,0,0.6)]"
+            className="bg-[#C76A46] text-black p-5 rounded-full -mt-10
+              shadow-[0_10px_30px_rgba(199,106,70,0.6)]"
           >
             <FaPlus size={26} />
           </NavLink>

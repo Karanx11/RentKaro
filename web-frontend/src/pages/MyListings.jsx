@@ -97,7 +97,7 @@ function MyListings() {
                       <Link
                         to={`/product/${product._id}`}
                         className="
-                          flex-1 bg-black text-white
+                          flex-1 bg-black hover:bg-gray-800 hover:text-[#C76A46] text-white
                           px-4 py-2 rounded-xl
                           text-sm font-semibold text-center
                         "
@@ -108,7 +108,7 @@ function MyListings() {
                       <Link
                         to={`/edit-listing/${product._id}`}
                         className="
-                          flex-1 bg-white/70 border
+                          flex-1 hover:bg-gray-200 bg-white/70 border
                           px-4 py-2 rounded-xl
                           text-sm font-semibold text-center
                         "

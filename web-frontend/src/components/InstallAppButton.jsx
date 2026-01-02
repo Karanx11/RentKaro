@@ -43,6 +43,7 @@ function InstallAppButton() {
         fixed bottom-24 right-6 z-50
         px-4 py-3 rounded-xl
         bg-black text-white
+        hover:text-[#C76A46]
         shadow-lg hover:scale-105 transition
       "
     >
