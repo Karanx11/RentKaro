@@ -22,7 +22,6 @@ import ResetPassword from "./pages/ResetPassword";
 import MyListings from "./pages/MyListings";
 import EditListing from "./pages/EditListing";
 import MyRequests from "./pages/MyRequests";
-import Notifications from "./pages/Notifications";
 
 import { socket } from "./services/socket";
 
@@ -104,15 +103,6 @@ function App() {
           element={
             <ProtectedRoute>
               <Sell />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/notifications"
-          element={
-            <ProtectedRoute>
-              <Notifications />
             </ProtectedRoute>
           }
         />
