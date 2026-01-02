@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import KokkieBot from "./components/KokkieBot";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -27,11 +27,15 @@ import Notifications from "./pages/Notifications";
 import { socket } from "./services/socket";
 
 function App() {
+  const socketInitialized = useRef(false); // 🔒 prevents double connect
 
   /* =====================
      SOCKET CONNECTION
   ===================== */
   useEffect(() => {
+    if (socketInitialized.current) return;
+    socketInitialized.current = true;
+
     const userStr = localStorage.getItem("user");
     const token = localStorage.getItem("token");
 
@@ -45,22 +49,27 @@ function App() {
       return;
     }
 
-    // 🔌 Connect socket once
+    // 🔌 Connect socket (only once)
     if (!socket.connected) {
       socket.connect();
     }
 
-    // 👤 Join user room
-    socket.emit("join", user._id);
-    console.log("🟢 Socket joined room for user:", user._id);
+    // ✅ Join room AFTER connection
+    socket.on("connect", () => {
+      socket.emit("join", user._id);
+      console.log("🟢 Socket joined room for user:", user._id);
+    });
 
+    socket.on("connect_error", (err) => {
+      console.error("❌ Socket error:", err.message);
+    });
+
+    // ❌ DO NOT disconnect in cleanup (StrictMode safe)
     return () => {
       socket.off("connect");
-      socket.off("disconnect");
-      socket.disconnect();
-      console.log("🔴 Socket disconnected");
+      socket.off("connect_error");
     };
-  }, []); // ⛔ DO NOT add token/user here
+  }, []);
 
   /* =====================
      SERVICE WORKER
@@ -170,7 +179,6 @@ function App() {
             </ProtectedRoute>
           }
         />
-
       </Routes>
 
       {/* ===== GLOBAL FLOATING COMPONENT ===== */}

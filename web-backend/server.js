@@ -2,6 +2,8 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import http from "http";
+import { Server } from "socket.io";
 
 import connectDB from "./config/db.js";
 
@@ -52,7 +54,28 @@ app.use("/api/chatbot", chatbotRoutes);
    HEALTH CHECK
 ======================= */
 app.get("/", (req, res) => {
-  res.send("🚀 RentKaro backend running (WhatsApp only)");
+  res.send("🚀 RentKaro backend running with Socket.IO");
+});
+
+/* =======================
+   SOCKET.IO SETUP
+======================= */
+const server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log("🟢 Socket connected:", socket.id);
+
+  socket.on("disconnect", () => {
+    console.log("🔴 Socket disconnected:", socket.id);
+  });
 });
 
 /* =======================
@@ -60,8 +83,8 @@ app.get("/", (req, res) => {
 ======================= */
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+server.listen(PORT, () => {
+  console.log(`🚀 Server + Socket.IO running on port ${PORT}`);
 });
 
 export default app;

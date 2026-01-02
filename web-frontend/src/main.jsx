@@ -2,18 +2,15 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.jsx";
-import setupInterceptors from "./services/axiosInterceptor";
+import "./api/interceptor"; // ✅ single interceptor only
 
-setupInterceptors();
-
-// ✅ Render React App
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <App />
   </StrictMode>
 );
 
-// ✅ Register Service Worker (OUTSIDE render)
+// ✅ Service Worker
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker

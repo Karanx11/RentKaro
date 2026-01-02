@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { IoLocationOutline } from "react-icons/io5";
 import { useParams } from "react-router-dom";
-import axios from "axios";
 import NavBar from "../components/NavBar";
+import api from "../api/api"; // ✅ IMPORTANT: use api instance
 
 const API_URL = "http://localhost:5000";
 
@@ -19,8 +19,7 @@ function ProductDetails() {
   const loggedInUser =
     userStr && userStr !== "undefined" ? JSON.parse(userStr) : null;
   const loggedInUserId = loggedInUser?._id;
-  const token = localStorage.getItem("token");
-  const isLoggedIn = !!token;
+  const isLoggedIn = !!localStorage.getItem("token");
 
   /* ================= TRUST ================= */
   const [likes, setLikes] = useState(0);
@@ -34,7 +33,7 @@ function ProductDetails() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await axios.get(`${API_URL}/api/products/${id}`);
+        const res = await api.get(`/products/${id}`);
         const data = res.data;
 
         setProduct(data);
@@ -92,11 +91,9 @@ function ProductDetails() {
     if (isOwner) return;
 
     try {
-      const res = await axios.post(
-        `${API_URL}/api/products/${id}/vote`,
-        { vote: voteType },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const res = await api.post(`/products/${id}/vote`, {
+        vote: voteType,
+      });
 
       setLikes(res.data.likes);
       setDislikes(res.data.dislikes);
