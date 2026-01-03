@@ -78,66 +78,105 @@ function KokkieBot() {
   /* =========================
      SEND MESSAGE
   ========================= */
-  const sendMessage = async () => {
-    if (!input.trim() || isTyping || !token) return;
+ const sendMessage = async () => {
+  if (!input.trim() || isTyping) return;
 
-    const userMessage = input;
-    setInput("");
-    setIsTyping(true);
-
+  // 🔒 TOKEN CHECK (UI SAFETY)
+  if (!token) {
     setMessages((prev) => [
       ...prev,
-      { from: "user", text: userMessage },
-      { from: "bot", text: "Kokkie is typing..." }
+      { from: "bot", text: "Please login to chat with Kokkie 🤖" },
     ]);
+    return;
+  }
 
-    try {
-      const res = await fetch(`${API_URL}/api/chatbot`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          message: userMessage,
-          sessionId
-        })
-      });
+  const userMessage = input;
+  setInput("");
+  setIsTyping(true);
 
-      const data = await res.json();
+  setMessages((prev) => [
+    ...prev,
+    { from: "user", text: userMessage },
+    { from: "bot", text: "Kokkie is typing..." },
+  ]);
 
+  try {
+    const res = await fetch(`${API_URL}/api/chatbot`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        message: userMessage,
+        sessionId,
+      }),
+    });
+
+    // 🔴 HANDLE AUTH ERROR
+    if (res.status === 401) {
       setMessages((prev) => {
         const updated = [...prev];
         updated[updated.length - 1] = {
           from: "bot",
-          text: data?.reply || "Sorry 😅 I didn’t get that.",
-          products: data?.products || []
+          text: "Session expired 😢 Please login again.",
         };
         return updated;
       });
-    } catch (error) {
-      console.error("Chatbot error:", error);
-      setMessages((prev) => {
-        const updated = [...prev];
-        updated[updated.length - 1] = {
-          from: "bot",
-          text: "Server error 😢 Please try again."
-        };
-        return updated;
-      });
-    } finally {
-      setIsTyping(false);
+      return;
     }
-  };
+
+    // 🔴 HANDLE SERVER ERROR
+    if (!res.ok) {
+      throw new Error("Server error");
+    }
+
+    const data = await res.json();
+
+    setMessages((prev) => {
+      const updated = [...prev];
+      updated[updated.length - 1] = {
+        from: "bot",
+        text: data.reply || "Sorry 😅 I didn’t get that.",
+        products: data.products || [],
+      };
+      return updated;
+    });
+  } catch (error) {
+    console.error("Chatbot error:", error);
+    setMessages((prev) => {
+      const updated = [...prev];
+      updated[updated.length - 1] = {
+        from: "bot",
+        text: "Server error 😢 Please try again.",
+      };
+      return updated;
+    });
+  } finally {
+    setIsTyping(false);
+  }
+};
 
   /* =========================
      CLEAR CHAT (UI ONLY)
   ========================= */
-  const clearChat = () => {
+ const clearChat = async () => {
+  try {
+    await fetch(`${API_URL}/api/chatbot/clear`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
     setMessages([
       { from: "bot", text: "Hi! I'm Kokkie 🤖 How can I help you today?" }
     ]);
-  };
+  } catch (err) {
+    console.error("Failed to clear chat", err);
+  }
+};
+
 
   return (
     <>

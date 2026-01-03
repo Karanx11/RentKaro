@@ -2,39 +2,27 @@ import mongoose from "mongoose";
 
 const botChatSchema = new mongoose.Schema(
   {
-    sessionId: {
-      type: String,
-      required: true,
-      index: true
-    },
-
-    userId: {
+    user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      default: null
+      required: true,
     },
-
+    sessionId: {
+      type: String,
+    },
     sender: {
       type: String,
       enum: ["user", "bot"],
-      required: true
+      required: true,
     },
-
     message: {
-      type: String
+      type: String,
+      required: true,
     },
-
-    products: [
-      {
-        id: mongoose.Schema.Types.ObjectId,
-        title: String,
-        price: Number,
-        image: String,
-        type: String
-      }
-    ]
   },
   { timestamps: true }
 );
 
-export default mongoose.model("BotChat", botChatSchema);
+const BotChat = mongoose.model("BotChat", botChatSchema);
+
+export default BotChat;

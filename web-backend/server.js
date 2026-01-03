@@ -1,5 +1,8 @@
+// // 🔑 ENV MUST BE FIRST (ONLY ONCE)
+// import dotenv from "dotenv";
+// dotenv.config({ path: "./backend.env" });
+
 import express from "express";
-import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import http from "http";
@@ -14,9 +17,8 @@ import orderRoutes from "./routes/orderRoutes.js";
 import chatbotRoutes from "./routes/chatbotRoutes.js";
 
 /* =======================
-   ENV + DB
+   DB
 ======================= */
-dotenv.config();
 connectDB();
 
 /* =======================
@@ -58,7 +60,7 @@ app.get("/", (req, res) => {
 });
 
 /* =======================
-   SOCKET.IO SETUP
+   SOCKET.IO
 ======================= */
 const server = http.createServer(app);
 
@@ -72,7 +74,6 @@ const io = new Server(server, {
 
 io.on("connection", (socket) => {
   console.log("🟢 Socket connected:", socket.id);
-
   socket.on("disconnect", () => {
     console.log("🔴 Socket disconnected:", socket.id);
   });
