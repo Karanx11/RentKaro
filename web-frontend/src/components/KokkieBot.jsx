@@ -74,6 +74,14 @@ function KokkieBot() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+  // 🔽 AUTO SCROLL WHEN CHAT OPENS
+useEffect(() => {
+  if (open) {
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
+  }
+}, [open]);
 
   /* =========================
      SEND MESSAGE
