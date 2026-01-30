@@ -22,8 +22,6 @@ function Signup() {
     confirmPassword: "",
   });
 
-
-
   const [otp, setOtp] = useState("");
   const [otpStep, setOtpStep] = useState(false);
 
@@ -35,8 +33,6 @@ function Signup() {
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
-
-  
 
   // ================= SIGNUP =================
   const handleSignup = async () => {
@@ -106,21 +102,37 @@ function Signup() {
     <>
       <NavBar />
 
-      <div className="w-full min-h-screen bg-gray-500/10 backdrop-blur-lg flex items-center justify-center pt-32 pb-10 px-4">
-        <div className="w-full max-w-2xl bg-gray-400/40 backdrop-blur-xl border border-gray-500/30 shadow-[0_8px_32px_rgba(31,38,135,0.37)] rounded-3xl p-10 flex flex-col gap-6">
+      <div className="w-full min-h-screen bg-gray-500/10 backdrop-blur-lg flex items-center justify-center pt-24 pb-10 px-4">
+        <div className="w-full max-w-md bg-gray-400/40 backdrop-blur-xl border border-gray-500/30 shadow-xl rounded-2xl p-6 flex flex-col gap-5">
 
-          <h1 className="text-4xl font-extrabold text-black text-center">
+          <h1 className="text-2xl md:text-3xl font-bold text-black text-center">
             Create Account
           </h1>
-
-         
 
           {/* ========== SIGNUP FORM ========== */}
           {!otpStep && (
             <>
-              <Input icon={<FiUser />} name="name" placeholder="Full Name" value={form.name} onChange={handleChange} />
-              <Input icon={<FiMail />} name="email" placeholder="Email Address" value={form.email} onChange={handleChange} />
-              <Input icon={<FiPhone />} name="phone" placeholder="Phone Number" value={form.phone} onChange={handleChange} />
+              <Input
+                icon={<FiUser />}
+                name="name"
+                placeholder="Full Name"
+                value={form.name}
+                onChange={handleChange}
+              />
+              <Input
+                icon={<FiMail />}
+                name="email"
+                placeholder="Email Address"
+                value={form.email}
+                onChange={handleChange}
+              />
+              <Input
+                icon={<FiPhone />}
+                name="phone"
+                placeholder="WhatsApp Number"
+                value={form.phone}
+                onChange={handleChange}
+              />
 
               <PasswordInput
                 label="Password"
@@ -143,7 +155,14 @@ function Signup() {
               <button
                 onClick={handleSignup}
                 disabled={loading}
-                className="w-full bg-black hover:bg-gray-800 text-white hover:text-[#C76A46] rounded-xl py-3 text-lg font-semibold shadow-lg transition disabled:opacity-50"
+                className="
+                  w-full bg-black hover:bg-gray-800
+                  text-white hover:text-[#C76A46]
+                  rounded-xl py-2.5
+                  text-sm font-semibold
+                  shadow-md transition
+                  disabled:opacity-50
+                "
               >
                 {loading ? "Sending OTP..." : "Sign Up"}
               </button>
@@ -153,7 +172,7 @@ function Signup() {
           {/* ========== OTP STEP ========== */}
           {otpStep && (
             <>
-              <p className="text-center text-gray-700">
+              <p className="text-center text-sm text-gray-700">
                 Enter the OTP sent to <b>{form.email}</b>
               </p>
 
@@ -162,13 +181,25 @@ function Signup() {
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
                 maxLength={6}
                 placeholder="Enter OTP"
-                className="w-full px-5 py-3 rounded-xl bg-white text-lg text-center tracking-widest shadow-md outline-none"
+                className="
+                  w-full px-4 py-2.5
+                  rounded-xl bg-white
+                  text-sm text-center tracking-widest
+                  shadow-sm outline-none
+                "
               />
 
               <button
                 onClick={handleVerifyOtp}
                 disabled={loading}
-                className="w-full bg-black hover:bg-gray-800 text-white hover:text-[#C76A46] rounded-xl py-3 text-lg font-semibold shadow-lg transition disabled:opacity-50"
+                className="
+                  w-full bg-black hover:bg-gray-800
+                  text-white hover:text-[#C76A46]
+                  rounded-xl py-2.5
+                  text-sm font-semibold
+                  shadow-md transition
+                  disabled:opacity-50
+                "
               >
                 {loading ? "Verifying..." : "Verify OTP"}
               </button>
@@ -177,14 +208,16 @@ function Signup() {
 
           {/* LOGIN LINK */}
           {!otpStep && (
-            <p className="text-center text-gray-700 text-lg">
+            <p className="text-center text-sm text-gray-700">
               Already have an account?{" "}
-              <Link to="/login" className="font-semibold hover:text-[#C76A46]">
+              <Link
+                to="/login"
+                className="font-semibold hover:text-[#C76A46]"
+              >
                 Login
               </Link>
             </p>
           )}
-
         </div>
       </div>
     </>
@@ -197,29 +230,32 @@ export default Signup;
 
 function Input({ icon, ...props }) {
   return (
-    <div className="flex items-center bg-white rounded-xl px-4 py-3 shadow-md">
-      <span className="text-gray-600 text-xl mr-3">{icon}</span>
-      <input {...props} className="flex-1 bg-transparent outline-none text-lg text-gray-800" />
+    <div className="flex items-center bg-white rounded-lg px-3 py-2.5 shadow-sm">
+      <span className="text-gray-600 text-base mr-2">{icon}</span>
+      <input
+        {...props}
+        className="flex-1 bg-transparent outline-none text-sm text-gray-800"
+      />
     </div>
   );
 }
 
 function PasswordInput({ label, show, setShow, ...props }) {
   return (
-    <div className="flex items-center bg-white rounded-xl px-4 py-3 shadow-md relative">
-      <FiLock className="text-gray-600 text-xl mr-3" />
+    <div className="flex items-center bg-white rounded-lg px-3 py-2.5 shadow-sm relative">
+      <FiLock className="text-gray-600 text-base mr-2" />
       <input
         type={show ? "text" : "password"}
         {...props}
         placeholder={label}
-        className="flex-1 bg-transparent outline-none text-lg text-gray-800"
+        className="flex-1 bg-transparent outline-none text-sm text-gray-800"
       />
       <button
         type="button"
         onClick={() => setShow(!show)}
-        className="absolute right-4 text-gray-600"
+        className="absolute right-3 text-gray-600"
       >
-        {show ? <FiEyeOff /> : <FiEye />}
+        {show ? <FiEyeOff size={16} /> : <FiEye size={16} />}
       </button>
     </div>
   );

@@ -8,28 +8,37 @@ function ChatBot() {
     <>
       <NavBar />
 
-      {/* PAGE BACKGROUND */}
+      {/* PAGE */}
       <div
         className="
           w-full min-h-screen
-          bg-gray-500/10 backdrop-blur-lg
-          pt-28 pb-28 px-6
+          bg-gray-500/10
+          pt-24 pb-16 px-4
         "
       >
         {/* 🔒 LOGIN CHECK */}
         {!isLoggedIn ? (
-          <div className="h-[60vh] flex items-center justify-center">
-            <div className="bg-black/60 backdrop-blur-xl border border-white/20 rounded-2xl p-8 text-center text-white max-w-md">
-              <h2 className="text-xl font-semibold mb-3">
+          <div className="h-[50vh] flex items-center justify-center">
+            <div
+              className="
+                bg-black/60 backdrop-blur-lg
+                border border-white/20
+                rounded-xl
+                p-6
+                text-center text-white
+                max-w-sm w-full
+              "
+            >
+              <h2 className="text-lg font-semibold mb-2">
                 Please Login
               </h2>
-              <p className="text-white/70">
+              <p className="text-sm text-white/70">
                 Login to chat with RentKaro AI Assistant 🤖
               </p>
             </div>
           </div>
         ) : (
-          // 🤖 Floating Gemini Bot
+          // 🤖 Floating Kokkie Bot
           <KokkieBot />
         )}
       </div>

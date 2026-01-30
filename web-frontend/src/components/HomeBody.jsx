@@ -15,57 +15,57 @@ function HomeBody() {
   return (
     <div
       className="
-        w-full min-h-screen 
-        bg-gray-500/10 backdrop-blur-lg
-        px-4 sm:px-6 md:px-12 
-        pt-32 pb-20     
+        w-full min-h-screen
+        bg-gray-500/10
+        px-4 sm:px-6
+        pt-24 pb-16
         flex flex-col items-center
       "
     >
       {/* ================= HERO CARD ================= */}
       <div
         className="
-          w-full max-w-[1500px]
-          min-h-[600px]
-          rounded-3xl overflow-hidden
+          w-full max-w-6xl
+          rounded-2xl overflow-hidden
           bg-gray-400/40
-          border border-gray-500/30 
-          shadow-[0_8px_32px_rgba(31,38,135,0.37)]
-          flex flex-col lg:flex-row 
-          items-center justify-center gap-10
-          p-6 sm:p-10
+          border border-gray-500/30
+          shadow-lg
+          flex flex-col lg:flex-row
+          items-center gap-8
+          p-6 sm:p-8
         "
       >
         {/* LEFT IMAGE */}
         <div className="w-full lg:w-1/2 flex justify-center">
           <img
             src="/src/assets/Home-Side.png"
-            className="w-[70%] sm:w-[60%] md:w-[75%] lg:w-[85%]"
+            className="w-[60%] sm:w-[55%] lg:w-[70%]"
             alt="RentKaro hero"
           />
         </div>
 
         {/* RIGHT CONTENT */}
         <div className="w-full lg:w-1/2 flex flex-col items-center lg:items-start text-center lg:text-left">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-black leading-tight">
+          <h1 className="text-3xl sm:text-4xl font-bold text-black leading-tight">
             Find the Perfect Item <br /> to Rent Today
           </h1>
 
-          <p className="mt-4 text-lg md:text-xl text-[#140c08] max-w-lg">
-            From electronics to daily essentials — RentKaro makes it super easy.
+          <p className="mt-3 text-base text-[#140c08] max-w-md">
+            From electronics to daily essentials — RentKaro makes renting simple
+            and affordable.
           </p>
 
           {/* ================= SEARCH BAR ================= */}
-          <div className="mt-8 w-full max-w-lg bg-gray-500 rounded-2xl shadow-xl flex flex-col sm:flex-row gap-4 px-4 py-4">
-            <div className="flex items-center flex-1 bg-white rounded-xl px-4 py-3 shadow-md">
-              <IoSearch className="text-gray-600 text-2xl mr-3" />
+          <div className="mt-6 w-full max-w-md bg-gray-500 rounded-xl flex flex-col sm:flex-row gap-3 px-3 py-3">
+            <div className="flex items-center flex-1 bg-white rounded-lg px-3 py-2">
+              <IoSearch className="text-gray-600 text-lg mr-2" />
               <input
                 type="text"
                 placeholder="Search for items..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                className="flex-1 bg-transparent outline-none text-lg text-gray-700"
+                className="flex-1 bg-transparent outline-none text-sm text-gray-700"
               />
             </div>
 
@@ -74,35 +74,35 @@ function HomeBody() {
               className="
                 bg-black hover:bg-gray-800
                 text-white hover:text-[#C76A46]
-                px-6 py-3 rounded-xl
-                text-lg font-semibold flex items-center gap-2
-                shadow-lg w-full sm:w-auto justify-center
+                px-4 py-2 rounded-lg
+                text-sm font-semibold flex items-center gap-2
+                w-full sm:w-auto justify-center
               "
             >
-              <IoSearch className="text-2xl" />
+              <IoSearch className="text-base" />
               Search
             </button>
           </div>
 
           {/* ================= QUICK LINKS ================= */}
-          <div className="flex gap-6 mt-8 flex-wrap justify-center lg:justify-start">
+          <div className="flex gap-4 mt-6 flex-wrap justify-center lg:justify-start">
             <button
               onClick={() => navigate("/market")}
-              className="bg-black  hover:text-[#C76A46] px-10 py-3 rounded-xl text-white font-semibold shadow-lg"
+              className="bg-black hover:text-[#C76A46] px-6 py-2.5 rounded-lg text-sm font-semibold text-white"
             >
               Market
             </button>
 
             <button
               onClick={() => navigate("/sell")}
-              className="bg-black hover:text-[#C76A46] px-10 py-3 rounded-xl text-white font-semibold shadow-lg"
+              className="bg-black hover:text-[#C76A46] px-6 py-2.5 rounded-lg text-sm font-semibold text-white"
             >
               Rent / Sell
             </button>
 
             <button
               onClick={() => navigate("/my-listings")}
-              className="bg-black hover:text-[#C76A46] px-10 py-3 rounded-xl text-white font-semibold shadow-lg"
+              className="bg-black hover:text-[#C76A46] px-6 py-2.5 rounded-lg text-sm font-semibold text-white"
             >
               My Listings
             </button>
@@ -111,7 +111,7 @@ function HomeBody() {
       </div>
 
       {/* ================= SPACING ================= */}
-      <div className="h-12" />
+      <div className="h-8" />
 
       {/* ================= RECENTLY VIEWED ================= */}
       <RecentlyViewed />

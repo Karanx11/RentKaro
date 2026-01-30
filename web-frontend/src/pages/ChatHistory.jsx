@@ -14,8 +14,8 @@ function ChatHistory() {
 
         const res = await fetch(`${API_URL}/api/chatbot/history`, {
           headers: {
-            Authorization: `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         });
 
         const data = await res.json();
@@ -34,36 +34,44 @@ function ChatHistory() {
     <>
       <NavBar />
 
-      <div className="pt-28 px-6 max-w-3xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6">
+      <div className="pt-24 px-4 max-w-2xl mx-auto">
+        <h1 className="text-xl md:text-2xl font-bold mb-4">
           🤖 Your Chatbot History
         </h1>
 
         {loading ? (
-          <p>Loading chat history...</p>
+          <p className="text-sm text-gray-600">
+            Loading chat history...
+          </p>
         ) : chats.length === 0 ? (
-          <p>No chatbot conversations yet.</p>
+          <p className="text-sm text-gray-600">
+            No chatbot conversations yet.
+          </p>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {chats.map((chat, index) => (
               <div
                 key={index}
-                className={`max-w-[80%] px-4 py-3 rounded-xl
+                className={`
+                  max-w-[75%] px-3 py-2 rounded-lg text-sm
                   ${
                     chat.sender === "bot"
                       ? "bg-white border border-gray-300 text-black"
                       : "bg-black text-white ml-auto"
-                  }`}
+                  }
+                `}
               >
-                <p>{chat.message}</p>
+                <p className="leading-relaxed">
+                  {chat.message}
+                </p>
 
                 {/* PRODUCTS IF ANY */}
                 {chat.products && chat.products.length > 0 && (
-                  <div className="mt-3 space-y-2">
+                  <div className="mt-2 space-y-1">
                     {chat.products.map((p) => (
                       <div
                         key={p.id}
-                        className="text-sm bg-gray-100 p-2 rounded"
+                        className="text-xs bg-gray-100 px-2 py-1 rounded"
                       >
                         <strong>{p.title}</strong> – ₹{p.price}
                       </div>

@@ -43,10 +43,8 @@ function Login() {
         return;
       }
 
-      // ✅ FIX HERE
       localStorage.setItem("token", data.accessToken);
       localStorage.setItem("user", JSON.stringify(data.user));
-
       navigate("/profile");
     } catch (err) {
       console.error(err);
@@ -63,7 +61,6 @@ function Login() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
-
       alert("OTP resent to your email");
     } catch {
       alert("Failed to resend OTP");
@@ -74,49 +71,58 @@ function Login() {
     <>
       <NavBar />
 
-      <div className="w-full min-h-screen bg-gray-500/10 flex items-center justify-center pt-32 px-4">
-        <div className="w-full max-w-md bg-gray-400/40 rounded-3xl p-10 flex flex-col gap-6">
+      <div className="w-full min-h-screen bg-gray-500/10 flex items-center justify-center pt-24 px-4">
+        <div className="w-full max-w-sm bg-gray-400/40 backdrop-blur-xl border border-gray-500/30 rounded-2xl p-6 flex flex-col gap-4">
 
-          <h1 className="text-4xl font-extrabold text-center">Login</h1>
+          <h1 className="text-2xl font-bold text-center text-black">
+            Login
+          </h1>
 
-          {error && <p className="text-center text-red-600">{error}</p>}
+          {error && (
+            <p className="text-center text-sm text-red-600">
+              {error}
+            </p>
+          )}
 
-          <div className="flex items-center bg-white rounded-xl px-4 py-3">
-            <FiMail className="mr-3" />
+          {/* EMAIL */}
+          <div className="flex items-center bg-white rounded-lg px-3 py-2.5 border">
+            <FiMail className="mr-2 text-gray-600 text-base" />
             <input
               type="email"
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="flex-1 outline-none"
+              className="flex-1 outline-none bg-transparent text-sm"
             />
           </div>
 
-          <div className="flex items-center bg-white rounded-xl px-4 py-3 relative">
-            <FiLock className="mr-3" />
+          {/* PASSWORD */}
+          <div className="flex items-center bg-white rounded-lg px-3 py-2.5 border relative">
+            <FiLock className="mr-2 text-gray-600 text-base" />
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="flex-1 outline-none"
+              className="flex-1 outline-none bg-transparent text-sm"
             />
             <button
+              type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4"
+              className="absolute right-3 text-gray-600"
             >
               {showPassword ? <FiEyeOff /> : <FiEye />}
             </button>
           </div>
 
-          <Link to="/forgot" className="text-right text-sm">
+          <Link to="/forgot" className="text-right text-xs text-gray-700">
             Forgot password?
           </Link>
 
           {showVerifyHint && (
             <button
               onClick={handleResendOtp}
-              className="text-sm text-orange-600 underline"
+              className="text-xs text-orange-600 underline text-left"
             >
               Resend verification email
             </button>
@@ -125,13 +131,16 @@ function Login() {
           <button
             onClick={handleLogin}
             disabled={loading}
-            className="bg-black hover:text-[#C76A46] hover:bg-gray-800 text-white py-3 rounded-xl"
+            className="bg-black hover:bg-gray-800 hover:text-[#C76A46] text-white py-2.5 rounded-lg text-sm font-semibold"
           >
             {loading ? "Logging in..." : "Login"}
           </button>
 
-          <p className="text-center">
-            Don’t have an account? <Link to="/signup">Sign up</Link>
+          <p className="text-center text-sm text-gray-700">
+            Don’t have an account?{" "}
+            <Link to="/signup" className="font-semibold hover:text-[#C76A46]">
+              Sign up
+            </Link>
           </p>
         </div>
       </div>

@@ -1,8 +1,8 @@
 import dns from "dns";
 dns.setDefaultResultOrder("ipv4first");
-// // 🔑 ENV MUST BE FIRST (ONLY ONCE)
 import dotenv from "dotenv";
 dotenv.config({ path: "./backend.env" });
+import mongoose from "mongoose";
 
 import express from "express";
 import cors from "cors";
@@ -21,6 +21,8 @@ import chatbotRoutes from "./routes/chatbotRoutes.js";
 /* =======================
    DB
 ======================= */
+console.log("MONGO_URI:", process.env.MONGO_URI);
+
 connectDB();
 
 /* =======================

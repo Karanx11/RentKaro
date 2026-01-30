@@ -5,15 +5,15 @@ function Terms() {
     <>
       <NavBar />
 
-      <div className="w-full min-h-screen bg-gray-500/10 backdrop-blur-lg px-6 sm:px-10 md:px-20 py-32">
-        <div className="max-w-4xl mx-auto space-y-12">
+      <div className="w-full min-h-screen bg-gray-500/10 backdrop-blur-lg px-4 sm:px-8 md:px-12 py-24">
+        <div className="max-w-3xl mx-auto space-y-8">
 
           {/* PAGE HEADER */}
           <div>
-            <h1 className="text-4xl font-extrabold text-black mb-2">
+            <h1 className="text-2xl md:text-3xl font-bold text-black mb-1">
               Terms & Conditions
             </h1>
-            <p className="text-gray-700">
+            <p className="text-sm text-gray-700">
               Please read these terms carefully before using RentSellKaro.
             </p>
           </div>
@@ -21,11 +21,11 @@ function Terms() {
           {/* TERMS CARD */}
           <div
             className="
-              rounded-3xl overflow-hidden
+              rounded-2xl
               bg-gray-400/40
               border border-gray-500/30
-              shadow-[0_8px_32px_rgba(31,38,135,0.37)]
-              p-8 space-y-6
+              shadow-xl
+              p-6 space-y-5
             "
           >
             <Section
@@ -78,7 +78,6 @@ function Terms() {
               text="For questions regarding these terms, please contact us via the Help & Support page."
             />
           </div>
-
         </div>
       </div>
     </>
@@ -92,10 +91,10 @@ export default Terms;
 function Section({ title, text }) {
   return (
     <div>
-      <h3 className="text-xl font-semibold text-black mb-2">
+      <h3 className="text-sm font-semibold text-black mb-1">
         {title}
       </h3>
-      <p className="text-gray-700 leading-relaxed">
+      <p className="text-sm text-gray-700 leading-relaxed">
         {text}
       </p>
     </div>

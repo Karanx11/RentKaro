@@ -37,38 +37,42 @@ function MyListings() {
   }, [navigate, token]);
 
   if (loading) {
-    return <p className="text-center mt-40">Loading...</p>;
+    return (
+      <p className="text-center text-sm mt-32 text-gray-700">
+        Loading...
+      </p>
+    );
   }
 
   return (
     <>
       <NavBar />
 
-      <div className="w-full min-h-screen bg-gray-500/10 px-6 md:px-20 py-32">
+      <div className="w-full min-h-screen bg-gray-500/10 px-4 pt-24 pb-16">
         <div className="max-w-6xl mx-auto">
 
-          <h1 className="text-4xl font-extrabold mb-6">
+          <h1 className="text-2xl font-bold text-black mb-4">
             My Listings
           </h1>
 
           {products.length === 0 ? (
-            <p className="text-gray-700">
+            <p className="text-sm text-gray-700">
               You haven’t listed any products yet.
             </p>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {products.map((product) => (
                 <div
                   key={product._id}
                   className="
                     bg-gray-400/40 backdrop-blur-xl
                     border border-gray-500/30
-                    rounded-2xl shadow-lg
+                    rounded-2xl shadow-md
                     overflow-hidden flex flex-col
                   "
                 >
                   {/* IMAGE */}
-                  <div className="h-48 overflow-hidden">
+                  <div className="h-44 overflow-hidden">
                     <img
                       src={`${API_URL}${product.images?.[0]}`}
                       alt={product.title}
@@ -78,28 +82,29 @@ function MyListings() {
 
                   {/* DETAILS */}
                   <div className="p-4 flex-1 flex flex-col">
-                    <h2 className="text-xl font-semibold">
+                    <h2 className="text-base font-semibold text-black">
                       {product.title}
                     </h2>
 
-                    <p className="text-gray-700 mt-1">
+                    <p className="text-sm text-gray-700 mt-1">
                       {product.listingType === "rent"
                         ? `₹${product.price?.day} / day`
                         : `₹${product.price?.sell}`}
                     </p>
 
-                    <p className="text-gray-600 text-sm mt-1">
+                    <p className="text-xs text-gray-600 mt-1">
                       📍 {product.location}
                     </p>
 
                     {/* ACTIONS */}
-                    <div className="mt-4 flex gap-3">
+                    <div className="mt-3 flex gap-3">
                       <Link
                         to={`/product/${product._id}`}
                         className="
-                          flex-1 bg-black hover:bg-gray-800 hover:text-[#C76A46] text-white
-                          px-4 py-2 rounded-xl
-                          text-sm font-semibold text-center
+                          flex-1 bg-black hover:bg-gray-800 hover:text-[#C76A46]
+                          text-white
+                          px-4 py-2 rounded-lg
+                          text-xs font-semibold text-center
                         "
                       >
                         View
@@ -108,9 +113,10 @@ function MyListings() {
                       <Link
                         to={`/edit-listing/${product._id}`}
                         className="
-                          flex-1 hover:bg-gray-200 bg-white/70 border
-                          px-4 py-2 rounded-xl
-                          text-sm font-semibold text-center
+                          flex-1 bg-white/70 hover:bg-gray-200
+                          border
+                          px-4 py-2 rounded-lg
+                          text-xs font-semibold text-center
                         "
                       >
                         Edit

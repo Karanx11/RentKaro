@@ -45,30 +45,33 @@ function RecentlyViewed() {
   return (
     <div
       className="
-        w-full max-w-[1500px]
+        w-full max-w-6xl
         bg-gray-400/40 backdrop-blur-xl
         border border-gray-500/30
-        rounded-3xl p-8 sm:p-10
-        shadow-[0_8px_32px_rgba(31,38,135,0.37)]
-        mt-14
+        rounded-2xl p-5 sm:p-6
+        shadow-xl
+        mt-10
       "
     >
-      <h2 className="text-3xl font-extrabold text-black mb-6">
+      <h2 className="text-lg md:text-xl font-bold text-black mb-4">
         Recently Viewed Items
       </h2>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {items.map((item) => (
           <div
             key={item._id}
             onClick={() => navigate(`/product/${item._id}`)}
             className="
-              bg-white/70 backdrop-blur-md border border-gray-300
-              rounded-2xl shadow-xl overflow-hidden
-              hover:shadow-2xl transition cursor-pointer
+              bg-white/70 backdrop-blur-md
+              border border-gray-300
+              rounded-xl overflow-hidden
+              shadow-sm hover:shadow-md
+              transition cursor-pointer
             "
           >
-            <div className="h-48 w-full overflow-hidden">
+            {/* IMAGE */}
+            <div className="h-36 w-full overflow-hidden">
               <img
                 src={`${API_URL}${item.images[0]}`}
                 className="w-full h-full object-cover"
@@ -76,24 +79,26 @@ function RecentlyViewed() {
               />
             </div>
 
-            <div className="p-4">
-              <h3 className="text-xl font-semibold text-black">
+            {/* CONTENT */}
+            <div className="p-3 space-y-1">
+              <h3 className="text-sm font-semibold text-black truncate">
                 {item.title}
               </h3>
 
-              <p className="text-gray-700 mt-1">
+              <p className="text-sm text-gray-800">
                 {item.listingType === "rent" ? (
                   <>
                     ₹{item.price.day}
-                    <span className="text-sm"> / day</span>
+                    <span className="text-xs text-gray-600"> / day</span>
                   </>
                 ) : (
                   <>₹{item.price.sell}</>
                 )}
               </p>
 
-              <p className="text-gray-600 text-sm flex items-center gap-1 mt-1">
-                <IoLocationOutline /> {item.location}
+              <p className="text-xs text-gray-600 flex items-center gap-1">
+                <IoLocationOutline size={14} />
+                <span className="truncate">{item.location}</span>
               </p>
             </div>
           </div>

@@ -15,18 +15,21 @@ function ForgotPassword() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
 
-  // ================= SEND OTP =================
+  /* ================= SEND OTP ================= */
   const handleSendOtp = async () => {
     if (!email) return alert("Enter email");
 
     try {
       setLoading(true);
 
-      const res = await fetch("http://localhost:5000/api/auth/forgot-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
+      const res = await fetch(
+        "http://localhost:5000/api/auth/forgot-password",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        }
+      );
 
       const data = await res.json();
       if (!res.ok) return alert(data.message);
@@ -40,28 +43,25 @@ function ForgotPassword() {
     }
   };
 
-  // ================= RESET PASSWORD =================
+  /* ================= RESET PASSWORD ================= */
   const handleResetPassword = async () => {
-    if (!otp || !newPassword || !confirmPassword) {
+    if (!otp || !newPassword || !confirmPassword)
       return alert("All fields required");
-    }
 
-    if (newPassword !== confirmPassword) {
+    if (newPassword !== confirmPassword)
       return alert("Passwords do not match");
-    }
 
     try {
       setLoading(true);
 
-      const res = await fetch("http://localhost:5000/api/auth/reset-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          otp,
-          newPassword,
-        }),
-      });
+      const res = await fetch(
+        "http://localhost:5000/api/auth/reset-password",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, otp, newPassword }),
+        }
+      );
 
       const data = await res.json();
       if (!res.ok) return alert(data.message);
@@ -79,35 +79,35 @@ function ForgotPassword() {
     <>
       <NavBar />
 
-      <div className="w-full min-h-screen bg-gray-500/10 backdrop-blur-lg flex items-center justify-center pt-32 pb-10 px-4">
-        <div className="w-full max-w-md bg-gray-400/40 backdrop-blur-xl border border-gray-500/30 shadow-xl rounded-3xl p-10 flex flex-col gap-6">
+      <div className="w-full min-h-screen bg-gray-500/10 flex items-center justify-center pt-24 pb-16 px-4">
+        <div className="w-full max-w-sm bg-gray-400/40 backdrop-blur-xl border border-gray-500/30 shadow-lg rounded-2xl p-6 flex flex-col gap-4">
 
-          <h1 className="text-4xl font-extrabold text-black text-center">
+          <h1 className="text-2xl font-bold text-black text-center">
             Forgot Password
           </h1>
 
           {/* ================= STEP 1 ================= */}
           {step === 1 && (
             <>
-              <p className="text-center text-gray-700">
+              <p className="text-center text-sm text-gray-700">
                 Enter your email to receive OTP
               </p>
 
-              <div className="flex items-center bg-white rounded-xl px-4 py-3 shadow-md">
-                <FiMail className="text-gray-600 text-xl mr-3" />
+              <div className="flex items-center bg-white rounded-lg px-3 py-2.5 border">
+                <FiMail className="text-gray-600 text-base mr-2" />
                 <input
                   type="email"
-                  placeholder="Enter your email"
+                  placeholder="Email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="flex-1 bg-transparent outline-none text-lg text-gray-800"
+                  className="flex-1 bg-transparent outline-none text-sm text-gray-800"
                 />
               </div>
 
               <button
                 onClick={handleSendOtp}
                 disabled={loading}
-                className="w-full bg-black hover:text-[#C76A46] hover:bg-gray-800 text-white rounded-xl py-3 text-lg font-semibold"
+                className="w-full bg-black hover:bg-gray-800 text-white rounded-lg py-2.5 text-sm font-semibold"
               >
                 {loading ? "Sending OTP..." : "Send OTP"}
               </button>
@@ -117,7 +117,7 @@ function ForgotPassword() {
           {/* ================= STEP 2 ================= */}
           {step === 2 && (
             <>
-              <p className="text-center text-gray-700">
+              <p className="text-center text-sm text-gray-700">
                 Enter OTP sent to <b>{email}</b>
               </p>
 
@@ -125,50 +125,50 @@ function ForgotPassword() {
                 value={otp}
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
                 maxLength={6}
-                placeholder="Enter OTP"
-                className="w-full px-5 py-3 rounded-xl bg-white text-lg text-center tracking-widest shadow-md outline-none"
+                placeholder="OTP"
+                className="w-full px-3 py-2.5 rounded-lg bg-white text-sm text-center tracking-widest border outline-none"
               />
 
-              <div className="flex items-center bg-white rounded-xl px-4 py-3 shadow-md relative">
-                <FiLock className="text-gray-600 text-xl mr-3" />
+              <div className="flex items-center bg-white rounded-lg px-3 py-2.5 border relative">
+                <FiLock className="text-gray-600 text-base mr-2" />
                 <input
                   type={showPassword ? "text" : "password"}
-                  placeholder="New Password"
+                  placeholder="New password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="flex-1 bg-transparent outline-none text-lg text-gray-800"
+                  className="flex-1 bg-transparent outline-none text-sm text-gray-800"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 text-gray-600"
+                  className="absolute right-3 text-gray-600"
                 >
                   {showPassword ? <FiEyeOff /> : <FiEye />}
                 </button>
               </div>
 
-              <div className="flex items-center bg-white rounded-xl px-4 py-3 shadow-md">
-                <FiLock className="text-gray-600 text-xl mr-3" />
+              <div className="flex items-center bg-white rounded-lg px-3 py-2.5 border">
+                <FiLock className="text-gray-600 text-base mr-2" />
                 <input
                   type="password"
-                  placeholder="Confirm New Password"
+                  placeholder="Confirm password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="flex-1 bg-transparent outline-none text-lg text-gray-800"
+                  className="flex-1 bg-transparent outline-none text-sm text-gray-800"
                 />
               </div>
 
               <button
                 onClick={handleResetPassword}
                 disabled={loading}
-                className="w-full bg-black hover:bg-gray-800 text-white rounded-xl py-3 text-lg font-semibold"
+                className="w-full bg-black hover:bg-gray-800 text-white rounded-lg py-2.5 text-sm font-semibold"
               >
                 {loading ? "Resetting..." : "Reset Password"}
               </button>
             </>
           )}
 
-          <p className="text-center text-gray-700 text-lg">
+          <p className="text-center text-sm text-gray-700">
             Back to{" "}
             <Link to="/login" className="font-semibold hover:text-[#C76A46]">
               Login

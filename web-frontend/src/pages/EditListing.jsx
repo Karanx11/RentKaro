@@ -85,30 +85,30 @@ function EditListing() {
     <>
       <NavBar />
 
-      <div className="w-full min-h-screen bg-gray-500/10 px-6 md:px-20 py-32">
-        <div className="max-w-3xl mx-auto bg-gray-400/40 backdrop-blur-xl rounded-3xl shadow-2xl p-10 border border-white/40">
+      <div className="w-full min-h-screen bg-gray-500/10 px-4 pt-24 pb-16">
+        <div className="max-w-2xl mx-auto bg-gray-400/40 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/30">
 
-          <h1 className="text-4xl font-extrabold text-black mb-10 text-center">
+          <h1 className="text-2xl font-bold text-black mb-6 text-center">
             Edit Listing
           </h1>
 
           {/* TITLE */}
-          <div className="mb-6">
-            <label className="block text-xl font-semibold mb-2">
+          <div className="mb-4">
+            <label className="block text-sm font-semibold mb-1">
               Product Title
             </label>
             <input
               name="title"
               value={form.title}
               onChange={handleChange}
-              className="w-full px-5 py-3 rounded-xl bg-white/80 border shadow-md"
+              className="w-full px-3 py-2.5 rounded-lg bg-white/80 border text-sm"
               placeholder="Product name"
             />
           </div>
 
           {/* DESCRIPTION */}
-          <div className="mb-6">
-            <label className="block text-xl font-semibold mb-2">
+          <div className="mb-4">
+            <label className="block text-sm font-semibold mb-1">
               Product Description
             </label>
             <textarea
@@ -116,114 +116,114 @@ function EditListing() {
               value={form.description}
               onChange={handleChange}
               rows={4}
-              className="w-full px-5 py-4 rounded-xl bg-white/80 border shadow-md resize-none"
+              className="w-full px-3 py-2.5 rounded-lg bg-white/80 border resize-none text-sm"
               placeholder="Describe your product"
             />
           </div>
 
           {/* CATEGORY */}
-          <div className="mb-6">
-            <label className="block text-xl font-semibold mb-2">
+          <div className="mb-4">
+            <label className="block text-sm font-semibold mb-1">
               Category
             </label>
             <input
               name="category"
               value={form.category}
               onChange={handleChange}
-              className="w-full px-5 py-3 rounded-xl bg-white/80 border shadow-md"
+              className="w-full px-3 py-2.5 rounded-lg bg-white/80 border text-sm"
               placeholder="Category"
             />
           </div>
 
           {/* LOCATION */}
-          <div className="mb-6">
-            <label className="block text-xl font-semibold mb-2">
+          <div className="mb-4">
+            <label className="block text-sm font-semibold mb-1">
               Location
             </label>
             <input
               name="location"
               value={form.location}
               onChange={handleChange}
-              className="w-full px-5 py-3 rounded-xl bg-white/80 border shadow-md"
+              className="w-full px-3 py-2.5 rounded-lg bg-white/80 border text-sm"
               placeholder="City, State"
             />
           </div>
 
           {/* PRICING */}
-<div className="mb-10">
-  <label className="block text-xl font-semibold mb-3">
-    Pricing
-  </label>
+          <div className="mb-6">
+            <label className="block text-sm font-semibold mb-2">
+              Pricing
+            </label>
 
-  {form.listingType === "rent" ? (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-      <input
-        type="number"
-        placeholder="Per Day (₹)"
-        value={form.price?.day || ""}
-        onChange={(e) =>
-          setForm({
-            ...form,
-            price: { ...form.price, day: Number(e.target.value) },
-          })
-        }
-        className="px-5 py-3 rounded-xl bg-white/80 border shadow-md"
-      />
+            {form.listingType === "rent" ? (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <input
+                  type="number"
+                  placeholder="Per Day (₹)"
+                  value={form.price?.day || ""}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      price: { ...form.price, day: Number(e.target.value) },
+                    })
+                  }
+                  className="px-3 py-2.5 rounded-lg bg-white/80 border text-sm"
+                />
 
-      <input
-        type="number"
-        placeholder="Per Month (₹)"
-        value={form.price?.month || ""}
-        onChange={(e) =>
-          setForm({
-            ...form,
-            price: { ...form.price, month: Number(e.target.value) },
-          })
-        }
-        className="px-5 py-3 rounded-xl bg-white/80 border shadow-md"
-      />
+                <input
+                  type="number"
+                  placeholder="Per Month (₹)"
+                  value={form.price?.month || ""}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      price: { ...form.price, month: Number(e.target.value) },
+                    })
+                  }
+                  className="px-3 py-2.5 rounded-lg bg-white/80 border text-sm"
+                />
 
-      <input
-        type="number"
-        placeholder="Per Year (₹)"
-        value={form.price?.year || ""}
-        onChange={(e) =>
-          setForm({
-            ...form,
-            price: { ...form.price, year: Number(e.target.value) },
-          })
-        }
-        className="px-5 py-3 rounded-xl bg-white/80 border shadow-md"
-      />
-    </div>
-        ) : (
-            <input
-            type="number"
-            placeholder="Selling Price (₹)"
-            value={form.price?.sell || ""}
-            onChange={(e) =>
-                setForm({
-                ...form,
-                price: { sell: Number(e.target.value) },
-                })
-            }
-            className="w-full px-5 py-3 rounded-xl bg-white/80 border shadow-md"
-            />
-        )}
-        </div>
+                <input
+                  type="number"
+                  placeholder="Per Year (₹)"
+                  value={form.price?.year || ""}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      price: { ...form.price, year: Number(e.target.value) },
+                    })
+                  }
+                  className="px-3 py-2.5 rounded-lg bg-white/80 border text-sm"
+                />
+              </div>
+            ) : (
+              <input
+                type="number"
+                placeholder="Selling Price (₹)"
+                value={form.price?.sell || ""}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    price: { sell: Number(e.target.value) },
+                  })
+                }
+                className="w-full px-3 py-2.5 rounded-lg bg-white/80 border text-sm"
+              />
+            )}
+          </div>
 
           {/* ACTION BUTTONS */}
-          <div className="flex gap-6">
+          <div className="flex gap-3">
             <button
               onClick={handleSave}
-              className="flex-1 bg-black hover:text-[#C76A46] hover:bg-gray-800 text-white py-4 rounded-xl text-lg font-bold shadow-lg"
+              className="flex-1 bg-black hover:bg-gray-800 text-white py-2.5 rounded-lg text-sm font-semibold"
             >
               Save Changes
             </button>
 
             <button
               onClick={handleDelete}
-              className="flex-1 bg-red-600 hover:bg-red-700 text-white py-4 rounded-xl text-lg font-bold shadow-lg"
+              className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2.5 rounded-lg text-sm font-semibold"
             >
               Delete Listing
             </button>
