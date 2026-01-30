@@ -1,3 +1,5 @@
+import dns from "dns";
+dns.setDefaultResultOrder("ipv4first");
 // // 🔑 ENV MUST BE FIRST (ONLY ONCE)
 import dotenv from "dotenv";
 dotenv.config({ path: "./backend.env" });
