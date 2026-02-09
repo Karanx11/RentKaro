@@ -155,11 +155,11 @@
 
     📊 Admin dashboard
 
-    👨‍💻 Founder & Developer
+## 👨‍💻 Founder & Developer
 
-        Karan Sharma
-        📍 India
-        🔗 GitHub: @Karanx11
+    Karan Sharma
+    📍 India
+    🔗 GitHub: @Karanx11
 
 ## 📄 License
 
