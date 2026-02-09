@@ -25,9 +25,9 @@ function InstallAppButton() {
     const choice = await deferredPrompt.userChoice;
 
     if (choice.outcome === "accepted") {
-      console.log("✅ App installed");
+      console.log("App installed");
     } else {
-      console.log("❌ App install dismissed");
+      console.log("App install dismissed");
     }
 
     setDeferredPrompt(null);
@@ -47,7 +47,7 @@ function InstallAppButton() {
         shadow-lg hover:scale-105 transition
       "
     >
-      📲 Install App
+      Install App
     </button>
   );
 }

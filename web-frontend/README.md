@@ -1,16 +1,159 @@
-# React + Vite
+# 🚀 RentKaro — Modern Rental Marketplace Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+    RentKaro is a full-stack rental marketplace that allows users to rent, sell, and manage products seamlessly.
+    Built with the MERN stack, RentKaro focuses on speed, scalability, and a clean user experience across web and mobile devices.
 
-Currently, two official plugins are available:
+        Think of it as a lightweight, modern alternative to OLX / Rentomojo for rentals.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Key Highlights
 
-## React Compiler
+    🏠 Product rental & selling platform
+    📱 Fully responsive (Web + Mobile UI)
+    📦 User listings & product management
+    🤖 AI-powered chatbot assistance
+    🔐 Secure backend with authentication-ready architecture
+    ⚡ Fast frontend using Vite + React
+    🧩 Clean, scalable project structure
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🧠 Tech Stack
 
-## Expanding the ESLint configuration
+### Frontend
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+    React (Vite)
+    JavaScript (ES6+)
+    CSS (modern styling)
+    React Router
+    Custom hooks & services layer
+
+### Backend
+
+    Node.js
+    Express.js
+    MongoDB
+    Mongoose
+    REST APIs
+    npm
+    Git & GitHub
+
+## 🗂️ Project Structure
+    RentKaro/
+    │
+    ├── web-backend/               # Backend (Node + Express)
+    │   ├── config/                # DB & app configuration
+    │   ├── controllers/           # Route logic
+    │   ├── middleware/            # Auth & request middleware
+    │   ├── models/                # Mongoose schemas
+    │   ├── routes/                # API routes
+    │   ├── uploads/               # Uploaded files
+    │   ├── utils/                 # Helper utilities
+    │   ├── server.js              # Backend entry point
+    │   ├── testMongo.js           # MongoDB connection test
+    │   └── package.json
+    │
+    ├── web-frontend/              # Frontend (React + Vite)
+    │   ├── public/
+    │   ├── src/
+    │   │   ├── api/               # API integrations
+    │   │   ├── assets/            # Images & screenshots
+    │   │   ├── components/        # Reusable UI components
+    │   │   ├── hooks/             # Custom React hooks
+    │   │   ├── pages/             # App pages
+    │   │   ├── routes/            # Routing
+    │   │   ├── services/          # Business logic
+    │   │   ├── utils/             # Helpers
+    │   │   ├── App.jsx
+    │   │   └── main.jsx
+    │   └── package.json
+    │
+    └── README.md
+
+## ⚙️ Getting Started
+    🔹 Clone Repository
+    git clone https://github.com/Karanx11/RentKaro.git
+    cd RentKaro
+
+## 🖥️ Frontend Setup
+    cd web-frontend
+    npm install
+    npm run dev
+
+
+### 📍 Runs at:
+
+    http://localhost:5173
+
+## 🔧 Backend Setup
+    cd web-backend
+    npm install
+    npm run dev
+
+
+### 📍 API runs at:
+
+    http://localhost:5000
+
+
+### ⚠️ Create a backend.env file and add:
+
+    MONGO_URI=your_mongodb_connection
+    PORT=5000
+
+## 📸 Screenshots
+
+🏠 Home (Web)
+![Home Web](src/assets/screenshots/Home_web.png)
+
+📱 Home (Mobile)
+![Home Mobile](src/assets/screenshots/Home_Mobile.png)
+
+🛒 Market (Web)
+![Market Web](src/assets/screenshots/Market_web.png)
+
+📦 My Listings
+![My Listings](src/assets/screenshots/MyListing_web.png)
+
+🔁 Rent / Sell
+![Rent Sell](src/assets/screenshots/RentSell_web.png)
+
+⚙️ Settings
+![Settings](src/assets/screenshots/Settings_web.png)
+
+🤖 AI Chatbot
+![AI Chatbot](src/assets/screenshots/AI_chatbot.png)
+
+
+## 🧩 Core Features
+
+    Product listing & browsing
+
+    Rent / Sell workflow
+
+    Category-based navigation
+
+    Image uploads
+
+    AI Chatbot UI
+
+    User dashboard (Listings & Settings)
+
+## 🚧 Roadmap
+
+    🔐 Authentication (JWT)
+
+    📍 Location-based discovery
+
+    🔔 Notifications
+
+    📱 Progressive Web App (PWA)
+
+    📊 Admin dashboard
+
+    👨‍💻 Founder & Developer
+
+        Karan Sharma
+        📍 India
+        🔗 GitHub: @Karanx11
+
+## 📄 License
+
+    Licensed under the MIT License — free to use and modify.

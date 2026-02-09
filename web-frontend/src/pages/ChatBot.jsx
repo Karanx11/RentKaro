@@ -16,7 +16,7 @@ function ChatBot() {
           pt-24 pb-16 px-4
         "
       >
-        {/* 🔒 LOGIN CHECK */}
+        {/*  LOGIN CHECK */}
         {!isLoggedIn ? (
           <div className="h-[50vh] flex items-center justify-center">
             <div
