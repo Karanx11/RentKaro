@@ -100,26 +100,33 @@
 
 ## 📸 Screenshots
 
-🏠 Home (Web)
+### 🏠 Home (Web)
+
 ![Home Web](web-frontend/src/assets/screenshots/Home_web.png)
 
-📱 Home (Mobile)
+### 📱 Home (Mobile)
+
 ![Home Mobile](web-frontend/src/assets/screenshots/Home_Mobile.png)
 
-🛒 Market (Web)
+### 🛒 Market (Web)
+
 ![Market Web](web-frontend/src/assets/screenshots/Market_web.png)
 
-📦 My Listings
+### 📦 My Listings
+
 ![My Listings](web-frontend/src/assets/screenshots/MyListing_web.png)
 
-🔁 Rent / Sell
+### 🔁 Rent / Sell
+
 ![Rent Sell](web-frontend/src/assets/screenshots/RentSell_web.png)
 
-⚙️ Settings
+### ⚙️ Settings
+
 ![Settings](web-frontend/src/assets/screenshots/Settings_web.png)
 
-🤖 AI Chatbot
-![AI Chatbot](web-frontend/src/assets/screenshots/AI_chatbot.png)
+### 🤖 AI Chatbot
+
+![AI Chatbot](web-frontend/src/assets/screenshots/Ai_chatbot.png)
 
 
 ## 🧩 Core Features
