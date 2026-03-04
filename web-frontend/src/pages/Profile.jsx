@@ -12,13 +12,16 @@ import { getProfile } from "../utils/auth";
 
 function Profile() {
   const navigate = useNavigate();
+
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deletePassword, setDeletePassword] = useState("");
   const [deleteError, setDeleteError] = useState("");
 
   /* ================= FETCH PROFILE ================= */
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -30,10 +33,12 @@ function Profile() {
         setLoading(false);
       }
     };
+
     fetchUser();
   }, []);
 
   /* ================= DELETE ACCOUNT ================= */
+
   const handleDeleteAccount = async () => {
     if (!deletePassword) {
       setDeleteError("Password is required");
@@ -54,6 +59,7 @@ function Profile() {
       );
 
       const data = await res.json();
+
       if (!res.ok) {
         setDeleteError(data.message || "Delete failed");
         return;
@@ -68,12 +74,13 @@ function Profile() {
   };
 
   /* ================= LOADING ================= */
+
   if (loading) {
     return (
       <>
         <NavBar />
         <div className="min-h-screen flex items-center justify-center">
-          <p className="text-sm text-gray-700">Loading profile...</p>
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-black"></div>
         </div>
       </>
     );
@@ -84,7 +91,7 @@ function Profile() {
       <>
         <NavBar />
         <div className="min-h-screen flex items-center justify-center">
-          <p className="text-sm text-red-600">
+          <p className="text-red-600 text-sm">
             Failed to load profile. Please login again.
           </p>
         </div>
@@ -96,87 +103,110 @@ function Profile() {
     <>
       <NavBar />
 
-      <div className="w-full min-h-screen bg-gray-500/10 px-4 pt-24 pb-16">
+      <div className="min-h-screen bg-gray-500/10 px-4 pt-24 pb-16">
         <div className="max-w-6xl mx-auto">
 
           {/* PROFILE CARD */}
-          <div className="bg-gray-400/40 backdrop-blur-xl border border-gray-500/30 rounded-2xl p-6 flex flex-col sm:flex-row items-center gap-6 shadow-md">
+
+          <div className="bg-white/40 backdrop-blur-xl border border-gray-400/40 rounded-2xl p-8 shadow-lg flex flex-col md:flex-row items-center gap-8">
+
+            {/* AVATAR */}
+
             {user.avatar ? (
               <img
                 src={user.avatar}
                 alt="profile"
-                className="w-28 h-28 rounded-full border object-cover"
+                className="w-28 h-28 rounded-full object-cover border-4 border-white shadow"
               />
             ) : (
-              <div className="w-28 h-28 rounded-full bg-black text-white flex items-center justify-center text-2xl font-bold">
+              <div className="w-28 h-28 rounded-full bg-black text-white flex items-center justify-center text-3xl font-bold shadow">
                 {user.name?.charAt(0).toUpperCase()}
               </div>
             )}
 
-            <div className="text-center sm:text-left">
-              <h1 className="text-2xl font-bold flex items-center gap-2">
+            {/* USER INFO */}
+
+            <div className="flex-1 text-center md:text-left">
+
+              <h1 className="text-2xl font-bold flex items-center gap-2 justify-center md:justify-start">
                 {user.name}
+
                 {user.isEmailVerified && (
-                  <FiCheckCircle className="text-green-600 text-base" />
+                  <FiCheckCircle className="text-green-600" />
                 )}
               </h1>
 
-              <p className="text-sm text-gray-700">{user.email}</p>
+              <p className="text-gray-700 mt-1">{user.email}</p>
+
               {user.phone && (
-                <p className="text-sm text-gray-700">
+                <p className="text-gray-700 text-sm">
                   Phone: {user.phone}
                 </p>
               )}
 
-              <div className="flex gap-3 mt-4 flex-wrap">
+              {/* ACTION BUTTONS */}
+
+              <div className="flex flex-wrap gap-3 mt-5 justify-center md:justify-start">
+
                 <button
                   onClick={() => navigate("/editprofile")}
-                  className="px-4 py-2 bg-black hover:bg-gray-800 hover:text-[#C76A46] text-white rounded-lg flex items-center gap-2 text-sm"
+                  className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg text-sm hover:bg-gray-800 hover:text-[#C76A46] transition"
                 >
-                  <FiEdit3 /> Edit Profile
+                  <FiEdit3 />
+                  Edit Profile
                 </button>
 
                 <button
                   onClick={() => setShowDeleteConfirm(true)}
-                  className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg flex items-center gap-2 text-sm"
+                  className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-500 transition"
                 >
-                  <FiTrash2 /> Delete
+                  <FiTrash2 />
+                  Delete Account
                 </button>
+
               </div>
             </div>
           </div>
 
           {/* QUICK ACTIONS */}
-          <h2 className="text-xl font-bold mt-10 mb-4">
+
+          <h2 className="text-xl font-bold mt-12 mb-6">
             Quick Actions
           </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+
             <ActionCard
               icon={<FiPlusCircle />}
               label="Add Listing"
+              desc="Post a new product for rent or sale"
               onClick={() => navigate("/sell")}
             />
+
             <ActionCard
               icon={<FiList />}
               label="My Listings"
+              desc="Manage your active listings"
               onClick={() => navigate("/my-listings")}
             />
-          </div>
 
+          </div>
         </div>
       </div>
 
       {/* DELETE MODAL */}
+
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center">
-          <div className="bg-white rounded-xl p-5 w-[90%] max-w-sm text-center">
-            <h2 className="text-lg font-bold mb-1 text-red-600">
-              Confirm Deletion
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center px-4">
+
+          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-sm">
+
+            <h2 className="text-lg font-bold text-red-600">
+              Delete Account
             </h2>
 
-            <p className="text-xs text-gray-600 mb-3">
-              Enter your password to delete your account.
+            <p className="text-sm text-gray-600 mt-1 mb-4">
+              This action cannot be undone. Enter your password to continue.
             </p>
 
             <input
@@ -184,33 +214,35 @@ function Profile() {
               placeholder="Password"
               value={deletePassword}
               onChange={(e) => setDeletePassword(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg mb-2 text-sm"
+              className="w-full px-3 py-2 border rounded-lg text-sm"
             />
 
             {deleteError && (
-              <p className="text-red-600 text-xs mb-2">
+              <p className="text-red-600 text-xs mt-2">
                 {deleteError}
               </p>
             )}
 
-            <div className="flex gap-3">
+            <div className="flex gap-3 mt-5">
+
               <button
                 onClick={() => {
                   setShowDeleteConfirm(false);
                   setDeletePassword("");
                   setDeleteError("");
                 }}
-                className="flex-1 py-2 border rounded text-sm"
+                className="flex-1 py-2 border rounded-lg text-sm hover:bg-gray-100 transition"
               >
                 Cancel
               </button>
 
               <button
                 onClick={handleDeleteAccount}
-                className="flex-1 py-2 bg-red-600 text-white rounded text-sm"
+                className="flex-1 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-500 transition"
               >
                 Delete
               </button>
+
             </div>
           </div>
         </div>
@@ -221,20 +253,32 @@ function Profile() {
 
 export default Profile;
 
-/* SMALL COMPONENT */
-function ActionCard({ icon, label, onClick }) {
+/* ================= ACTION CARD ================= */
+
+function ActionCard({ icon, label, desc, onClick }) {
   return (
     <div
       onClick={onClick}
       className="
-        bg-gray-400/40 border border-gray-500/30
-        rounded-xl p-4 shadow-md
-        text-center cursor-pointer
-        hover:bg-white/40 transition
+        cursor-pointer
+        bg-white/40
+        border border-gray-400/40
+        backdrop-blur-lg
+        rounded-xl
+        p-6
+        shadow-md
+        hover:shadow-lg
+        hover:bg-white/60
+        transition
       "
     >
-      <div className="text-2xl mb-1">{icon}</div>
-      <p className="text-sm font-semibold">{label}</p>
+      <div className="text-3xl mb-3 text-[#C76A46]">{icon}</div>
+
+      <h3 className="font-semibold text-lg">{label}</h3>
+
+      <p className="text-sm text-gray-600 mt-1">
+        {desc}
+      </p>
     </div>
   );
 }
