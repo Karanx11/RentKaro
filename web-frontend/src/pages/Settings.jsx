@@ -19,7 +19,7 @@ export default function Settings() {
  const handleLogout = () => {
   logoutUtil();
   setShowLogout(false);
-  navigate("/login", { replace: true });
+  navigate("/", { replace: true });
 };
 
   return (
