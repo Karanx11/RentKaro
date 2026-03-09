@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: rentkaro-frontend
+    env: static
+    buildCommand: cd web-frontend && npm install && npm run build
+    staticPublishPath: web-frontend/dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
