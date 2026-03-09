@@ -28,7 +28,7 @@ function NavBar() {
   const handleLogout = () => {
     localStorage.clear();
     logoutUtil();
-    navigate("/login");
+    window.location.href = "/#/login";
   };
 
   /* ================= ACTIVE LINK STYLES ================= */
