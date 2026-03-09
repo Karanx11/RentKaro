@@ -1,8 +1,11 @@
 import dns from "dns";
+
+// Fix SRV DNS issues on some networks (like hotspot)
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
 dns.setDefaultResultOrder("ipv4first");
+
 import dotenv from "dotenv";
 dotenv.config({ path: "./backend.env" });
-import mongoose from "mongoose";
 
 import express from "express";
 import cors from "cors";
@@ -19,11 +22,11 @@ import orderRoutes from "./routes/orderRoutes.js";
 import chatbotRoutes from "./routes/chatbotRoutes.js";
 
 /* =======================
-   DB
+   CONNECT DATABASE
 ======================= */
 console.log("MONGO_URI:", process.env.MONGO_URI);
 
-connectDB();
+await connectDB();
 
 /* =======================
    EXPRESS APP
@@ -64,10 +67,13 @@ app.get("/", (req, res) => {
 });
 
 /* =======================
-   SOCKET.IO
+   HTTP SERVER
 ======================= */
 const server = http.createServer(app);
 
+/* =======================
+   SOCKET.IO
+======================= */
 const io = new Server(server, {
   cors: {
     origin: "http://localhost:5173",
@@ -78,6 +84,7 @@ const io = new Server(server, {
 
 io.on("connection", (socket) => {
   console.log("🟢 Socket connected:", socket.id);
+
   socket.on("disconnect", () => {
     console.log("🔴 Socket disconnected:", socket.id);
   });
