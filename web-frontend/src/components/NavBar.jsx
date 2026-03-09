@@ -28,7 +28,7 @@ function NavBar() {
   const handleLogout = () => {
   logoutUtil();
   setShowLogout(false);
-  navigate("/", { replace: true })
+  navigate("/login", { replace: true })
 };
 
   /* ================= ACTIVE LINK STYLES ================= */
