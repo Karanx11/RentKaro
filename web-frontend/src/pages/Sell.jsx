@@ -99,7 +99,7 @@ function Sell() {
     });
 
     try {
-      const res = await fetch("http://localhost:5000/api/products", {
+      const res = await fetch("https://rentkaro-backend.onrender.com/api/products", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

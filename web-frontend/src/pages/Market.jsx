@@ -4,7 +4,7 @@ import { IoSearch, IoLocationOutline } from "react-icons/io5";
 import NavBar from "../components/NavBar";
 import Categories from "../components/Categories";
 
-const API_URL = "http://localhost:5000";
+const API_URL = "https://rentkaro-backend.onrender.com";
 
 function Market() {
   const [products, setProducts] = useState([]);

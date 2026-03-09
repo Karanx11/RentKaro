@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { IoLocationOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 
-const API_URL = "http://localhost:5000";
+const API_URL = "https://rentkaro-backend.onrender.com";
 
 function RecentlyViewed() {
   const [items, setItems] = useState([]);

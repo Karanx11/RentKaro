@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import NavBar from "../components/NavBar";
 import api from "../api/api";
 
-const API_URL = "http://localhost:5000";
+const API_URL = "https://rentkaro-backend.onrender.com";
 
 function ProductDetails() {
   const { id } = useParams();

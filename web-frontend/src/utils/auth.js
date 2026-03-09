@@ -2,7 +2,7 @@
 import { fetchWithAuth } from "./fetchWithAuth";
 // src/utils/auth.js
 
-const API = "http://localhost:5000/api/auth";
+const API = "https://rentkaro-backend.onrender.com/api/auth";
 
 /* ================= TOKEN ================= */
 export const getToken = () => localStorage.getItem("token");

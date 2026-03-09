@@ -24,7 +24,7 @@ function Login() {
       setError("");
       setShowVerifyHint(false);
 
-      const res = await fetch("http://localhost:5000/api/auth/login", {
+      const res = await fetch("https://rentkaro-backend.onrender.com/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -56,7 +56,7 @@ function Login() {
 
   const handleResendOtp = async () => {
     try {
-      await fetch("http://localhost:5000/api/auth/send-email-otp", {
+      await fetch("https://rentkaro-backend.onrender.com/api/auth/send-email-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import NavBar from "../components/NavBar";
 
-const API_URL = "http://localhost:5000";
+const API_URL = "https://rentkaro-backend.onrender.com";
 
 function EditListing() {
   const { id } = useParams();
