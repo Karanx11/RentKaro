@@ -14,12 +14,11 @@
 
     <script type="module" src="/src/main.jsx"></script>
 
-    <!-- Fix for Render routing -->
+    <!-- SPA redirect fix -->
     <script>
       if (window.location.pathname !== "/" && !window.location.hash) {
-        window.location.replace("/#"+window.location.pathname);
+        window.location.replace("/#" + window.location.pathname);
       }
     </script>
-
   </body>
 </html>
