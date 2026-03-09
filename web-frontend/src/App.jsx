@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
 import { useEffect, useRef } from "react";
 
 import KokkieBot from "./components/KokkieBot";
@@ -80,7 +80,7 @@ function App() {
   }, []);
 
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
 
         {/* ===== PUBLIC ROUTES ===== */}
@@ -173,7 +173,7 @@ function App() {
 
       {/* ===== GLOBAL FLOATING COMPONENT ===== */}
       <KokkieBot />
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 
