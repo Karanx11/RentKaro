@@ -1,6 +1,6 @@
 import dns from "dns";
 
-// Fix SRV DNS issues on some networks (like hotspot)
+// Fix SRV DNS issues (sometimes happens on hotspot networks)
 dns.setServers(["8.8.8.8", "8.8.4.4"]);
 dns.setDefaultResultOrder("ipv4first");
 
@@ -24,24 +24,41 @@ import chatbotRoutes from "./routes/chatbotRoutes.js";
 /* =======================
    CONNECT DATABASE
 ======================= */
-console.log("MONGO_URI:", process.env.MONGO_URI);
 
+console.log("Connecting to MongoDB...");
 await connectDB();
 
 /* =======================
    EXPRESS APP
 ======================= */
+
 const app = express();
+
+/* =======================
+   CORS CONFIG
+======================= */
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://rentkaro-frontend.onrender.com",
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS not allowed"));
+      }
+    },
+    credentials: true,
+  })
+);
 
 /* =======================
    MIDDLEWARE
 ======================= */
-app.use(
-  cors({
-    origin: "http://localhost:5173",
-    credentials: true,
-  })
-);
 
 app.use(express.json());
 app.use(cookieParser());
@@ -49,11 +66,13 @@ app.use(cookieParser());
 /* =======================
    STATIC FILES
 ======================= */
+
 app.use("/uploads", express.static("uploads"));
 
 /* =======================
    API ROUTES
 ======================= */
+
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
@@ -62,21 +81,24 @@ app.use("/api/chatbot", chatbotRoutes);
 /* =======================
    HEALTH CHECK
 ======================= */
+
 app.get("/", (req, res) => {
-  res.send("🚀 RentKaro backend running with Socket.IO");
+  res.send("🚀 RentKaro backend running");
 });
 
 /* =======================
    HTTP SERVER
 ======================= */
+
 const server = http.createServer(app);
 
 /* =======================
    SOCKET.IO
 ======================= */
+
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: allowedOrigins,
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -93,6 +115,7 @@ io.on("connection", (socket) => {
 /* =======================
    START SERVER
 ======================= */
+
 const PORT = process.env.PORT || 5000;
 
 server.listen(PORT, () => {
