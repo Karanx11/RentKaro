@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 
 const CATEGORIES = [
-  { name: "All", image: "/categories/all.jpeg" },
+  { name: "All", image: "/categories/All.jpeg" },
   { name: "Books", image: "/categories/book.jpg" },
   { name: "Computers", image: "/categories/computers.jpg" },
   { name: "Camera", image: "/categories/camera.jpeg" },
