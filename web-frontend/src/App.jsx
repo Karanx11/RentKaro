@@ -1,4 +1,4 @@
-import { HashRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useRef } from "react";
 
 import KokkieBot from "./components/KokkieBot";
@@ -26,7 +26,7 @@ import MyRequests from "./pages/MyRequests";
 import { socket } from "./services/socket";
 
 function App() {
-  const socketInitialized = useRef(false); // 🔒 prevents double connect
+  const socketInitialized = useRef(false);
 
   /* =====================
      SOCKET CONNECTION
@@ -48,12 +48,10 @@ function App() {
       return;
     }
 
-    // 🔌 Connect socket (only once)
     if (!socket.connected) {
       socket.connect();
     }
 
-    // ✅ Join room AFTER connection
     socket.on("connect", () => {
       socket.emit("join", user._id);
       console.log("🟢 Socket joined room for user:", user._id);
@@ -63,7 +61,6 @@ function App() {
       console.error("❌ Socket error:", err.message);
     });
 
-    // ❌ DO NOT disconnect in cleanup (StrictMode safe)
     return () => {
       socket.off("connect");
       socket.off("connect_error");
@@ -71,11 +68,13 @@ function App() {
   }, []);
 
   /* =====================
-     SERVICE WORKER
+     SERVICE WORKER (disabled)
   ===================== */
   useEffect(() => {
     if ("serviceWorker" in navigator) {
-      // navigator.serviceWorker.register("/sw.js");
+      navigator.serviceWorker.getRegistrations().then((regs) => {
+        regs.forEach((reg) => reg.unregister());
+      });
     }
   }, []);
 
@@ -169,6 +168,10 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* ===== FALLBACK ROUTE ===== */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+
       </Routes>
 
       {/* ===== GLOBAL FLOATING COMPONENT ===== */}
