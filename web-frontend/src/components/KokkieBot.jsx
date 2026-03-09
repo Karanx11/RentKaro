@@ -171,7 +171,7 @@ function KokkieBot() {
                    bg-black shadow-lg hover:scale-105 transition"
       >
         <img
-          src="/src/assets/ChatBot.png"
+          src="/categories/ChatBot.png"
           alt="Kokkie"
           className="w-full h-full object-cover"
         />

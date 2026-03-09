@@ -38,7 +38,7 @@ function HomeBody() {
         {/* LEFT IMAGE */}
         <div className="w-full lg:w-1/2 flex justify-center">
           <img
-            src="/src/assets/Home-Side.png"
+            src="/categories/Home-Side.png"
             className="w-[60%] sm:w-[55%] lg:w-[70%]"
             alt="RentKaro hero"
           />
