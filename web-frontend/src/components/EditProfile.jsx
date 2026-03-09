@@ -121,7 +121,7 @@ function EditProfile() {
       await changePassword({ currentPassword, newPassword });
       alert("Password changed. Login again.");
       localStorage.clear();
-      window.location.href = "/login";
+      window.location.replace("/#/login");
     } catch (err) {
       alert(err.message || "Password change failed");
     } finally {
