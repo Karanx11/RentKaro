@@ -26,10 +26,10 @@ function NavBar() {
   const [showLogout, setShowLogout] = useState(false);
 
   const handleLogout = () => {
-    localStorage.clear();
-    logoutUtil();
-    window.location.href = "/#/login";
-  };
+  logoutUtil();
+  setShowLogout(false);
+  navigate("/login", { replace: true });
+};
 
   /* ================= ACTIVE LINK STYLES ================= */
 

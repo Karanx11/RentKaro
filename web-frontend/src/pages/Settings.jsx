@@ -16,11 +16,11 @@ export default function Settings() {
   const navigate = useNavigate();
   const [showLogout, setShowLogout] = useState(false);
 
-  const handleLogout = () => {
-    logoutUtil();
-    setShowLogout(false);
-    window.location.href = "/#/login";
-  };
+ const handleLogout = () => {
+  logoutUtil();
+  setShowLogout(false);
+  navigate("/login", { replace: true });
+};
 
   return (
     <>
