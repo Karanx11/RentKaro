@@ -44,9 +44,10 @@ export const getProfile = async () => {
 export const logout = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
-  window.location.href = "/login";
-};
 
+  // HashRouter safe redirect
+  window.location.href = "/#/login";
+};
 
 /* ================= UPDATE PROFILE ================= */
 
