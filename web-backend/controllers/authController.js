@@ -430,15 +430,15 @@ export const resendEmailOtp = async (req, res) => {
     await user.save();
 
     try {
-      await sendEmail({
-        to: email,
-        subject: "Verify your RentKaro account",
-        html: `<h2>Email Verification</h2><h1>${otp}</h1>`,
-      });
-    } catch (err) {
-      console.error("❌ EMAIL FAILED:", err);
-      return res.status(500).json({ message: "Email sending failed" });
-    }
+  await sendEmail({
+    to: email,
+    subject: "Verify your RentKaro account",
+    html: `<h2>Email Verification</h2><h1>${otp}</h1>`,
+  });
+} catch (err) {
+  console.error("❌ Email failed:", err);
+  return res.status(500).json({ message: "Email sending failed" });
+}
 
     res.json({ message: "OTP resent successfully" });
 
