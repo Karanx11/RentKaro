@@ -12,7 +12,8 @@ function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showVerifyHint, setShowVerifyHint] = useState(false);
-
+  const [resendLoading, setResendLoading] = useState(false);
+  const [popup, setPopup] = useState("");
   const handleLogin = async () => {
     if (!email || !password) {
       setError("Email and password are required");
@@ -55,17 +56,33 @@ function Login() {
   };
 
   const handleResendOtp = async () => {
-    try {
-      await fetch("https://rentkaro-backend.onrender.com/api/auth/send-email-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-      alert("OTP resent to your email");
-    } catch {
-      alert("Failed to resend OTP");
-    }
-  };
+  if (!email) {
+    setPopup("Please enter your email first");
+    return;
+  }
+
+  try {
+    setResendLoading(true);
+
+    const res = await fetch("https://rentkaro-backend.onrender.com/api/auth/send-email-otp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+
+    const data = await res.json();
+
+    setPopup(data.message || "OTP resent successfully");
+  } catch (err) {
+    console.error(err);
+    setPopup("Failed to resend OTP");
+  } finally {
+    setResendLoading(false);
+
+    // auto hide popup after 3 sec
+    setTimeout(() => setPopup(""), 3000);
+  }
+};
 
   return (
     <>
@@ -120,13 +137,17 @@ function Login() {
           </Link>
 
           {showVerifyHint && (
-            <button
-              onClick={handleResendOtp}
-              className="text-xs text-orange-600 underline text-left"
-            >
-              Resend verification email
-            </button>
-          )}
+  <button
+    onClick={handleResendOtp}
+    disabled={resendLoading}
+    className="text-xs text-orange-600 underline text-left flex items-center gap-2"
+  >
+    {resendLoading && (
+      <span className="w-3 h-3 border-2 border-orange-600 border-t-transparent rounded-full animate-spin"></span>
+    )}
+    {resendLoading ? "Sending..." : "Resend verification email"}
+  </button>
+)}
 
           <button
             onClick={handleLogin}
@@ -144,8 +165,14 @@ function Login() {
           </p>
         </div>
       </div>
+      {popup && (
+  <div className="fixed bottom-6 right-6 bg-black text-white px-4 py-2 rounded-lg shadow-lg text-sm animate-fade-in">
+    {popup}
+  </div>
+)}
     </>
   );
 }
+
 
 export default Login;
