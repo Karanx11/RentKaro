@@ -396,10 +396,13 @@ export const resendEmailOtp = async (req, res) => {
   try {
     const { email } = req.body;
 
+    console.log("🔥 RESEND OTP HIT:", email);
+
     if (!email) {
       return res.status(400).json({ message: "Email is required" });
     }
 
+    // ✅ FIND USER BY EMAIL (NOT req.user)
     const user = await User.findOne({ email });
 
     if (!user) {
@@ -428,13 +431,13 @@ export const resendEmailOtp = async (req, res) => {
         html: `<h2>Email Verification</h2><h1>${otp}</h1>`,
       });
     } catch (err) {
-      console.error("Email failed:", err);
-      return res.status(500).json({ message: "Failed to send OTP" });
+      console.error("❌ Email failed:", err);
+      return res.status(500).json({ message: "Failed to send email" });
     }
 
     res.json({ message: "OTP resent successfully" });
   } catch (error) {
-    console.error(error);
+    console.error("❌ RESEND ERROR:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
