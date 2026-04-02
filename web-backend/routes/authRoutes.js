@@ -1,10 +1,10 @@
 import express from "express";
 import protect from "../middleware/authMiddleware.js";
-import { resendEmailOtp } from "../controllers/authController.js";
 import {
   registerUser,
   verifySignupOtp,
   loginUser,
+  resendEmailOtp,
   logoutUser,
   refreshAccessToken,
   getMe,

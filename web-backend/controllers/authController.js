@@ -402,10 +402,10 @@ export const resendEmailOtp = async (req, res) => {
       return res.status(400).json({ message: "Email is required" });
     }
 
-    // ✅ FIND USER BY EMAIL (NOT req.user)
     const user = await User.findOne({ email });
 
     if (!user) {
+      console.log("❌ USER NOT FOUND");
       return res.status(404).json({ message: "User not found" });
     }
 
@@ -414,10 +414,15 @@ export const resendEmailOtp = async (req, res) => {
     }
 
     const otp = generateOtp();
+    console.log("Generated OTP:", otp);
+
+    if (!otp) {
+      return res.status(500).json({ message: "OTP generation failed" });
+    }
 
     user.emailOtp = crypto
       .createHash("sha256")
-      .update(otp)
+      .update(String(otp))
       .digest("hex");
 
     user.emailOtpExpire = Date.now() + 10 * 60 * 1000;
@@ -431,13 +436,14 @@ export const resendEmailOtp = async (req, res) => {
         html: `<h2>Email Verification</h2><h1>${otp}</h1>`,
       });
     } catch (err) {
-      console.error("❌ Email failed:", err);
-      return res.status(500).json({ message: "Failed to send email" });
+      console.error("❌ EMAIL FAILED:", err);
+      return res.status(500).json({ message: "Email sending failed" });
     }
 
     res.json({ message: "OTP resent successfully" });
+
   } catch (error) {
-    console.error("❌ RESEND ERROR:", error);
+    console.error("❌ RESEND ERROR FULL:", error);
     res.status(500).json({ message: "Server error" });
   }
 };

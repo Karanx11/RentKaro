@@ -8,12 +8,14 @@ function Login() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [otp, setOtp] = useState(""); // ✅ NEW
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showVerifyHint, setShowVerifyHint] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
   const [popup, setPopup] = useState("");
+
   const handleLogin = async () => {
     if (!email || !password) {
       setError("Email and password are required");
@@ -55,34 +57,67 @@ function Login() {
     }
   };
 
+  const handleVerifyOtp = async () => {
+    if (!otp) {
+      setError("Please enter OTP");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const res = await fetch("https://rentkaro-backend.onrender.com/api/auth/verify-signup-otp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, otp }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message || "Invalid OTP");
+        return;
+      }
+
+      // ✅ auto login after verify
+      await handleLogin();
+
+    } catch (err) {
+      console.error(err);
+      setError("Verification failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleResendOtp = async () => {
-  if (!email) {
-    setPopup("Please enter your email first");
-    return;
-  }
+    if (!email) {
+      setPopup("Please enter your email first");
+      return;
+    }
 
-  try {
-    setResendLoading(true);
+    try {
+      setResendLoading(true);
 
-    const res = await fetch("https://rentkaro-backend.onrender.com/api/auth/send-email-otp", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
-    });
+      const res = await fetch("https://rentkaro-backend.onrender.com/api/auth/send-email-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    setPopup(data.message || "OTP resent successfully");
-  } catch (err) {
-    console.error(err);
-    setPopup("Failed to resend OTP");
-  } finally {
-    setResendLoading(false);
-
-    // auto hide popup after 3 sec
-    setTimeout(() => setPopup(""), 3000);
-  }
-};
+      setPopup(data.message || "OTP resent successfully");
+    } catch (err) {
+      console.error(err);
+      setPopup("Failed to resend OTP");
+    } finally {
+      setResendLoading(false);
+      setTimeout(() => setPopup(""), 3000);
+    }
+  };
 
   return (
     <>
@@ -137,24 +172,40 @@ function Login() {
           </Link>
 
           {showVerifyHint && (
-  <button
-    onClick={handleResendOtp}
-    disabled={resendLoading}
-    className="text-xs text-orange-600 underline text-left flex items-center gap-2"
-  >
-    {resendLoading && (
-      <span className="w-3 h-3 border-2 border-orange-600 border-t-transparent rounded-full animate-spin"></span>
-    )}
-    {resendLoading ? "Sending..." : "Resend verification email"}
-  </button>
-)}
+            <>
+              <button
+                onClick={handleResendOtp}
+                disabled={resendLoading}
+                className="text-xs text-orange-600 underline text-left flex items-center gap-2"
+              >
+                {resendLoading && (
+                  <span className="w-3 h-3 border-2 border-orange-600 border-t-transparent rounded-full animate-spin"></span>
+                )}
+                {resendLoading ? "Sending..." : "Resend verification email"}
+              </button>
 
+              {/* ✅ OTP INPUT */}
+              <input
+                type="text"
+                placeholder="Enter OTP"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                className="border rounded-lg px-3 py-2 text-sm mt-2"
+              />
+            </>
+          )}
+
+          {/* ✅ BUTTON TRANSFORM */}
           <button
-            onClick={handleLogin}
+            onClick={showVerifyHint ? handleVerifyOtp : handleLogin}
             disabled={loading}
             className="bg-black hover:bg-gray-800 hover:text-[#C76A46] text-white py-2.5 rounded-lg text-sm font-semibold"
           >
-            {loading ? "Logging in..." : "Login"}
+            {loading
+              ? "Processing..."
+              : showVerifyHint
+              ? "Verify OTP"
+              : "Login"}
           </button>
 
           <p className="text-center text-sm text-gray-700">
@@ -165,14 +216,15 @@ function Login() {
           </p>
         </div>
       </div>
+
+      {/* POPUP */}
       {popup && (
-  <div className="fixed bottom-6 right-6 bg-black text-white px-4 py-2 rounded-lg shadow-lg text-sm animate-fade-in">
-    {popup}
-  </div>
-)}
+        <div className="fixed bottom-6 right-6 bg-black text-white px-4 py-2 rounded-lg shadow-lg text-sm animate-fade-in">
+          {popup}
+        </div>
+      )}
     </>
   );
 }
-
 
 export default Login;
