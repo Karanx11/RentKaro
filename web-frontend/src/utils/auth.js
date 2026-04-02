@@ -53,7 +53,7 @@ export const logout = () => {
 
 export const updateProfile = async (profileData) => {
   const res = await fetchWithAuth(
-    "http://localhost:5000/api/auth/profile",
+    "https://rentkaro-backend.onrender.com/api/auth/profile",
     {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -72,7 +72,7 @@ export const updateProfile = async (profileData) => {
 
 export const changePassword = async ({ currentPassword, newPassword }) => {
   const res = await fetchWithAuth(
-    "http://localhost:5000/api/auth/change-password",
+    "https://rentkaro-backend.onrender.com/api/auth/change-password",
     {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -90,7 +90,7 @@ export const changePassword = async ({ currentPassword, newPassword }) => {
 
 export const sendEmailOtp = async (newEmail) => {
   const res = await fetchWithAuth(
-    "http://localhost:5000/api/auth/send-change-email-otp",
+    "https://rentkaro-backend.onrender.com/api/auth/send-change-email-otp",
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -106,7 +106,7 @@ export const sendEmailOtp = async (newEmail) => {
 
 export const verifyEmailOtp = async (newEmail, otp) => {
   const res = await fetchWithAuth(
-    "http://localhost:5000/api/auth/verify-change-email-otp",
+    "https://rentkaro-backend.onrender.com/api/auth/verify-change-email-otp",
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
