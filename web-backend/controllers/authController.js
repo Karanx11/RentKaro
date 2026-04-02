@@ -391,3 +391,50 @@ export const updateProfile = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+/* ================= RESEND EMAIL OTP ================= */
+export const resendEmailOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.isEmailVerified) {
+      return res.status(400).json({ message: "Email already verified" });
+    }
+
+    const otp = generateOtp();
+
+    user.emailOtp = crypto
+      .createHash("sha256")
+      .update(otp)
+      .digest("hex");
+
+    user.emailOtpExpire = Date.now() + 10 * 60 * 1000;
+
+    await user.save();
+
+    try {
+      await sendEmail({
+        to: email,
+        subject: "Verify your RentKaro account",
+        html: `<h2>Email Verification</h2><h1>${otp}</h1>`,
+      });
+    } catch (err) {
+      console.error("Email failed:", err);
+      return res.status(500).json({ message: "Failed to send OTP" });
+    }
+
+    res.json({ message: "OTP resent successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};

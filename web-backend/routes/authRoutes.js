@@ -1,5 +1,6 @@
 import express from "express";
 import protect from "../middleware/authMiddleware.js";
+import { resendEmailOtp } from "../controllers/authController.js";
 import {
   registerUser,
   verifySignupOtp,
@@ -24,7 +25,7 @@ router.post("/verify-signup-otp", verifySignupOtp);
 router.post("/login", loginUser);
 router.post("/logout", logoutUser);
 router.post("/refresh", refreshAccessToken);
-
+router.post("/send-email-otp", resendEmailOtp);
 // PROFILE
 router.get("/me", protect, getMe);
 router.put("/profile", protect, updateProfile);
