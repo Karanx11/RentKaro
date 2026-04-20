@@ -1,4 +1,3 @@
-
 import NavBar from "../components/NavBar";
 import { useState } from "react";
 import { FiMail, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
@@ -17,6 +16,15 @@ function Login() {
   const [showVerifyHint, setShowVerifyHint] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
   const [popup, setPopup] = useState("");
+
+  // ✅ COMMON REDIRECT FUNCTION
+  const redirectUser = (data) => {
+    if (data.needsProfileCompletion) {
+      navigate("/complete-profile");
+    } else {
+      navigate("/profile");
+    }
+  };
 
   // 🔐 NORMAL LOGIN
   const handleLogin = async () => {
@@ -51,7 +59,8 @@ function Login() {
 
       localStorage.setItem("token", data.accessToken);
       localStorage.setItem("user", JSON.stringify(data.user));
-      navigate("/profile");
+
+      redirectUser(data); // ✅ FIXED
     } catch (err) {
       console.error(err);
       setError("Server error. Try again later.");
@@ -85,7 +94,7 @@ function Login() {
       localStorage.setItem("token", data.accessToken);
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      navigate("/profile");
+      redirectUser(data); // ✅ FIXED
     } catch (err) {
       console.error(err);
       setError("Google login error");
@@ -272,4 +281,3 @@ function Login() {
 }
 
 export default Login;
-

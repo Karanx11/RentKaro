@@ -1,3 +1,4 @@
+
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
@@ -11,21 +12,33 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
     },
 
+    // REMOVE required
     phone: {
       type: String,
-      required: true,
       unique: true,
+      sparse: true, 
     },
 
     address: String,
     avatar: String,
 
+    //  REMOVE required
     password: {
       type: String,
-      required: true,
     },
 
-    // ===== EMAIL VERIFICATION OTP =====
+    googleId: {
+      type: String,
+    },
+
+    
+    authProvider: {
+      type: String,
+      enum: ["local", "google"],
+      default: "local",
+    },
+
+    // ===== EMAIL VERIFICATION =====
     emailOtp: String,
     emailOtpExpire: Date,
     isEmailVerified: {
@@ -33,14 +46,11 @@ const userSchema = new mongoose.Schema(
       default: false,
     },
 
-    // ===== CHANGE EMAIL OTP =====
     pendingEmail: String,
 
-    // ===== FORGOT PASSWORD OTP =====
     resetOtp: String,
     resetOtpExpire: Date,
 
-    // 🔔 PUSH NOTIFICATION SUBSCRIPTION (ADD HERE)
     pushSubscription: {
       type: Object,
       default: null,
@@ -53,3 +63,4 @@ const userSchema = new mongoose.Schema(
 
 const User = mongoose.model("User", userSchema);
 export default User;
+

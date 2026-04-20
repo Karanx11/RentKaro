@@ -45,8 +45,12 @@ router.post("/reset-password", resetPassword);
 router.post("/send-change-email-otp", protect, sendChangeEmailOtp);
 router.post("/verify-change-email-otp", protect, verifyChangeEmailOtp);
 
+//COMPLETE PROFILE
+router.put("/complete-profile", protect, completeProfile);
+
 // DELETE ACCOUNT
 router.delete("/delete-account", protect, deleteAccount);
+
 
 export default router;
 

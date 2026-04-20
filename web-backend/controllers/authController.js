@@ -467,23 +467,38 @@ export const googleLogin = async (req, res) => {
 
     let user = await User.findOne({ email });
 
-    if (!user) {
+    // 🧠 CASE 1: User exists (EMAIL signup → MERGE)
+    if (user) {
+      if (!user.googleId) {
+        user.googleId = sub;
+        user.authProvider = "google"; // optional but good
+        user.isEmailVerified = true;
+
+        // optional: update avatar if empty
+        if (!user.avatar) {
+          user.avatar = picture;
+        }
+
+        await user.save();
+      }
+    }
+
+    // 🧠 CASE 2: NEW USER (Google signup)
+    else {
       user = await User.create({
         name,
         email,
         avatar: picture,
         googleId: sub,
+        authProvider: "google",
         isEmailVerified: true,
       });
     }
 
-    if (user && !user.googleId) {
-      user.googleId = sub;
-      user.isEmailVerified = true;
-      await user.save();
-    }
+    // PROFILE COMPLETION CHECK
+    const needsProfileCompletion = !user.phone || !user.address;
 
-    // USE YOUR EXISTING TOKEN SYSTEM
+    // 🔐 TOKENS
     const accessToken = generateAccessToken(user._id);
     const refreshToken = generateRefreshToken(user._id);
 
@@ -497,14 +512,41 @@ export const googleLogin = async (req, res) => {
     res.json({
       accessToken,
       user,
+      needsProfileCompletion, 
     });
 
   } catch (err) {
     console.error("GOOGLE ERROR:", err);
     res.status(500).json({
       message: "Google authentication failed",
-      error: err.message
+      error: err.message,
     });
   }
 };
 
+// Complete Profile
+export const completeProfile = async (req, res) => {
+  try {
+    const { phone } = req.body;
+
+    if (!phone) {
+      return res.status(400).json({ message: "Phone required" });
+    }
+
+    const existing = await User.findOne({ phone });
+    if (existing) {
+      return res.status(400).json({ message: "Phone already in use" });
+    }
+
+    const user = await User.findById(req.user._id);
+    user.phone = phone;
+
+    await user.save();
+
+    res.json({ user });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to update profile" });
+  }
+};
