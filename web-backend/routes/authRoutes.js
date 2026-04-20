@@ -16,7 +16,8 @@ import {
   sendChangeEmailOtp,
   verifyChangeEmailOtp,
   deleteAccount,
-  googleLogin, 
+  googleLogin,
+  completeProfile 
 } from "../controllers/authController.js";
 
 const router = express.Router();
