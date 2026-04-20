@@ -23,6 +23,7 @@ const router = express.Router();
 router.post("/register", registerUser);
 router.post("/verify-signup-otp", verifySignupOtp);
 router.post("/login", loginUser);
+router.post("/google-login", googleLogin); 
 router.post("/logout", logoutUser);
 router.post("/refresh", refreshAccessToken);
 router.post("/send-email-otp", resendEmailOtp);

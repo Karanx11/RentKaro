@@ -9,6 +9,9 @@ import {
   generateRefreshToken,
 } from "../utils/generateTokens.js";
 import Product from "../models/Product.js";
+import { OAuth2Client } from "google-auth-library";
+import jwt from "jsonwebtoken";
+import User from "../models/User.js";
 
 /* ================= REGISTER ================= */
 export const registerUser = async (req, res) => {
@@ -445,5 +448,61 @@ export const resendEmailOtp = async (req, res) => {
   } catch (error) {
     console.error("❌ RESEND ERROR FULL:", error);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Google Signin
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+export const googleLogin = async (req, res) => {
+  try {
+    const { token } = req.body;
+
+    if (!token) {
+      return res.status(400).json({ message: "Token missing" });
+    }
+
+    // 🔐 Verify token
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+
+    const { email, name, picture, sub } = payload;
+
+    if (!email) {
+      return res.status(400).json({ message: "Invalid Google token" });
+    }
+
+    // 🔍 Find user
+    let user = await User.findOne({ email });
+
+    // 🆕 Create if not exists
+    if (!user) {
+      user = await User.create({
+        name,
+        email,
+        avatar: picture,
+        googleId: sub,
+        isVerified: true,
+      });
+    }
+
+    // 🔑 Generate JWT (same as your loginUser)
+    const accessToken = jwt.sign(
+      { id: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    res.json({
+      accessToken,
+      user,
+    });
+
+  } catch (err) {
+    console.error("Google login error:", err);
+    res.status(500).json({ message: "Google authentication failed" });
   }
 };
