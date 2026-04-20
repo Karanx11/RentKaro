@@ -1,3 +1,4 @@
+
 import express from "express";
 import protect from "../middleware/authMiddleware.js";
 import {
@@ -11,10 +12,11 @@ import {
   forgotPassword,
   resetPassword,
   updateProfile,
-  changePassword,         
+  changePassword,
   sendChangeEmailOtp,
   verifyChangeEmailOtp,
   deleteAccount,
+  googleLogin, // ✅ FIXED
 } from "../controllers/authController.js";
 
 const router = express.Router();
@@ -23,15 +25,16 @@ const router = express.Router();
 router.post("/register", registerUser);
 router.post("/verify-signup-otp", verifySignupOtp);
 router.post("/login", loginUser);
-router.post("/google-login", googleLogin); 
+router.post("/google-login", googleLogin); // ✅ WORKS NOW
 router.post("/logout", logoutUser);
 router.post("/refresh", refreshAccessToken);
 router.post("/send-email-otp", resendEmailOtp);
+
 // PROFILE
 router.get("/me", protect, getMe);
 router.put("/profile", protect, updateProfile);
 
-// 🔐 CHANGE PASSWORD
+// CHANGE PASSWORD
 router.put("/change-password", protect, changePassword);
 
 // FORGOT PASSWORD
@@ -42,6 +45,8 @@ router.post("/reset-password", resetPassword);
 router.post("/send-change-email-otp", protect, sendChangeEmailOtp);
 router.post("/verify-change-email-otp", protect, verifyChangeEmailOtp);
 
-//DELETE ACCOUNT
+// DELETE ACCOUNT
 router.delete("/delete-account", protect, deleteAccount);
+
 export default router;
+

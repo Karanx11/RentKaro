@@ -10,8 +10,6 @@ import {
 } from "../utils/generateTokens.js";
 import Product from "../models/Product.js";
 import { OAuth2Client } from "google-auth-library";
-import jwt from "jsonwebtoken";
-import User from "../models/User.js";
 
 /* ================= REGISTER ================= */
 export const registerUser = async (req, res) => {
@@ -451,8 +449,10 @@ export const resendEmailOtp = async (req, res) => {
   }
 };
 
+
 // Google Signin
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
 export const googleLogin = async (req, res) => {
   try {
     const { token } = req.body;
@@ -461,40 +461,45 @@ export const googleLogin = async (req, res) => {
       return res.status(400).json({ message: "Token missing" });
     }
 
-    // 🔐 Verify token
     const ticket = await client.verifyIdToken({
       idToken: token,
       audience: process.env.GOOGLE_CLIENT_ID,
     });
 
     const payload = ticket.getPayload();
-
     const { email, name, picture, sub } = payload;
 
-    if (!email) {
-      return res.status(400).json({ message: "Invalid Google token" });
-    }
-
-    // 🔍 Find user
     let user = await User.findOne({ email });
 
-    // 🆕 Create if not exists
+    // 🆕 Create new user
     if (!user) {
       user = await User.create({
         name,
         email,
         avatar: picture,
         googleId: sub,
-        isVerified: true,
+        isEmailVerified: true,
       });
     }
 
-    // 🔑 Generate JWT (same as your loginUser)
-    const accessToken = jwt.sign(
-      { id: user._id },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
+    // 🔗 Link existing account
+    if (user && !user.googleId) {
+      user.googleId = sub;
+      user.isEmailVerified = true;
+      await user.save();
+    }
+
+    // ✅ USE SAME TOKEN SYSTEM
+    const accessToken = generateAccessToken(user._id);
+    const refreshToken = generateRefreshToken(user._id);
+
+    // ✅ SAME COOKIE LOGIC
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
 
     res.json({
       accessToken,
@@ -506,3 +511,4 @@ export const googleLogin = async (req, res) => {
     res.status(500).json({ message: "Google authentication failed" });
   }
 };
+
