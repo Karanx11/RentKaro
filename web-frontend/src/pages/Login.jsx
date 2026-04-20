@@ -1,14 +1,16 @@
+
 import NavBar from "../components/NavBar";
 import { useState } from "react";
 import { FiMail, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
 
 function Login() {
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [otp, setOtp] = useState(""); // ✅ NEW
+  const [otp, setOtp] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -16,6 +18,7 @@ function Login() {
   const [resendLoading, setResendLoading] = useState(false);
   const [popup, setPopup] = useState("");
 
+  // 🔐 NORMAL LOGIN
   const handleLogin = async () => {
     if (!email || !password) {
       setError("Email and password are required");
@@ -57,6 +60,41 @@ function Login() {
     }
   };
 
+  // 🔐 GOOGLE LOGIN
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      setLoading(true);
+
+      const res = await fetch("https://rentkaro-backend.onrender.com/api/auth/google-login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          token: credentialResponse.credential,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message || "Google login failed");
+        return;
+      }
+
+      localStorage.setItem("token", data.accessToken);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      navigate("/profile");
+    } catch (err) {
+      console.error(err);
+      setError("Google login error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 🔐 VERIFY OTP
   const handleVerifyOtp = async () => {
     if (!otp) {
       setError("Please enter OTP");
@@ -81,9 +119,7 @@ function Login() {
         return;
       }
 
-      // ✅ auto login after verify
       await handleLogin();
-
     } catch (err) {
       console.error(err);
       setError("Verification failed");
@@ -92,6 +128,7 @@ function Login() {
     }
   };
 
+  // 🔐 RESEND OTP
   const handleResendOtp = async () => {
     if (!email) {
       setPopup("Please enter your email first");
@@ -184,7 +221,6 @@ function Login() {
                 {resendLoading ? "Sending..." : "Resend verification email"}
               </button>
 
-              {/* ✅ OTP INPUT */}
               <input
                 type="text"
                 placeholder="Enter OTP"
@@ -195,7 +231,7 @@ function Login() {
             </>
           )}
 
-          {/* ✅ BUTTON TRANSFORM */}
+          {/* LOGIN BUTTON */}
           <button
             onClick={showVerifyHint ? handleVerifyOtp : handleLogin}
             disabled={loading}
@@ -207,6 +243,14 @@ function Login() {
               ? "Verify OTP"
               : "Login"}
           </button>
+
+          {/* GOOGLE BUTTON */}
+          <div className="flex justify-center mt-3">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => setError("Google Sign-In failed")}
+            />
+          </div>
 
           <p className="text-center text-sm text-gray-700">
             Don’t have an account?{" "}
@@ -228,3 +272,4 @@ function Login() {
 }
 
 export default Login;
+
