@@ -467,24 +467,8 @@ export const googleLogin = async (req, res) => {
 
     let user = await User.findOne({ email });
 
-    // 🧠 CASE 1: User exists (EMAIL signup → MERGE)
-    if (user) {
-      if (!user.googleId) {
-        user.googleId = sub;
-        user.authProvider = "google"; // optional but good
-        user.isEmailVerified = true;
-
-        // optional: update avatar if empty
-        if (!user.avatar) {
-          user.avatar = picture;
-        }
-
-        await user.save();
-      }
-    }
-
-    // 🧠 CASE 2: NEW USER (Google signup)
-    else {
+    // ✅ NEW USER (GOOGLE SIGNUP)
+    if (!user) {
       user = await User.create({
         name,
         email,
@@ -495,10 +479,14 @@ export const googleLogin = async (req, res) => {
       });
     }
 
-    // PROFILE COMPLETION CHECK
-    const needsProfileCompletion = !user.phone || !user.address;
+    // ✅ EXISTING USER (MERGE)
+    if (user && !user.googleId) {
+      user.googleId = sub;
+      user.authProvider = "google";
+      user.isEmailVerified = true;
+      await user.save();
+    }
 
-    // 🔐 TOKENS
     const accessToken = generateAccessToken(user._id);
     const refreshToken = generateRefreshToken(user._id);
 
@@ -512,18 +500,17 @@ export const googleLogin = async (req, res) => {
     res.json({
       accessToken,
       user,
-      needsProfileCompletion, 
+      needsProfileCompletion: !user.phone, // ✅ KEY
     });
 
   } catch (err) {
-    console.error("GOOGLE ERROR:", err);
+    console.error("❌ GOOGLE ERROR FULL:", err); // 👈 CHECK THIS LOG
     res.status(500).json({
       message: "Google authentication failed",
       error: err.message,
     });
   }
 };
-
 // Complete Profile
 export const completeProfile = async (req, res) => {
   try {

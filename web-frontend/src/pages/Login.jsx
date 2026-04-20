@@ -17,7 +17,7 @@ function Login() {
   const [resendLoading, setResendLoading] = useState(false);
   const [popup, setPopup] = useState("");
 
-  // ✅ COMMON REDIRECT FUNCTION
+  // COMMON REDIRECT FUNCTION
   const redirectUser = (data) => {
     if (data.needsProfileCompletion) {
       navigate("/complete-profile");
