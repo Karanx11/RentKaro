@@ -457,10 +457,6 @@ export const googleLogin = async (req, res) => {
   try {
     const { token } = req.body;
 
-    if (!token) {
-      return res.status(400).json({ message: "Token missing" });
-    }
-
     const ticket = await client.verifyIdToken({
       idToken: token,
       audience: process.env.GOOGLE_CLIENT_ID,
@@ -471,7 +467,6 @@ export const googleLogin = async (req, res) => {
 
     let user = await User.findOne({ email });
 
-    // 🆕 Create new user
     if (!user) {
       user = await User.create({
         name,
@@ -482,18 +477,16 @@ export const googleLogin = async (req, res) => {
       });
     }
 
-    // 🔗 Link existing account
     if (user && !user.googleId) {
       user.googleId = sub;
       user.isEmailVerified = true;
       await user.save();
     }
 
-    // ✅ USE SAME TOKEN SYSTEM
+    // USE YOUR EXISTING TOKEN SYSTEM
     const accessToken = generateAccessToken(user._id);
     const refreshToken = generateRefreshToken(user._id);
 
-    // ✅ SAME COOKIE LOGIC
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: true,
@@ -507,8 +500,11 @@ export const googleLogin = async (req, res) => {
     });
 
   } catch (err) {
-    console.error("Google login error:", err);
-    res.status(500).json({ message: "Google authentication failed" });
+    console.error("GOOGLE ERROR:", err);
+    res.status(500).json({
+      message: "Google authentication failed",
+      error: err.message
+    });
   }
 };
 

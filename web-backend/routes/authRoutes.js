@@ -16,7 +16,7 @@ import {
   sendChangeEmailOtp,
   verifyChangeEmailOtp,
   deleteAccount,
-  googleLogin, // ✅ FIXED
+  googleLogin, 
 } from "../controllers/authController.js";
 
 const router = express.Router();
@@ -25,7 +25,7 @@ const router = express.Router();
 router.post("/register", registerUser);
 router.post("/verify-signup-otp", verifySignupOtp);
 router.post("/login", loginUser);
-router.post("/google-login", googleLogin); // ✅ WORKS NOW
+router.post("/google-login", googleLogin); 
 router.post("/logout", logoutUser);
 router.post("/refresh", refreshAccessToken);
 router.post("/send-email-otp", resendEmailOtp);
