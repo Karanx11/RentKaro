@@ -1,3 +1,4 @@
+
 import { Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import api from "../services/api";
@@ -5,13 +6,15 @@ import api from "../services/api";
 const ProtectedRoute = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [isAuth, setIsAuth] = useState(false);
+  const [user, setUser] = useState(null); // ✅ ADD
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        // This will auto refresh token if expired
-        await api.get("/api/auth/me");
+        const res = await api.get("/api/auth/me");
+
         setIsAuth(true);
+        setUser(res.data); // ✅ SAVE USER
       } catch {
         setIsAuth(false);
       } finally {
@@ -22,7 +25,7 @@ const ProtectedRoute = ({ children }) => {
     checkAuth();
   }, []);
 
-  // ⏳ Checking auth
+  // ⏳ Loading
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center">
@@ -33,10 +36,15 @@ const ProtectedRoute = ({ children }) => {
 
   // ❌ Not logged in
   if (!isAuth) {
-  return <Navigate to="/login" replace />;
-}
+    return <Navigate to="/login" replace />;
+  }
 
-  // ✅ Logged in
+  // 🚨 PROFILE NOT COMPLETE (KEY FIX)
+  if (user && (!user.phone || user.phone.trim() === "")) {
+    return <Navigate to="/complete-profile" replace />;
+  }
+
+  // ✅ All good
   return children;
 };
 

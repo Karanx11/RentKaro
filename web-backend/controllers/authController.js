@@ -500,7 +500,7 @@ export const googleLogin = async (req, res) => {
     res.json({
       accessToken,
       user,
-      needsProfileCompletion: !user.phone, // ✅ KEY
+      needsProfileCompletion: !user.phone || user.phone.trim() === ""
     });
 
   } catch (err) {
