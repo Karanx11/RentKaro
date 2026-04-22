@@ -111,6 +111,7 @@ function App() {
         <Route path="/help-support" element={<HelpSupport />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
+         <Route path="/complete-profile" element={<CompleteProfile />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
 
         {/* ===== PROTECTED ROUTES ===== */}
@@ -123,14 +124,7 @@ function App() {
           }
         />
 
-        <Route
-          path="/complete-profile"
-          element={
-            <ProtectedRoute>
-              <CompleteProfile />
-            </ProtectedRoute>
-          }
-        />
+      
 
         <Route
           path="/chatbot"
