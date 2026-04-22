@@ -72,7 +72,7 @@ function CompleteProfile() {
           {/* PHONE INPUT */}
           <Input
             icon={<FiPhone />}
-            placeholder="Phone Number"
+            placeholder="Enter Your WhatsApp Number"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
           />
