@@ -468,7 +468,7 @@ export const googleLogin = async (req, res) => {
 
     let user = await User.findOne({ email });
 
-    // ✅ NEW USER (GOOGLE SIGNUP)
+    // NEW USER (GOOGLE SIGNUP)
     if (!user) {
       user = await User.create({
   name,
@@ -477,7 +477,7 @@ export const googleLogin = async (req, res) => {
   googleId: sub,
   authProvider: "google",
   isEmailVerified: true,
-  phone: undefined  // ✅ IMPORTANT FIX
+  phone: undefined  
 });
     }
 
