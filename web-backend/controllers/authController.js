@@ -222,9 +222,10 @@ export const loginUser = async (req, res) => {
   });
 
   res.json({
-    accessToken,
-    user,
-  });
+  accessToken,
+  user,
+  needsProfileCompletion: !user.phone || String(user.phone).trim() === ""
+});
 };
 
 /* ================= LOGOUT ================= */
