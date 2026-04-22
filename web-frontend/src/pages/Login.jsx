@@ -70,39 +70,40 @@ function Login() {
   };
 
   // 🔐 GOOGLE LOGIN
-  const handleGoogleSuccess = async (credentialResponse) => {
-    try {
-      setLoading(true);
+ // 🔐 GOOGLE LOGIN
+const handleGoogleSuccess = async (credentialResponse) => {
+  try {
+    setLoading(true);
 
-      const res = await fetch("https://rentkaro-backend.onrender.com/api/auth/google-login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          token: credentialResponse.credential,
-        }),
-      });
+    const res = await fetch("https://rentkaro-backend.onrender.com/api/auth/google-login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        token: credentialResponse.credential,
+      }),
+    });
 
-      const data = await res.json();
+    const data = await res.json();
+    console.log("GOOGLE RESPONSE:", data); // ✅ ADDED HERE
 
-      if (!res.ok) {
-        setError(data.message || "Google login failed");
-        return;
-      }
-
-      localStorage.setItem("token", data.accessToken);
-      localStorage.setItem("user", JSON.stringify(data.user));
-
-      redirectUser(data); // ✅ FIXED
-    } catch (err) {
-      console.error(err);
-      setError("Google login error");
-    } finally {
-      setLoading(false);
+    if (!res.ok) {
+      setError(data.message || "Google login failed");
+      return;
     }
-  };
 
+    localStorage.setItem("token", data.accessToken);
+    localStorage.setItem("user", JSON.stringify(data.user));
+
+    redirectUser(data);
+  } catch (err) {
+    console.error(err);
+    setError("Google login error");
+  } finally {
+    setLoading(false);
+  }
+};
   // 🔐 VERIFY OTP
   const handleVerifyOtp = async () => {
     if (!otp) {
