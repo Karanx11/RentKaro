@@ -22,7 +22,7 @@ function Login() {
     if (data.needsProfileCompletion) {
       navigate("/complete-profile");
     } else {
-      navigate("/profile");
+      window.location.href = "/#/profile";
     }
   };
 
@@ -60,7 +60,7 @@ function Login() {
       localStorage.setItem("token", data.accessToken);
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      redirectUser(data); // ✅ FIXED
+      redirectUser(data); 
     } catch (err) {
       console.error(err);
       setError("Server error. Try again later.");
@@ -69,7 +69,7 @@ function Login() {
     }
   };
 
-  // 🔐 GOOGLE LOGIN
+
  // 🔐 GOOGLE LOGIN
 const handleGoogleSuccess = async (credentialResponse) => {
   try {
@@ -86,7 +86,7 @@ const handleGoogleSuccess = async (credentialResponse) => {
     });
 
     const data = await res.json();
-    console.log("GOOGLE RESPONSE:", data); // ✅ ADDED HERE
+    console.log("GOOGLE RESPONSE:", data); 
 
     if (!res.ok) {
       setError(data.message || "Google login failed");

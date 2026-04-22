@@ -46,7 +46,7 @@ function App() {
       user = JSON.parse(userStr);
     } catch (err) {
       console.warn("Invalid user in localStorage", err);
-      localStorage.removeItem("user"); // ✅ cleanup
+      localStorage.removeItem("user"); 
       return;
     }
 
@@ -67,8 +67,8 @@ function App() {
     socket.on("connect_error", handleError);
 
     return () => {
-      socket.off("connect", handleConnect);       // ✅ FIXED
-      socket.off("connect_error", handleError);   // ✅ FIXED
+      socket.off("connect", handleConnect);       
+      socket.off("connect_error", handleError);   
     };
   }, []);
 
