@@ -9,13 +9,12 @@ function Login() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [otp, setOtp] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [showVerifyHint, setShowVerifyHint] = useState(false);
 
-  // ✅ CLEAN REDIRECT
+  // REDIRECT
   const redirectUser = (data) => {
     if (data.needsProfileCompletion) {
       navigate("/complete-profile");
@@ -24,31 +23,31 @@ function Login() {
     }
   };
 
-  // 🔐 NORMAL LOGIN
+  //  NORMAL LOGIN
   const handleLogin = async () => {
     if (!email || !password) {
-      setError("Email and password are required");
-      return;
+      return setError("Email and password are required");
     }
 
     try {
       setLoading(true);
       setError("");
 
-      const res = await fetch("https://rentkaro-backend.onrender.com/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+      const res = await fetch(
+        "https://rentkaro-backend.onrender.com/api/auth/login",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        }
+      );
 
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.message || "Login failed");
-        return;
+        return setError(data.message || "Login failed");
       }
 
-      // ✅ SAVE TOKEN
       localStorage.setItem("token", data.accessToken);
       localStorage.setItem("user", JSON.stringify(data.user));
 
@@ -61,30 +60,29 @@ function Login() {
     }
   };
 
-  // 🔐 GOOGLE LOGIN
+  //  GOOGLE LOGIN
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
       setLoading(true);
 
-      const res = await fetch("https://rentkaro-backend.onrender.com/api/auth/google-login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          token: credentialResponse.credential,
-        }),
-      });
+      const res = await fetch(
+        "https://rentkaro-backend.onrender.com/api/auth/google-login",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            token: credentialResponse.credential,
+          }),
+        }
+      );
 
       const data = await res.json();
       console.log("GOOGLE RESPONSE:", data);
 
       if (!res.ok) {
-        setError(data.message || "Google login failed");
-        return;
+        return setError(data.message || "Google login failed");
       }
 
-      // ✅ IMPORTANT FIX
       localStorage.setItem("token", data.accessToken);
       localStorage.setItem("user", JSON.stringify(data.user));
 
@@ -101,46 +99,75 @@ function Login() {
     <>
       <NavBar />
 
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-gray-900 to-black px-4">
-        <div className="w-full max-w-sm bg-[#111] border border-gray-800 rounded-2xl p-6">
+      <div className="w-full min-h-screen bg-gray-500/10 backdrop-blur-lg flex items-center justify-center pt-24 px-4">
+        <div className="w-full max-w-md bg-gray-400/40 backdrop-blur-xl border border-gray-500/30 shadow-xl rounded-2xl p-6 flex flex-col gap-5">
 
-          <h1 className="text-2xl font-semibold text-white text-center mb-4">
-            Login
+          <h1 className="text-2xl md:text-3xl font-bold text-black text-center">
+            Welcome Back
           </h1>
 
           {error && (
-            <p className="text-center text-sm text-red-500 mb-3">{error}</p>
+            <p className="text-center text-sm text-red-600">{error}</p>
           )}
 
-          <input
-            type="email"
-            placeholder="Email"
+          {/* EMAIL */}
+          <Input
+            icon={<FiMail />}
+            placeholder="Email Address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full mb-3 p-2 rounded bg-[#1a1a1a] text-white border border-gray-700"
           />
 
-          <input
-            type="password"
-            placeholder="Password"
+          {/* PASSWORD */}
+          <PasswordInput
+            label="Password"
             value={password}
+            show={showPassword}
+            setShow={setShowPassword}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full mb-3 p-2 rounded bg-[#1a1a1a] text-white border border-gray-700"
           />
 
+          <Link
+            to="/forgot"
+            className="text-right text-xs text-gray-700"
+          >
+            Forgot password?
+          </Link>
+
+          {/* LOGIN BUTTON */}
           <button
             onClick={handleLogin}
-            className="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 rounded mb-3"
+            disabled={loading}
+            className="
+              w-full bg-black hover:bg-gray-800
+              text-white hover:text-[#C76A46]
+              rounded-xl py-2.5
+              text-sm font-semibold
+              shadow-md transition
+              disabled:opacity-50
+            "
           >
-            {loading ? "Loading..." : "Login"}
+            {loading ? "Logging in..." : "Login"}
           </button>
 
-          <div className="flex justify-center">
+          {/* GOOGLE */}
+          <div className="flex justify-center mt-2">
             <GoogleLogin
               onSuccess={handleGoogleSuccess}
               onError={() => setError("Google Sign-In failed")}
             />
           </div>
+
+          {/* SIGNUP LINK */}
+          <p className="text-center text-sm text-gray-700">
+            Don’t have an account?{" "}
+            <Link
+              to="/signup"
+              className="font-semibold hover:text-[#C76A46]"
+            >
+              Sign up
+            </Link>
+          </p>
         </div>
       </div>
     </>
@@ -148,3 +175,38 @@ function Login() {
 }
 
 export default Login;
+
+/* ========= REUSABLE COMPONENTS ========= */
+
+function Input({ icon, ...props }) {
+  return (
+    <div className="flex items-center bg-white rounded-lg px-3 py-2.5 shadow-sm">
+      <span className="text-gray-600 text-base mr-2">{icon}</span>
+      <input
+        {...props}
+        className="flex-1 bg-transparent outline-none text-sm text-gray-800"
+      />
+    </div>
+  );
+}
+
+function PasswordInput({ label, show, setShow, ...props }) {
+  return (
+    <div className="flex items-center bg-white rounded-lg px-3 py-2.5 shadow-sm relative">
+      <FiLock className="text-gray-600 text-base mr-2" />
+      <input
+        type={show ? "text" : "password"}
+        {...props}
+        placeholder={label}
+        className="flex-1 bg-transparent outline-none text-sm text-gray-800"
+      />
+      <button
+        type="button"
+        onClick={() => setShow(!show)}
+        className="absolute right-3 text-gray-600"
+      >
+        {show ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+      </button>
+    </div>
+  );
+}

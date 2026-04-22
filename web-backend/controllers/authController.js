@@ -506,7 +506,7 @@ export const googleLogin = async (req, res) => {
     });
 
   } catch (err) {
-    console.error("❌ GOOGLE ERROR FULL:", err); // 👈 CHECK THIS LOG
+    console.error("❌ GOOGLE ERROR FULL:", err); // CHECK THIS LOG
     res.status(500).json({
       message: "Google authentication failed",
       error: err.message,
