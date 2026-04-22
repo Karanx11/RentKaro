@@ -37,27 +37,28 @@ function CompleteProfile() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="bg-white p-6 rounded-xl shadow w-80">
-        <h2 className="text-lg font-bold mb-4">Complete Profile</h2>
+  
+  <div className="min-h-screen flex items-center justify-center bg-gray-100">
+    <div className="bg-white p-6 rounded-xl shadow w-80">
+      <h2 className="text-lg font-bold mb-4">Complete Profile</h2>
 
-        <input
-          type="text"
-          placeholder="Phone number"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          className="w-full border p-2 rounded mb-3"
-        />
+      <input
+        type="text"
+        placeholder="Phone number"
+        value={phone}
+        onChange={(e) => setPhone(e.target.value)}
+        className="w-full border p-2 rounded mb-3"
+      />
 
-        <button
-          onClick={handleSubmit}
-          className="w-full bg-black text-white py-2 rounded"
-        >
-          Save
-        </button>
-      </div>
+      <button
+        onClick={handleSubmit}
+        className="w-full bg-black text-white py-2 rounded"
+      >
+        Save
+      </button>
     </div>
-  );
+  </div>
+);
 }
 
 export default CompleteProfile;
