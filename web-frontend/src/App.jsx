@@ -22,6 +22,7 @@ import ResetPassword from "./pages/ResetPassword";
 import MyListings from "./pages/MyListings";
 import EditListing from "./pages/EditListing";
 import MyRequests from "./pages/MyRequests";
+import CompleteProfile from "./pages/CompleteProfile";
 
 import { socket } from "./services/socket";
 
@@ -29,7 +30,7 @@ function App() {
   const socketInitialized = useRef(false);
 
   /* =====================
-     SOCKET CONNECTION
+     SOCKET CONNECTION (FIXED)
   ===================== */
   useEffect(() => {
     if (socketInitialized.current) return;
@@ -45,6 +46,7 @@ function App() {
       user = JSON.parse(userStr);
     } catch (err) {
       console.warn("Invalid user in localStorage", err);
+      localStorage.removeItem("user"); // ✅ cleanup
       return;
     }
 
@@ -52,18 +54,21 @@ function App() {
       socket.connect();
     }
 
-    socket.on("connect", () => {
+    const handleConnect = () => {
       socket.emit("join", user._id);
       console.log("🟢 Socket joined room for user:", user._id);
-    });
+    };
 
-    socket.on("connect_error", (err) => {
+    const handleError = (err) => {
       console.error("❌ Socket error:", err.message);
-    });
+    };
+
+    socket.on("connect", handleConnect);
+    socket.on("connect_error", handleError);
 
     return () => {
-      socket.off("connect");
-      socket.off("connect_error");
+      socket.off("connect", handleConnect);       // ✅ FIXED
+      socket.off("connect_error", handleError);   // ✅ FIXED
     };
   }, []);
 
@@ -78,6 +83,11 @@ function App() {
     }
   }, []);
 
+  /* =====================
+     AUTH CHECK
+  ===================== */
+  const isLoggedIn = !!localStorage.getItem("token");
+
   return (
     <HashRouter>
       <Routes>
@@ -87,8 +97,15 @@ function App() {
         <Route path="/market" element={<Market />} />
         <Route path="/product/:id" element={<ProductDetails />} />
 
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        {/* AUTH ROUTES (auto redirect if logged in) */}
+        <Route
+          path="/login"
+          element={isLoggedIn ? <Navigate to="/profile" /> : <Login />}
+        />
+        <Route
+          path="/signup"
+          element={isLoggedIn ? <Navigate to="/profile" /> : <Signup />}
+        />
         <Route path="/forgot" element={<ForgotPassword />} />
 
         <Route path="/help-support" element={<HelpSupport />} />
@@ -102,6 +119,15 @@ function App() {
           element={
             <ProtectedRoute>
               <Sell />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/complete-profile"
+          element={
+            <ProtectedRoute>
+              <CompleteProfile />
             </ProtectedRoute>
           }
         />
@@ -169,12 +195,12 @@ function App() {
           }
         />
 
-        {/* ===== FALLBACK ROUTE ===== */}
+        {/* ===== FALLBACK ===== */}
         <Route path="*" element={<Navigate to="/" replace />} />
 
       </Routes>
 
-      {/* ===== GLOBAL FLOATING COMPONENT ===== */}
+      {/* ===== GLOBAL BOT ===== */}
       <KokkieBot />
     </HashRouter>
   );
