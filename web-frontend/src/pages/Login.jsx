@@ -14,15 +14,13 @@ function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showVerifyHint, setShowVerifyHint] = useState(false);
-  const [resendLoading, setResendLoading] = useState(false);
-  const [popup, setPopup] = useState("");
 
-  // COMMON REDIRECT FUNCTION
+  // ✅ CLEAN REDIRECT
   const redirectUser = (data) => {
     if (data.needsProfileCompletion) {
       navigate("/complete-profile");
     } else {
-      window.location.href = "/#/profile";
+      navigate("/profile");
     }
   };
 
@@ -36,7 +34,6 @@ function Login() {
     try {
       setLoading(true);
       setError("");
-      setShowVerifyHint(false);
 
       const res = await fetch("https://rentkaro-backend.onrender.com/api/auth/login", {
         method: "POST",
@@ -46,123 +43,57 @@ function Login() {
 
       const data = await res.json();
 
-      if (res.status === 403) {
-        setError("Please verify your email before logging in");
-        setShowVerifyHint(true);
-        return;
-      }
-
       if (!res.ok) {
         setError(data.message || "Login failed");
         return;
       }
 
+      // ✅ SAVE TOKEN
       localStorage.setItem("token", data.accessToken);
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      redirectUser(data); 
+      redirectUser(data);
     } catch (err) {
       console.error(err);
-      setError("Server error. Try again later.");
+      setError("Server error");
     } finally {
       setLoading(false);
     }
   };
 
-
- // 🔐 GOOGLE LOGIN
-const handleGoogleSuccess = async (credentialResponse) => {
-  try {
-    setLoading(true);
-
-    const res = await fetch("https://rentkaro-backend.onrender.com/api/auth/google-login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        token: credentialResponse.credential,
-      }),
-    });
-
-    const data = await res.json();
-    console.log("GOOGLE RESPONSE:", data); 
-
-    if (!res.ok) {
-      setError(data.message || "Google login failed");
-      return;
-    }
-
-    localStorage.setItem("token", data.accessToken);
-    localStorage.setItem("user", JSON.stringify(data.user));
-
-    redirectUser(data);
-  } catch (err) {
-    console.error(err);
-    setError("Google login error");
-  } finally {
-    setLoading(false);
-  }
-};
-  // 🔐 VERIFY OTP
-  const handleVerifyOtp = async () => {
-    if (!otp) {
-      setError("Please enter OTP");
-      return;
-    }
-
+  // 🔐 GOOGLE LOGIN
+  const handleGoogleSuccess = async (credentialResponse) => {
     try {
       setLoading(true);
 
-      const res = await fetch("https://rentkaro-backend.onrender.com/api/auth/verify-signup-otp", {
+      const res = await fetch("https://rentkaro-backend.onrender.com/api/auth/google-login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, otp }),
+        body: JSON.stringify({
+          token: credentialResponse.credential,
+        }),
       });
 
       const data = await res.json();
+      console.log("GOOGLE RESPONSE:", data);
 
       if (!res.ok) {
-        setError(data.message || "Invalid OTP");
+        setError(data.message || "Google login failed");
         return;
       }
 
-      await handleLogin();
+      // ✅ IMPORTANT FIX
+      localStorage.setItem("token", data.accessToken);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      redirectUser(data);
     } catch (err) {
       console.error(err);
-      setError("Verification failed");
+      setError("Google login error");
     } finally {
       setLoading(false);
-    }
-  };
-
-  // 🔐 RESEND OTP
-  const handleResendOtp = async () => {
-    if (!email) {
-      setPopup("Please enter your email first");
-      return;
-    }
-
-    try {
-      setResendLoading(true);
-
-      const res = await fetch("https://rentkaro-backend.onrender.com/api/auth/send-email-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-
-      const data = await res.json();
-
-      setPopup(data.message || "OTP resent successfully");
-    } catch (err) {
-      console.error(err);
-      setPopup("Failed to resend OTP");
-    } finally {
-      setResendLoading(false);
-      setTimeout(() => setPopup(""), 3000);
     }
   };
 
@@ -170,113 +101,48 @@ const handleGoogleSuccess = async (credentialResponse) => {
     <>
       <NavBar />
 
-      <div className="w-full min-h-screen bg-gray-500/10 flex items-center justify-center pt-24 px-4">
-        <div className="w-full max-w-sm bg-gray-400/40 backdrop-blur-xl border border-gray-500/30 rounded-2xl p-6 flex flex-col gap-4">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-gray-900 to-black px-4">
+        <div className="w-full max-w-sm bg-[#111] border border-gray-800 rounded-2xl p-6">
 
-          <h1 className="text-2xl font-bold text-center text-black">
+          <h1 className="text-2xl font-semibold text-white text-center mb-4">
             Login
           </h1>
 
           {error && (
-            <p className="text-center text-sm text-red-600">
-              {error}
-            </p>
+            <p className="text-center text-sm text-red-500 mb-3">{error}</p>
           )}
 
-          {/* EMAIL */}
-          <div className="flex items-center bg-white rounded-lg px-3 py-2.5 border">
-            <FiMail className="mr-2 text-gray-600 text-base" />
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="flex-1 outline-none bg-transparent text-sm"
-            />
-          </div>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full mb-3 p-2 rounded bg-[#1a1a1a] text-white border border-gray-700"
+          />
 
-          {/* PASSWORD */}
-          <div className="flex items-center bg-white rounded-lg px-3 py-2.5 border relative">
-            <FiLock className="mr-2 text-gray-600 text-base" />
-            <input
-              type={showPassword ? "text" : "password"}
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="flex-1 outline-none bg-transparent text-sm"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 text-gray-600"
-            >
-              {showPassword ? <FiEyeOff /> : <FiEye />}
-            </button>
-          </div>
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full mb-3 p-2 rounded bg-[#1a1a1a] text-white border border-gray-700"
+          />
 
-          <Link to="/forgot" className="text-right text-xs text-gray-700">
-            Forgot password?
-          </Link>
-
-          {showVerifyHint && (
-            <>
-              <button
-                onClick={handleResendOtp}
-                disabled={resendLoading}
-                className="text-xs text-orange-600 underline text-left flex items-center gap-2"
-              >
-                {resendLoading && (
-                  <span className="w-3 h-3 border-2 border-orange-600 border-t-transparent rounded-full animate-spin"></span>
-                )}
-                {resendLoading ? "Sending..." : "Resend verification email"}
-              </button>
-
-              <input
-                type="text"
-                placeholder="Enter OTP"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                className="border rounded-lg px-3 py-2 text-sm mt-2"
-              />
-            </>
-          )}
-
-          {/* LOGIN BUTTON */}
           <button
-            onClick={showVerifyHint ? handleVerifyOtp : handleLogin}
-            disabled={loading}
-            className="bg-black hover:bg-gray-800 hover:text-[#C76A46] text-white py-2.5 rounded-lg text-sm font-semibold"
+            onClick={handleLogin}
+            className="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 rounded mb-3"
           >
-            {loading
-              ? "Processing..."
-              : showVerifyHint
-              ? "Verify OTP"
-              : "Login"}
+            {loading ? "Loading..." : "Login"}
           </button>
 
-          {/* GOOGLE BUTTON */}
-          <div className="flex justify-center mt-3">
+          <div className="flex justify-center">
             <GoogleLogin
               onSuccess={handleGoogleSuccess}
               onError={() => setError("Google Sign-In failed")}
             />
           </div>
-
-          <p className="text-center text-sm text-gray-700">
-            Don’t have an account?{" "}
-            <Link to="/signup" className="font-semibold hover:text-[#C76A46]">
-              Sign up
-            </Link>
-          </p>
         </div>
       </div>
-
-      {/* POPUP */}
-      {popup && (
-        <div className="fixed bottom-6 right-6 bg-black text-white px-4 py-2 rounded-lg shadow-lg text-sm animate-fade-in">
-          {popup}
-        </div>
-      )}
     </>
   );
 }

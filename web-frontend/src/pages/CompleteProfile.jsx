@@ -7,10 +7,7 @@ function CompleteProfile() {
   const navigate = useNavigate();
 
   const handleSubmit = async () => {
-    if (!phone.trim()) {
-      alert("Phone number is required");
-      return;
-    }
+    if (!phone) return alert("Phone required");
 
     const token = localStorage.getItem("token");
 
@@ -32,65 +29,42 @@ function CompleteProfile() {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.message || "Failed to update profile");
-        setLoading(false);
+        alert(data.message || "Failed");
         return;
       }
 
-      // update local user
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      // redirect
-      window.location.href = "/#/profile"; // 🔥 reliable redirect
+      navigate("/profile"); // ✅ CLEAN NAVIGATION
     } catch (err) {
       console.error(err);
-      alert("Something went wrong");
+      alert("Error occurred");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-gray-900 to-black px-4">
-      
-      <div className="w-full max-w-md bg-[#111] border border-gray-800 rounded-2xl shadow-xl p-8">
-        
-        {/* Title */}
-        <h2 className="text-2xl font-semibold text-white mb-2 text-center">
-          Complete Your Profile
+    <div className="min-h-screen flex items-center justify-center bg-black">
+      <div className="bg-[#111] p-6 rounded-xl w-80 border border-gray-800">
+        <h2 className="text-white text-xl mb-4 text-center">
+          Complete Profile
         </h2>
-        <p className="text-gray-400 text-sm text-center mb-6">
-          Add your phone number to continue
-        </p>
 
-        {/* Input */}
-        <div className="mb-5">
-          <label className="text-gray-400 text-sm mb-1 block">
-            Phone Number
-          </label>
+        <input
+          type="text"
+          placeholder="Phone number"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          className="w-full p-2 mb-3 bg-[#1a1a1a] text-white border border-gray-700 rounded"
+        />
 
-          <input
-            type="text"
-            placeholder="Enter your phone number"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            className="w-full bg-[#1a1a1a] border border-gray-700 text-white px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
-          />
-        </div>
-
-        {/* Button */}
         <button
           onClick={handleSubmit}
-          disabled={loading}
-          className={`w-full py-2.5 rounded-lg font-medium transition ${
-            loading
-              ? "bg-gray-700 text-gray-400 cursor-not-allowed"
-              : "bg-orange-500 hover:bg-orange-600 text-white"
-          }`}
+          className="w-full bg-orange-500 text-white py-2 rounded"
         >
-          {loading ? "Saving..." : "Save & Continue"}
+          {loading ? "Saving..." : "Save"}
         </button>
-
       </div>
     </div>
   );
