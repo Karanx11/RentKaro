@@ -471,13 +471,14 @@ export const googleLogin = async (req, res) => {
     // ✅ NEW USER (GOOGLE SIGNUP)
     if (!user) {
       user = await User.create({
-        name,
-        email,
-        avatar: picture,
-        googleId: sub,
-        authProvider: "google",
-        isEmailVerified: true,
-      });
+  name,
+  email,
+  avatar: picture,
+  googleId: sub,
+  authProvider: "google",
+  isEmailVerified: true,
+  phone: undefined  // ✅ IMPORTANT FIX
+});
     }
 
     // ✅ EXISTING USER (MERGE)
