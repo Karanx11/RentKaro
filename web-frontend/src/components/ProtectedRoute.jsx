@@ -1,4 +1,3 @@
-
 import { Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import api from "../services/api";
@@ -6,7 +5,7 @@ import api from "../services/api";
 const ProtectedRoute = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [isAuth, setIsAuth] = useState(false);
-  const [user, setUser] = useState(null); 
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -14,11 +13,13 @@ const ProtectedRoute = ({ children }) => {
         const res = await api.get("/api/auth/me");
 
         setIsAuth(true);
-        setUser(res.data); 
+        setUser(res.data);
       } catch (err) {
-  localStorage.removeItem("token"); 
-  setIsAuth(false);
-} finally {
+        // CLEAN AUTH RESET
+        localStorage.removeItem("token");
+        setIsAuth(false);
+        setUser(null);
+      } finally {
         setLoading(false);
       }
     };
@@ -26,26 +27,30 @@ const ProtectedRoute = ({ children }) => {
     checkAuth();
   }, []);
 
-  // ⏳ Loading
+  /* ================= LOADING ================= */
+
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center">
-        <p className="text-gray-500">Checking login...</p>
+        <div className="animate-spin h-8 w-8 border-2 border-black border-t-transparent rounded-full"></div>
       </div>
     );
   }
 
-  // ❌ Not logged in
+  /* ================= NOT AUTH ================= */
+
   if (!isAuth) {
     return <Navigate to="/login" replace />;
   }
 
-  // 🚨 PROFILE NOT COMPLETE (KEY FIX)
+  /* ================= PROFILE INCOMPLETE ================= */
+
   if (user && (!user.phone || user.phone.trim() === "")) {
     return <Navigate to="/complete-profile" replace />;
   }
 
-  // ✅ All good
+  /* ================= AUTHORIZED ================= */
+
   return children;
 };
 

@@ -33,10 +33,15 @@ api.interceptors.response.use(
   async (err) => {
     const originalRequest = err.config;
 
-    // ❌ STOP infinite loop
-    if (originalRequest.url.includes("/auth/refresh")) {
+    // HANDLE REFRESH FAILURE SAFELY
+    if (originalRequest?.url?.includes("/auth/refresh")) {
       localStorage.removeItem("token");
-      window.location.href = "/#/login";
+
+      // prevent infinite redirect loop
+      if (window.location.hash !== "#/login") {
+        window.location.href = "/#/login";
+      }
+
       return Promise.reject(err);
     }
 
@@ -73,7 +78,13 @@ api.interceptors.response.use(
         processQueue(error, null);
 
         localStorage.removeItem("token");
-        window.location.href = "/#/login";
+
+        // prevent redirect loop here too
+        if (window.location.hash !== "#/login") {
+          window.location.href = "/#/login";
+        }
+
+        return Promise.reject(error);
       } finally {
         isRefreshing = false;
       }
