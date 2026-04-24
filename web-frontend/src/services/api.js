@@ -5,7 +5,7 @@ const api = axios.create({
   withCredentials: true,
 });
 
-//  Request interceptor
+// 🔐 Attach token
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
 
@@ -16,18 +16,67 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-//  RESPONSE INTERCEPTOR (ADD THIS)
+// 🔁 REFRESH TOKEN LOGIC
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) prom.reject(error);
+    else prom.resolve(token);
+  });
+  failedQueue = [];
+};
+
 api.interceptors.response.use(
   (res) => res,
-  (err) => {
-    if (err.response && err.response.status === 401) {
-      console.log("Token expired → logging out");
+  async (err) => {
+    const originalRequest = err.config;
 
+    // ❌ STOP infinite loop
+    if (originalRequest.url.includes("/auth/refresh")) {
       localStorage.removeItem("token");
-      localStorage.removeItem("user");
-
-      // redirect to login
       window.location.href = "/#/login";
+      return Promise.reject(err);
+    }
+
+    if (err.response?.status === 401 && !originalRequest._retry) {
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        }).then((token) => {
+          originalRequest.headers.Authorization = `Bearer ${token}`;
+          return api(originalRequest);
+        });
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        const res = await axios.post(
+          "https://rentkaro-backend.onrender.com/api/auth/refresh",
+          {},
+          { withCredentials: true }
+        );
+
+        const newToken = res.data.accessToken;
+
+        localStorage.setItem("token", newToken);
+
+        processQueue(null, newToken);
+
+        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+
+        return api(originalRequest);
+      } catch (error) {
+        processQueue(error, null);
+
+        localStorage.removeItem("token");
+        window.location.href = "/#/login";
+      } finally {
+        isRefreshing = false;
+      }
     }
 
     return Promise.reject(err);

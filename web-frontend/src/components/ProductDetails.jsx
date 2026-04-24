@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { IoLocationOutline } from "react-icons/io5";
 import { useParams } from "react-router-dom";
 import NavBar from "../components/NavBar";
-import api from "../api/api";
+import api from "../services/api";
 
 const API_URL = "https://rentkaro-backend.onrender.com";
 
@@ -30,7 +30,7 @@ function ProductDetails() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await api.get(`/products/${id}`);
+        const res = await api.get(`/api/products/${id}`);
         const data = res.data;
 
         setProduct(data);
