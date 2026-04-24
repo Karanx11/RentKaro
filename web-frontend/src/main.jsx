@@ -1,10 +1,9 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { GoogleOAuthProvider } from "@react-oauth/google"; 
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 import "./index.css";
 import App from "./App.jsx";
-import "./api/interceptor";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -23,4 +22,3 @@ if ("serviceWorker" in navigator) {
       .catch((err) => console.error("❌ Service Worker failed", err));
   });
 }
-
