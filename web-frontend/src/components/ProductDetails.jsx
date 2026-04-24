@@ -15,8 +15,6 @@ function ProductDetails() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  const userStr = localStorage.getItem("user");
- const userStr = localStorage.getItem("user");
   const token = localStorage.getItem("token");
 
 const loggedInUser =
@@ -81,9 +79,10 @@ const isLoggedIn = Boolean(token);
 
   /* ================= OWNER CHECK (FIXED) ================= */
   const isOwner =
-    loggedInUserId &&
-    product.owner?._id &&
-    loggedInUserId === product.owner._id;
+  isLoggedIn &&
+  loggedInUserId &&
+  product.owner?._id &&
+  loggedInUserId === product.owner._id;
 
   /* ================= VOTE ================= */
   const handleVote = async (voteType) => {
