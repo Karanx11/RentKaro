@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { IoLocationOutline } from "react-icons/io5";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import NavBar from "../components/NavBar";
 import api from "../services/api";
 
@@ -8,6 +8,7 @@ const API_URL = "https://rentkaro-backend.onrender.com";
 
 function ProductDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const [product, setProduct] = useState(null);
   const [selectedImage, setSelectedImage] = useState("");
@@ -17,13 +18,13 @@ function ProductDetails() {
   const userStr = localStorage.getItem("user");
   const loggedInUser =
     userStr && userStr !== "undefined" ? JSON.parse(userStr) : null;
+
   const loggedInUserId = loggedInUser?._id;
-  const isLoggedIn = !!localStorage.getItem("token");
+  const isLoggedIn = Boolean(localStorage.getItem("token"));
 
   const [likes, setLikes] = useState(0);
   const [dislikes, setDislikes] = useState(0);
   const [voted, setVoted] = useState(false);
-
   const [showSafety, setShowSafety] = useState(false);
 
   /* ================= FETCH PRODUCT ================= */
@@ -51,7 +52,7 @@ function ProductDetails() {
     fetchProduct();
   }, [id]);
 
-  /* ================= IMAGE SLIDER ================= */
+  /* ================= IMAGE AUTO SLIDER ================= */
   useEffect(() => {
     if (!product?.images?.length) return;
 
@@ -73,15 +74,26 @@ function ProductDetails() {
   if (loading) return <p className="text-center mt-32">Loading...</p>;
   if (!product) return <p className="text-center mt-32">Product not found</p>;
 
-  const isOwner = loggedInUserId === product.owner?._id;
+  /* ================= OWNER CHECK (FIXED) ================= */
+  const isOwner =
+    loggedInUserId &&
+    product.owner?._id &&
+    loggedInUserId === product.owner._id;
 
   /* ================= VOTE ================= */
   const handleVote = async (voteType) => {
-    if (!isLoggedIn) return alert("Login required");
+    if (!isLoggedIn) {
+      navigate("/login");
+      return;
+    }
+
     if (isOwner) return;
 
     try {
-      const res = await api.post(`/products/${id}/vote`, { vote: voteType });
+      const res = await api.post(`/api/products/${id}/vote`, {
+        vote: voteType,
+      });
+
       setLikes(res.data.likes);
       setDislikes(res.data.dislikes);
       setVoted(true);
@@ -90,15 +102,27 @@ function ProductDetails() {
     }
   };
 
+  /* ================= WHATSAPP ================= */
   const whatsappNumber = product.owner?.phone || "";
+
   const whatsappMessage = encodeURIComponent(
     `Hi, I found your product "${product.title}" on RentKaro. Is it available?`
   );
+
   const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
 
   const totalVotes = likes + dislikes;
   const trustPercent =
     totalVotes === 0 ? 0 : Math.round((likes / totalVotes) * 100);
+
+  /* ================= CHAT HANDLER ================= */
+  const handleChatClick = () => {
+    if (!isLoggedIn) {
+      navigate("/login");
+      return;
+    }
+    setShowSafety(true);
+  };
 
   return (
     <>
@@ -160,9 +184,7 @@ function ProductDetails() {
                     👎 {dislikes}
                   </button>
 
-                  <span className="text-gray-700">
-                    {trustPercent}% trust
-                  </span>
+                  <span>{trustPercent}% trust</span>
                 </div>
 
                 {/* LOCATION */}
@@ -177,7 +199,7 @@ function ProductDetails() {
                 {/* DESCRIPTION */}
                 <div className="mt-4 text-sm">
                   <h3 className="font-semibold">Description</h3>
-                  <p className="text-gray-800">{product.description}</p>
+                  <p>{product.description}</p>
                 </div>
 
                 {/* PRICING */}
@@ -185,19 +207,19 @@ function ProductDetails() {
                   <h3 className="font-semibold mb-2">Pricing</h3>
 
                   {product.listingType === "rent" ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
-                      <div className="bg-gray-300/50 p-3 rounded-lg font-medium">
-                        ₹{product.price.day} / day
+                    <div className="grid grid-cols-3 gap-3 text-sm">
+                      <div className="bg-gray-300/50 p-3 rounded-lg">
+                        ₹{product.price.day}/day
                       </div>
-                      <div className="bg-gray-300/50 p-3 rounded-lg font-medium">
-                        ₹{product.price.month} / month
+                      <div className="bg-gray-300/50 p-3 rounded-lg">
+                        ₹{product.price.month}/month
                       </div>
-                      <div className="bg-gray-300/50 p-3 rounded-lg font-medium">
-                        ₹{product.price.year} / year
+                      <div className="bg-gray-300/50 p-3 rounded-lg">
+                        ₹{product.price.year}/year
                       </div>
                     </div>
                   ) : (
-                    <div className="bg-gray-300/50 p-3 rounded-lg font-medium text-sm">
+                    <div className="bg-gray-300/50 p-3 rounded-lg">
                       ₹{product.price.sell}
                     </div>
                   )}
@@ -207,18 +229,15 @@ function ProductDetails() {
               {/* ACTION */}
               <div className="mt-6">
                 {isOwner ? (
-                  <div className="bg-blue-100 border border-blue-300 rounded-lg p-4 text-center text-sm">
-                    <p className="font-semibold text-blue-900">
+                  <div className="bg-blue-100 p-4 text-center rounded-lg">
+                    <p className="font-semibold">
                       👤 This is your product
-                    </p>
-                    <p className="text-blue-700">
-                      Buyers will contact you on WhatsApp
                     </p>
                   </div>
                 ) : (
                   <button
-                    onClick={() => setShowSafety(true)}
-                    className="w-full bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-lg font-semibold"
+                    onClick={handleChatClick}
+                    className="w-full bg-green-600 text-white py-2.5 rounded-lg"
                   >
                     Chat on WhatsApp
                   </button>
@@ -248,11 +267,12 @@ function ProductDetails() {
               >
                 Cancel
               </button>
+
               <a
                 href={whatsappLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 bg-green-600 text-white py-2 rounded-lg text-center font-semibold"
+                className="flex-1 bg-green-600 text-white py-2 rounded-lg text-center"
               >
                 Continue
               </a>
