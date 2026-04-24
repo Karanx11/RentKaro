@@ -14,11 +14,14 @@ const ProtectedRoute = ({ children }) => {
 
         setIsAuth(true);
         setUser(res.data);
+
       } catch (err) {
-        // CLEAN AUTH RESET
-        localStorage.removeItem("token");
+        // 🔥 FULL CLEAN (IMPORTANT)
+        localStorage.clear();
+
         setIsAuth(false);
         setUser(null);
+
       } finally {
         setLoading(false);
       }

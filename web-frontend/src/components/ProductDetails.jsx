@@ -16,11 +16,16 @@ function ProductDetails() {
   const [loading, setLoading] = useState(true);
 
   const userStr = localStorage.getItem("user");
-  const loggedInUser =
-    userStr && userStr !== "undefined" ? JSON.parse(userStr) : null;
+ const userStr = localStorage.getItem("user");
+  const token = localStorage.getItem("token");
 
-  const loggedInUserId = loggedInUser?._id;
-  const isLoggedIn = Boolean(localStorage.getItem("token"));
+const loggedInUser =
+  token && localStorage.getItem("user")
+    ? JSON.parse(localStorage.getItem("user"))
+    : null;
+
+const loggedInUserId = loggedInUser?._id;
+const isLoggedIn = Boolean(token);
 
   const [likes, setLikes] = useState(0);
   const [dislikes, setDislikes] = useState(0);

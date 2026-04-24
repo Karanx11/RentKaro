@@ -5,7 +5,7 @@ const api = axios.create({
   withCredentials: true,
 });
 
-// 🔐 Attach token
+/* ================= REQUEST ================= */
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
 
@@ -16,28 +16,24 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// 🔁 REFRESH TOKEN LOGIC
+/* ================= RESPONSE ================= */
 let isRefreshing = false;
-let failedQueue = [];
-
-const processQueue = (error, token = null) => {
-  failedQueue.forEach((prom) => {
-    if (error) prom.reject(error);
-    else prom.resolve(token);
-  });
-  failedQueue = [];
-};
+let hasShownSessionExpired = false; // 🔥 prevent multiple alerts
 
 api.interceptors.response.use(
   (res) => res,
   async (err) => {
     const originalRequest = err.config;
 
-    // HANDLE REFRESH FAILURE SAFELY
+    // ❌ If refresh itself fails → logout immediately
     if (originalRequest?.url?.includes("/auth/refresh")) {
-      localStorage.removeItem("token");
+      if (!hasShownSessionExpired) {
+        alert("Session expired. Please login again");
+        hasShownSessionExpired = true;
+      }
 
-      // prevent infinite redirect loop
+      localStorage.clear();
+
       if (window.location.hash !== "#/login") {
         window.location.href = "/#/login";
       }
@@ -45,17 +41,22 @@ api.interceptors.response.use(
       return Promise.reject(err);
     }
 
+    // 🔁 Handle expired access token
     if (err.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      // ❌ already refreshing → force logout (no loop)
       if (isRefreshing) {
-        return new Promise((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
-        }).then((token) => {
-          originalRequest.headers.Authorization = `Bearer ${token}`;
-          return api(originalRequest);
-        });
+        if (!hasShownSessionExpired) {
+          alert("Session expired. Please login again");
+          hasShownSessionExpired = true;
+        }
+
+        localStorage.clear();
+        window.location.href = "/#/login";
+        return Promise.reject(err);
       }
 
-      originalRequest._retry = true;
       isRefreshing = true;
 
       try {
@@ -69,17 +70,18 @@ api.interceptors.response.use(
 
         localStorage.setItem("token", newToken);
 
-        processQueue(null, newToken);
-
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
-
         return api(originalRequest);
+
       } catch (error) {
-        processQueue(error, null);
+        // 🔥 FINAL LOGOUT
+        if (!hasShownSessionExpired) {
+          alert("Session expired. Please login again");
+          hasShownSessionExpired = true;
+        }
 
-        localStorage.removeItem("token");
+        localStorage.clear();
 
-        // prevent redirect loop here too
         if (window.location.hash !== "#/login") {
           window.location.href = "/#/login";
         }
