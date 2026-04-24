@@ -5,7 +5,7 @@ const api = axios.create({
   withCredentials: true,
 });
 
-// REQUEST INTERCEPTOR
+// 🔐 Attach access token
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
 
@@ -16,15 +16,35 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// RESPONSE INTERCEPTOR (IMPORTANT)
-api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
+// 🔁 REFRESH TOKEN LOGIC
+let isRefreshing = false;
+let failedQueue = [];
 
-    // If token expired → try refresh
-    if (error.response?.status === 401 && !originalRequest._retry) {
+const processQueue = (error, token = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) prom.reject(error);
+    else prom.resolve(token);
+  });
+  failedQueue = [];
+};
+
+api.interceptors.response.use(
+  (res) => res,
+  async (err) => {
+    const originalRequest = err.config;
+
+    if (err.response?.status === 401 && !originalRequest._retry) {
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        }).then((token) => {
+          originalRequest.headers.Authorization = `Bearer ${token}`;
+          return api(originalRequest);
+        });
+      }
+
       originalRequest._retry = true;
+      isRefreshing = true;
 
       try {
         const res = await axios.post(
@@ -37,18 +57,22 @@ api.interceptors.response.use(
 
         localStorage.setItem("token", newToken);
 
+        processQueue(null, newToken);
+
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
 
         return api(originalRequest);
-      } catch (err) {
-        // Refresh failed → logout
+      } catch (error) {
+        processQueue(error, null);
+
         localStorage.removeItem("token");
-        localStorage.removeItem("user");
         window.location.href = "/#/login";
+      } finally {
+        isRefreshing = false;
       }
     }
 
-    return Promise.reject(error);
+    return Promise.reject(err);
   }
 );
 

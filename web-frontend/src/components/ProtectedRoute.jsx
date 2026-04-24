@@ -6,7 +6,7 @@ import api from "../services/api";
 const ProtectedRoute = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [isAuth, setIsAuth] = useState(false);
-  const [user, setUser] = useState(null); // ✅ ADD
+  const [user, setUser] = useState(null); 
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -14,10 +14,11 @@ const ProtectedRoute = ({ children }) => {
         const res = await api.get("/api/auth/me");
 
         setIsAuth(true);
-        setUser(res.data); // ✅ SAVE USER
-      } catch {
-        setIsAuth(false);
-      } finally {
+        setUser(res.data); 
+      } catch (err) {
+  localStorage.removeItem("token"); 
+  setIsAuth(false);
+} finally {
         setLoading(false);
       }
     };

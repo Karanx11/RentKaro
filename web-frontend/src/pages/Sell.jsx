@@ -1,5 +1,7 @@
 import { useState } from "react";
 import NavBar from "../components/NavBar";
+import { useNavigate } from "react-router-dom";
+import api from "../services/api";
 
 const CATEGORIES = [
   "Electronics",
@@ -14,6 +16,8 @@ const CATEGORIES = [
 ];
 
 function Sell() {
+  const navigate = useNavigate();
+
   const [images, setImages] = useState([null, null, null]);
   const [imageFiles, setImageFiles] = useState([null, null, null]);
 
@@ -29,6 +33,8 @@ function Sell() {
     year: "",
     sell: "",
   });
+
+  const [loading, setLoading] = useState(false); // 🔥 NEW
 
   /* ---------------- IMAGE UPLOAD ---------------- */
   const handleImageUpload = (e, index) => {
@@ -55,36 +61,19 @@ function Sell() {
     }
 
     if (imageFiles.filter(Boolean).length !== 3) {
-      alert("Please upload exactly 3 images");
+      alert("Upload exactly 3 images");
       return;
     }
 
     if (mode === "sell" && !prices.sell) {
-      alert("Please enter selling price");
+      alert("Enter selling price");
       return;
     }
 
     if (mode === "rent" && !prices.day) {
-      alert("Please enter rent price");
+      alert("Enter rent price");
       return;
     }
-
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("Please login first");
-      return;
-    }
-
-    const pricePayload =
-      mode === "rent"
-        ? {
-            day: Number(prices.day),
-            month: Number(prices.month || 0),
-            year: Number(prices.year || 0),
-          }
-        : {
-            sell: Number(prices.sell),
-          };
 
     const formData = new FormData();
     formData.append("title", title);
@@ -92,31 +81,39 @@ function Sell() {
     formData.append("category", category);
     formData.append("location", location);
     formData.append("listingType", mode);
-    formData.append("price", JSON.stringify(pricePayload));
+    formData.append(
+      "price",
+      JSON.stringify(
+        mode === "rent"
+          ? {
+              day: Number(prices.day),
+              month: Number(prices.month || 0),
+              year: Number(prices.year || 0),
+            }
+          : {
+              sell: Number(prices.sell),
+            }
+      )
+    );
 
     imageFiles.forEach((file) => {
       formData.append("images", file);
     });
 
     try {
-      const res = await fetch("https://rentkaro-backend.onrender.com/api/products", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
+      setLoading(true); // 🔥 START LOADING
 
-      if (!res.ok) {
-        const err = await res.json();
-        alert(err.message || "Failed to list product");
-        return;
-      }
+      await api.post("/api/products", formData);
 
       alert("Product listed successfully 🎉");
-      window.location.href = "/market";
+
+      navigate("/market");
     } catch (error) {
-      alert("Server error");
+      alert(
+        error.response?.data?.message || "Failed to list product"
+      );
+    } finally {
+      setLoading(false); // 🔥 STOP LOADING
     }
   };
 
@@ -133,187 +130,72 @@ function Sell() {
 
           <div className="mt-6 space-y-6">
 
-            {/* IMAGES */}
-            <div>
-              <label className="block text-sm font-semibold mb-2">
-                Upload Images (3 required)
-              </label>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {images.map((img, i) => (
-                  <label
-                    key={i}
-                    className="w-full h-28 bg-white/50 border rounded-lg cursor-pointer flex items-center justify-center overflow-hidden"
-                  >
-                    {img ? (
-                      <img
-                        src={img}
-                        alt="preview"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <span className="text-sm text-gray-500">
-                        Click to Upload
-                      </span>
-                    )}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => handleImageUpload(e, i)}
+            {/* IMAGE UPLOAD */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {images.map((img, i) => (
+                <label
+                  key={i}
+                  className="h-28 bg-white/50 border rounded-lg flex items-center justify-center cursor-pointer overflow-hidden"
+                >
+                  {img ? (
+                    <img
+                      src={img}
+                      alt="preview"
+                      className="w-full h-full object-cover"
                     />
-                  </label>
-                ))}
-              </div>
+                  ) : (
+                    <span className="text-gray-500 text-sm">
+                      Upload
+                    </span>
+                  )}
+                  <input
+                    type="file"
+                    hidden
+                    onChange={(e) => handleImageUpload(e, i)}
+                  />
+                </label>
+              ))}
             </div>
 
             {/* TITLE */}
-            <div>
-              <label className="block text-sm font-semibold mb-1">
-                Product Name
-              </label>
-              <input
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-lg bg-white/80 border shadow-sm text-sm"
-                placeholder="e.g. DSLR Camera"
-              />
-            </div>
-
-            {/* CATEGORY */}
-            <div>
-              <label className="block text-sm font-semibold mb-2">
-                Select Category
-              </label>
-              <div className="flex gap-3 flex-wrap">
-                {CATEGORIES.map((cat) => (
-                  <button
-                    key={cat}
-                    type="button"
-                    onClick={() => setCategory(cat)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                      category === cat
-                        ? "bg-black text-white"
-                        : "bg-white/70"
-                    }`}
-                  >
-                    {cat}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <input
+              placeholder="Title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full p-2 rounded"
+            />
 
             {/* DESCRIPTION */}
-            <div>
-              <label className="block text-sm font-semibold mb-1">
-                Description
-              </label>
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                maxLength={500}
-                rows={4}
-                className="w-full px-4 py-2.5 rounded-lg bg-white/80 border shadow-sm resize-none text-sm"
-              />
-              <div className="text-right text-xs">
-                {description.length} / 500
-              </div>
-            </div>
+            <textarea
+              placeholder="Description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full p-2 rounded"
+            />
 
             {/* LOCATION */}
-            <div>
-              <label className="block text-sm font-semibold mb-1">
-                Location
-              </label>
-              <input
-                type="text"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                placeholder="e.g. Delhi, Mumbai, Pune"
-                className="w-full px-4 py-2.5 rounded-lg bg-white/80 border shadow-sm text-sm"
-              />
-            </div>
+            <input
+              placeholder="Location"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              className="w-full p-2 rounded"
+            />
 
-            {/* PRICING */}
-            <div>
-              <label className="block text-sm font-semibold mb-2">
-                Pricing
-              </label>
-
-              {mode === "rent" ? (
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <input
-                    placeholder="Per Day (₹)"
-                    type="number"
-                    onChange={(e) =>
-                      setPrices((p) => ({ ...p, day: e.target.value }))
-                    }
-                    className="px-4 py-2.5 rounded-lg bg-white/80 border text-sm"
-                  />
-                  <input
-                    placeholder="Per Month (₹)"
-                    type="number"
-                    onChange={(e) =>
-                      setPrices((p) => ({ ...p, month: e.target.value }))
-                    }
-                    className="px-4 py-2.5 rounded-lg bg-white/80 border text-sm"
-                  />
-                  <input
-                    placeholder="Per Year (₹)"
-                    type="number"
-                    onChange={(e) =>
-                      setPrices((p) => ({ ...p, year: e.target.value }))
-                    }
-                    className="px-4 py-2.5 rounded-lg bg-white/80 border text-sm"
-                  />
-                </div>
+            {/* SUBMIT BUTTON */}
+            <button
+              onClick={handleSubmit}
+              disabled={loading}
+              className="bg-[#C76A46] text-white px-6 py-3 rounded flex items-center justify-center gap-2 w-full disabled:opacity-60"
+            >
+              {loading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Posting...
+                </>
               ) : (
-                <input
-                  placeholder="Selling Price (₹)"
-                  type="number"
-                  onChange={(e) =>
-                    setPrices((p) => ({ ...p, sell: e.target.value }))
-                  }
-                  className="w-full px-4 py-2.5 rounded-lg bg-white/80 border text-sm"
-                />
+                "Submit Listing"
               )}
-            </div>
-
-            {/* TOGGLE */}
-            <div className="flex justify-center gap-4">
-              <button
-                type="button"
-                onClick={() => setMode("rent")}
-                className={`px-6 py-2.5 rounded-lg text-sm font-semibold ${
-                  mode === "rent"
-                    ? "bg-black text-white hover:text-[#C76A46]"
-                    : "bg-white"
-                }`}
-              >
-                Rent
-              </button>
-              <button
-                type="button"
-                onClick={() => setMode("sell")}
-                className={`px-6 py-2.5 rounded-lg text-sm font-semibold ${
-                  mode === "sell"
-                    ? "bg-black text-white hover:text-[#C76A46]"
-                    : "bg-white"
-                }`}
-              >
-                Sell
-              </button>
-            </div>
-
-            {/* SUBMIT */}
-            <div className="text-center">
-              <button
-                onClick={handleSubmit}
-                className="px-10 py-3 bg-[#C76A46] hover:bg-[#d48a6d] text-white rounded-xl text-base font-bold"
-              >
-                Submit Listing
-              </button>
-            </div>
+            </button>
 
           </div>
         </div>
