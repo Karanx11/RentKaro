@@ -6,10 +6,10 @@ import {
   FiCheckCircle,
   FiTrash2,
 } from "react-icons/fi";
-import NavBar from "../components/NavBar";
+import NavBar from "../../components/NavBar";
 import { useEffect, useState } from "react";
-import { getProfile } from "../utils/auth";
-import api from "../services/api";
+import { getProfile } from "../../utils/auth";
+import api from "../../services/api";
 
 function Profile() {
   const navigate = useNavigate();
