@@ -1,5 +1,5 @@
-import NavBar from "../components/NavBar";
-import KokkieBot from "../components/KokkieBot";
+import NavBar from "../../components/NavBar";
+import KokkieBot from "../../components/KokkieBot";
 
 function ChatBot() {
   const isLoggedIn = !!localStorage.getItem("token");

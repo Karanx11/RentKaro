@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { IoSearch, IoLocationOutline } from "react-icons/io5";
-import NavBar from "../components/NavBar";
-import Categories from "../components/Categories";
+import NavBar from "../../components/NavBar";
+import Categories from "../../components/Categories";
 
 const API_URL = "https://rentkaro-backend.onrender.com";
 

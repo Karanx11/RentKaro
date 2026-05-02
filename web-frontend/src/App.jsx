@@ -4,34 +4,43 @@ import { useEffect, useRef } from "react";
 import KokkieBot from "./components/KokkieBot";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-import Home from "./pages/Home";
+/* ===== AUTH ===== */
+import Login from "./pages/auth/Login";
+import Signup from "./pages/auth/Signup";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+import ResetPassword from "./pages/auth/ResetPassword";
+
+/* ===== HOME ===== */
+import Home from "./pages/home/Home";
+import Market from "./pages/home/Market";
 import Sell from "./pages/home/Sell";
 import Profile from "./pages/home/Profile";
-import ChatBot from "./pages/ChatBot";
-import Login from "./pages/Login";
-import Market from "./pages/Market";
-import EditProfile from "./components/EditProfile";
-import ProductDetails from "./components/ProductDetails";
-import Settings from "./pages/Settings";
-import Signup from "./pages/Signup";
-import ForgotPassword from "./pages/ForgotPassword";
+import MyListings from "./pages/home/MyListings";
+import EditListing from "./pages/home/EditListing";
+
+/* ===== CHAT ===== */
+import ChatBot from "./pages/chatbot/ChatBot";
+import ChatHistory from "./pages/chatbot/ChatHistory";
+
+/* ===== SETTINGS ===== */
+import Settings from "./pages/settings/Settings";
 import HelpSupport from "./pages/settings/HelpSupport";
 import Terms from "./pages/settings/Terms";
-import Privacy from "./pages/Privacy";
-import ResetPassword from "./pages/ResetPassword";
-import MyListings from "./pages/MyListings";
-import EditListing from "./pages/EditListing";
-import MyRequests from "./pages/MyRequests";
-import CompleteProfile from "./pages/CompleteProfile";
+import Privacy from "./pages/settings/Privacy";
+import MyRequests from "./pages/settings/MyRequests";
 
+/* ===== OTHER COMPONENTS ===== */
+import ProductDetails from "./components/ProductDetails";
+import EditProfile from "./components/EditProfile";
+import CompleteProfile from "./pages/auth/CompleteProfile";
+
+/* ===== SOCKET ===== */
 import { socket } from "./services/socket";
 
 function App() {
   const socketInitialized = useRef(false);
 
-  /* =====================
-     SOCKET CONNECTION (FIXED)
-  ===================== */
+  /* SOCKET CONNECTION */
   useEffect(() => {
     if (socketInitialized.current) return;
     socketInitialized.current = true;
@@ -44,37 +53,29 @@ function App() {
     let user;
     try {
       user = JSON.parse(userStr);
-    } catch (err) {
-      console.warn("Invalid user in localStorage", err);
-      localStorage.removeItem("user"); 
+    } catch {
+      localStorage.removeItem("user");
       return;
     }
 
-    if (!socket.connected) {
-      socket.connect();
-    }
+    if (!socket.connected) socket.connect();
 
-    const handleConnect = () => {
+    socket.on("connect", () => {
       socket.emit("join", user._id);
-      console.log("🟢 Socket joined room for user:", user._id);
-    };
+      console.log("🟢 Socket connected:", user._id);
+    });
 
-    const handleError = (err) => {
+    socket.on("connect_error", (err) => {
       console.error("❌ Socket error:", err.message);
-    };
-
-    socket.on("connect", handleConnect);
-    socket.on("connect_error", handleError);
+    });
 
     return () => {
-      socket.off("connect", handleConnect);       
-      socket.off("connect_error", handleError);   
+      socket.off("connect");
+      socket.off("connect_error");
     };
   }, []);
 
-  /* =====================
-     SERVICE WORKER (disabled)
-  ===================== */
+  /* DISABLE SERVICE WORKER */
   useEffect(() => {
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.getRegistrations().then((regs) => {
@@ -83,21 +84,18 @@ function App() {
     }
   }, []);
 
-  /* =====================
-     AUTH CHECK
-  ===================== */
   const isLoggedIn = !!localStorage.getItem("token");
 
   return (
     <HashRouter>
       <Routes>
 
-        {/* ===== PUBLIC ROUTES ===== */}
+        {/* ===== PUBLIC ===== */}
         <Route path="/" element={<Home />} />
         <Route path="/market" element={<Market />} />
         <Route path="/product/:id" element={<ProductDetails />} />
 
-        {/* AUTH ROUTES (auto redirect if logged in) */}
+        {/* AUTH */}
         <Route
           path="/login"
           element={isLoggedIn ? <Navigate to="/profile" /> : <Login />}
@@ -107,14 +105,15 @@ function App() {
           element={isLoggedIn ? <Navigate to="/profile" /> : <Signup />}
         />
         <Route path="/forgot" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
 
+        {/* PUBLIC SETTINGS */}
         <Route path="/help-support" element={<HelpSupport />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
-         <Route path="/complete-profile" element={<CompleteProfile />} />
-        <Route path="/reset-password/:token" element={<ResetPassword />} />
+        <Route path="/complete-profile" element={<CompleteProfile />} />
 
-        {/* ===== PROTECTED ROUTES ===== */}
+        {/* ===== PROTECTED ===== */}
         <Route
           path="/sell"
           element={
@@ -124,13 +123,20 @@ function App() {
           }
         />
 
-      
-
         <Route
           path="/chatbot"
           element={
             <ProtectedRoute>
               <ChatBot />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/chat-history"
+          element={
+            <ProtectedRoute>
+              <ChatHistory />
             </ProtectedRoute>
           }
         />
@@ -145,7 +151,7 @@ function App() {
         />
 
         <Route
-          path="/editprofile"
+          path="/edit-profile"
           element={
             <ProtectedRoute>
               <EditProfile />
@@ -172,19 +178,19 @@ function App() {
         />
 
         <Route
-          path="/my-requests"
+          path="/edit-listing/:id"
           element={
             <ProtectedRoute>
-              <MyRequests />
+              <EditListing />
             </ProtectedRoute>
           }
         />
 
         <Route
-          path="/edit-listing/:id"
+          path="/my-requests"
           element={
             <ProtectedRoute>
-              <EditListing />
+              <MyRequests />
             </ProtectedRoute>
           }
         />
@@ -194,7 +200,7 @@ function App() {
 
       </Routes>
 
-      {/* ===== GLOBAL BOT ===== */}
+      {/* GLOBAL BOT */}
       <KokkieBot />
     </HashRouter>
   );

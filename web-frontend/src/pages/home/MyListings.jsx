@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import NavBar from "../components/NavBar";
+import NavBar from "../../components/NavBar";
 
 const API_URL = "https://rentkaro-backend.onrender.com";
 

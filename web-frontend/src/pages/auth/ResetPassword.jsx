@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import NavBar from "../components/NavBar";
+import NavBar from "../../components/NavBar";
 import { FiLock, FiEye, FiEyeOff } from "react-icons/fi";
 
 function ResetPassword() {

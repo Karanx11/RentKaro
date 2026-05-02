@@ -1,4 +1,4 @@
-import NavBar from "../components/NavBar";
+import NavBar from "../../components/NavBar";
 import { FiMail, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import NavBar from "../components/NavBar";
+import NavBar from "../../components/NavBar";
 import {
   User,
   Lock,
@@ -10,7 +10,7 @@ import {
   LogOut,
   ChevronRight,
 } from "lucide-react";
-import { logout as logoutUtil } from "../utils/auth";
+import { logout as logoutUtil } from "../../utils/auth";
 
 export default function Settings() {
   const navigate = useNavigate();

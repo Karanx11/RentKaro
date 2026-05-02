@@ -1,4 +1,4 @@
-import NavBar from "../components/NavBar";
+import NavBar from "../../components/NavBar";
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import {
