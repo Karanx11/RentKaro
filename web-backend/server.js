@@ -20,7 +20,7 @@ import authRoutes from "./routes/authRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import chatbotRoutes from "./routes/chatbotRoutes.js";
-
+import supportRoutes from "./routes/supportRoutes.js";
 /* =======================
    CONNECT DATABASE
 ======================= */
@@ -77,7 +77,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/chatbot", chatbotRoutes);
-
+app.use("/api", supportRoutes);
 /* =======================
    HEALTH CHECK
 ======================= */

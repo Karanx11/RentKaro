@@ -13,12 +13,31 @@ function HelpSupport() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Form Submitted:", formData);
-    alert("Your request has been submitted!");
-    setFormData({ name: "", email: "", message: "" });
-  };
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    const res = await fetch("https://rentkaro-backend.onrender.com/api/support", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      alert("Support request sent successfully!");
+      setFormData({ name: "", email: "", message: "" });
+    } else {
+      alert("Failed to send request");
+    }
+  } catch (error) {
+    console.error(error);
+    alert("Server error");
+  }
+};
 
   return (
     <>
