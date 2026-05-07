@@ -3,8 +3,6 @@
     RentKaro is a full-stack rental marketplace that allows users to rent, sell, and manage products seamlessly.
     Built with the MERN stack, RentKaro focuses on speed, scalability, and a clean user experience across web and mobile devices.
 
-        Think of it as a lightweight, modern alternative to OLX / Rentomojo for rentals.
-
 ## ✨ Key Highlights
 
     🏠 Product rental & selling platform
@@ -158,7 +156,6 @@
 ## 👨‍💻 Founder & Developer
 
     Karan Sharma
-    📍 India
     🔗 GitHub: @Karanx11
 
 ## 📄 License
