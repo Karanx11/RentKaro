@@ -15,7 +15,7 @@ export const chatWithBot = async (req, res) => {
 
     const userId = req.user._id;
 
-    // 💾 Save user message
+    // Save user message
     await BotChat.create({
       user: userId,
       sessionId,
@@ -23,7 +23,7 @@ export const chatWithBot = async (req, res) => {
       message,
     });
 
-    // 🤖 FREE AI (Groq)
+    // FREE AI (Groq)
     const completion = await groq.chat.completions.create({
   model: "llama-3.1-8b-instant",
   messages: [
@@ -86,7 +86,7 @@ export const chatWithBot = async (req, res) => {
       completion.choices?.[0]?.message?.content ||
       "Sorry 😅 I couldn’t understand that.";
 
-    // 💾 Save bot reply
+    // Save bot reply
     await BotChat.create({
       user: userId,
       sessionId,
@@ -101,7 +101,7 @@ export const chatWithBot = async (req, res) => {
   }
 };
 
-// 📜 CHAT HISTORY
+// CHAT HISTORY
 export const getChatHistory = async (req, res) => {
   try {
     const chats = await BotChat.find({ user: req.user._id })
@@ -114,7 +114,7 @@ export const getChatHistory = async (req, res) => {
   }
 };
 
-// 🗑️ CLEAR CHAT
+// CLEAR CHAT
 export const clearChatHistory = async (req, res) => {
   try {
     await BotChat.deleteMany({ user: req.user._id });
