@@ -44,10 +44,13 @@ export default function Settings() {
             <SectionTitle title="Account" />
 
             <SettingCard
-              icon={<User size={20} />}
-              label="Edit Profile"
-              onClick={() => navigate("/edit-profile")}
-            />
+  icon={<User size={20} />}
+  label="Edit Profile"
+  onClick={() => {
+    console.log("Button Clicked");
+    navigate("/edit-profile");
+  }}
+/>
 
             <SettingCard
               icon={<Lock size={20} />}
