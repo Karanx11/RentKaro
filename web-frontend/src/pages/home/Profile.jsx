@@ -146,11 +146,11 @@ function Profile() {
                 <button
                   disabled={btnLoading.edit}
                   onClick={() => {
-                    setBtnLoading((prev) => ({ ...prev, edit: true }));
-                    setTimeout(() => {
-                      navigate("/editprofile");
-                    }, 500);
-                  }}
+                  setBtnLoading((prev) => ({ ...prev, edit: true }));
+                  setTimeout(() => {
+                    navigate("/edit-profile");
+                  }, 500);
+                }}
                   className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg text-sm hover:bg-gray-800 hover:text-[#C76A46] transition disabled:opacity-60"
                 >
                   {btnLoading.edit ? (
