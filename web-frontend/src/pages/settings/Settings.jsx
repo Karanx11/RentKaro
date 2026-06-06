@@ -47,9 +47,8 @@ export default function Settings() {
   icon={<User size={20} />}
   label="Edit Profile"
   onClick={() => {
-    console.log("Button Clicked");
-    navigate("/edit-profile");
-  }}
+  window.location.href = "/#/edit-profile";
+}}
 />
 
             <SettingCard
