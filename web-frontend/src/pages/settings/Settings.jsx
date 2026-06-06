@@ -46,7 +46,7 @@ export default function Settings() {
             <SettingCard
               icon={<User size={20} />}
               label="Edit Profile"
-              onClick={() => navigate("/editprofile")}
+              onClick={() => navigate("/edit-profile")}
             />
 
             <SettingCard
