@@ -22,10 +22,10 @@ router.post(
         location,
       } = req.body;
 
-      // ✅ DEBUG LOG (NOW CORRECT)
+      //  DEBUG LOG (NOW CORRECT)
       console.log("LOCATION RECEIVED:", location);
 
-      // ✅ VALIDATION
+      //  VALIDATION
       if (
         !title ||
         !description ||
@@ -57,7 +57,7 @@ router.post(
         price: JSON.parse(price),
         images: imageUrls,
         owner: req.user._id,
-        location,           // ✅ NOW SAVED
+        location,           
         isAvailable: true,
       });
 

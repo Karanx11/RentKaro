@@ -18,14 +18,14 @@ api.interceptors.request.use((config) => {
 
 /* ================= RESPONSE ================= */
 let isRefreshing = false;
-let hasShownSessionExpired = false; // 🔥 prevent multiple alerts
+let hasShownSessionExpired = false; 
 
 api.interceptors.response.use(
   (res) => res,
   async (err) => {
     const originalRequest = err.config;
 
-    // ❌ If refresh itself fails → logout immediately
+    //  If refresh itself fails → logout immediately
     if (originalRequest?.url?.includes("/auth/refresh")) {
       if (!hasShownSessionExpired) {
         alert("Session expired. Please login again");
@@ -41,11 +41,11 @@ api.interceptors.response.use(
       return Promise.reject(err);
     }
 
-    // 🔁 Handle expired access token
+    // Handle expired access token
     if (err.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
-      // ❌ already refreshing → force logout (no loop)
+      //  already refreshing → force logout (no loop)
       if (isRefreshing) {
         if (!hasShownSessionExpired) {
           alert("Session expired. Please login again");
@@ -74,7 +74,7 @@ api.interceptors.response.use(
         return api(originalRequest);
 
       } catch (error) {
-        // 🔥 FINAL LOGOUT
+        // FINAL LOGOUT
         if (!hasShownSessionExpired) {
           alert("Session expired. Please login again");
           hasShownSessionExpired = true;

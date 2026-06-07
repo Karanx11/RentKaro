@@ -111,7 +111,7 @@ function KokkieBot() {
           const updated = [...prev];
           updated[updated.length - 1] = {
             from: "bot",
-            text: "Session expired 😢 Please login again.",
+            text: "Session expired !! Please login again.",
           };
           return updated;
         });

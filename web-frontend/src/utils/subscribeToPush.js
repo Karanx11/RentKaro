@@ -25,7 +25,7 @@ export const subscribeToPush = async () => {
       subscription,
     });
 
-    console.log("✅ Push notifications enabled");
+    console.log("Push notifications enabled");
   } catch (error) {
     console.error("Push subscription failed", error);
   }

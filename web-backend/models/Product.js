@@ -65,7 +65,7 @@ const productSchema = new mongoose.Schema(
       default: 0,
     },
 
-    // 🔒 Prevent fake likes / dislikes
+    //  Prevent fake likes / dislikes
     voters: [
       {
         user: {

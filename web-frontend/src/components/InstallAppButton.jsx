@@ -6,7 +6,7 @@ function InstallAppButton() {
 
   useEffect(() => {
     const handler = (e) => {
-      e.preventDefault(); // stop browser mini popup
+      e.preventDefault(); 
       setDeferredPrompt(e);
       setShowButton(true);
     };

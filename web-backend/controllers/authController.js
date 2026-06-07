@@ -398,7 +398,7 @@ export const resendEmailOtp = async (req, res) => {
   try {
     const { email } = req.body;
 
-    console.log("🔥 RESEND OTP HIT:", email);
+    console.log(" RESEND OTP HIT:", email);
 
     if (!email) {
       return res.status(400).json({ message: "Email is required" });
@@ -407,7 +407,7 @@ export const resendEmailOtp = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      console.log("❌ USER NOT FOUND");
+      console.log("USER NOT FOUND");
       return res.status(404).json({ message: "User not found" });
     }
 
@@ -438,14 +438,14 @@ export const resendEmailOtp = async (req, res) => {
     html: `<h2>Email Verification</h2><h1>${otp}</h1>`,
   });
 } catch (err) {
-  console.error("❌ Email failed:", err);
+  console.error("Email failed:", err);
   return res.status(500).json({ message: "Email sending failed" });
 }
 
     res.json({ message: "OTP resent successfully" });
 
   } catch (error) {
-    console.error("❌ RESEND ERROR FULL:", error);
+    console.error("RESEND ERROR FULL:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -481,7 +481,7 @@ export const googleLogin = async (req, res) => {
 });
     }
 
-    // ✅ EXISTING USER (MERGE)
+    //  EXISTING USER (MERGE)
     if (user && !user.googleId) {
       user.googleId = sub;
       user.authProvider = "google";
@@ -506,7 +506,7 @@ export const googleLogin = async (req, res) => {
     });
 
   } catch (err) {
-    console.error("❌ GOOGLE ERROR FULL:", err); // CHECK THIS LOG
+    console.error("GOOGLE ERROR FULL:", err); // CHECK THIS LOG
     res.status(500).json({
       message: "Google authentication failed",
       error: err.message,

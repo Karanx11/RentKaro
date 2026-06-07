@@ -1,12 +1,12 @@
 import { jwtDecode } from "jwt-decode";
 
 export const getUserIdFromToken = () => {
-  const token = localStorage.getItem("token"); // or cookie later
+  const token = localStorage.getItem("token"); 
   if (!token) return null;
 
   try {
     const decoded = jwtDecode(token);
-    return decoded.id; // must match backend JWT payload
+    return decoded.id; 
   } catch {
     return null;
   }

@@ -16,7 +16,6 @@ const ProtectedRoute = ({ children }) => {
         setUser(res.data);
 
       } catch (err) {
-        // 🔥 FULL CLEAN (IMPORTANT)
         localStorage.clear();
 
         setIsAuth(false);

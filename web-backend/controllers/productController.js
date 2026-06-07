@@ -18,7 +18,7 @@ export const voteProduct = async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    // ❌ Prevent double voting
+    //  Prevent double voting
     const alreadyVoted = product.voters.find(
       (v) => v.user.toString() === userId.toString()
     );
@@ -29,7 +29,7 @@ export const voteProduct = async (req, res) => {
       });
     }
 
-    // ✅ Save vote
+    //  Save vote
     product.voters.push({ user: userId, vote });
 
     if (vote === "like") product.likes += 1;
