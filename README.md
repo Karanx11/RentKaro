@@ -21,7 +21,7 @@
     JavaScript (ES6+)
     CSS (modern styling)
     React Router
-    Custom hooks & services layer
+    Custom hooks and services layer
 
 ### Backend
 
