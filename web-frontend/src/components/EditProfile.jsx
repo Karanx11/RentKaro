@@ -210,7 +210,7 @@ return (
       {/* CHANGE EMAIL */}
       <div className="space-y-2">
         <label className="text-sm font-semibold text-black">
-          Change Email
+          Change Email ID
         </label>
 
         <input
