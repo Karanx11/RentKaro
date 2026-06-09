@@ -11,7 +11,7 @@
     🤖 AI-powered chatbot assistance
     🔐 Secure backend with authentication-ready architecture
     ⚡ Fast frontend using Vite + React
-    🧩 Clean, scalable project structure
+    🧩 Clean, Structured, scalable project structure
 
 ## 🧠 Tech Stack
 
