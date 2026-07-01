@@ -47,11 +47,11 @@ function HomeBody() {
         {/* RIGHT CONTENT */}
         <div className="w-full lg:w-1/2 flex flex-col items-center lg:items-start text-center lg:text-left">
           <h1 className="text-3xl sm:text-4xl font-bold text-black leading-tight">
-            Find the Perfect Item <br /> to Rent Today
+            Find the Perfect Item <br /> to Buy or Rent Today
           </h1>
 
           <p className="mt-3 text-base text-[#140c08] max-w-md">
-            From electronics to daily essentials — RentKaro makes renting simple
+            From electronics to daily essentials — RentKaro makes renting and buying simple
             and affordable.
           </p>
 
