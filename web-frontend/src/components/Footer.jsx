@@ -15,7 +15,7 @@ function Footer() {
           </h2>
           <p className="mt-3 text-gray-400 leading-relaxed">
             Smart rental marketplace for everyday needs.
-            Rent, sell & save money with ease.
+            Rent, sell, buy & save money with ease.
           </p>
         </div>
 
@@ -41,14 +41,7 @@ function Footer() {
           </ul>
         </div>
 
-        {/* NEWSLETTER */}
-        <div>
-          <h3 className="font-semibold mb-3 text-white">Stay Updated</h3>
-          <p className="text-gray-400 mb-3">
-            Get latest deals & offers.
-          </p>
-
-        </div>
+        
 
       </div>
 
