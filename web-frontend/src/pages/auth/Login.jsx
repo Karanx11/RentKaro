@@ -103,7 +103,7 @@ function Login() {
         <div className="w-full max-w-md bg-gray-400/40 backdrop-blur-xl border border-gray-500/30 shadow-xl rounded-2xl p-6 flex flex-col gap-5">
 
           <h1 className="text-2xl md:text-3xl font-bold text-black text-center">
-            Welcome Back
+            Welcome Back !!
           </h1>
 
           {error && (
@@ -131,7 +131,7 @@ function Login() {
             to="/forgot"
             className="text-right text-xs text-gray-700"
           >
-            Forgot password?
+            Forgot password ?
           </Link>
 
           {/* LOGIN BUTTON */}
