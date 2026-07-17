@@ -130,12 +130,19 @@ function Market() {
                   "
                 >
                   {/* IMAGE */}
-                  <div className="h-44 w-full overflow-hidden">
-                    <img
-                      src={`${API_URL}${product.images?.[0]}`}
-                      alt={product.title}
-                      className="w-full h-full object-cover"
-                    />
+                  <div className="relative h-56 w-full bg-white border-b flex items-center justify-center p-4">
+                    {product.images?.length ? (
+                      <img
+                        src={`${API_URL}${product.images[0]}`}
+                        alt={product.title}
+                        className="w-full h-full object-contain transition-transform duration-300 hover:scale-105"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="text-gray-400 text-sm">
+                        No Image Available
+                      </div>
+                    )}
                   </div>
 
                   {/* DETAILS */}
