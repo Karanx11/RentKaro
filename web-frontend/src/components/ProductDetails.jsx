@@ -138,32 +138,32 @@ const isLoggedIn = Boolean(token);
 
             {/* IMAGES */}
             <div className="w-full lg:w-1/2">
-              <div className="h-[300px] rounded-xl overflow-hidden">
-                <img
-                  src={selectedImage}
-                  alt={product.title}
-                  className="w-full h-full object-cover"
-                />
-              </div>
+  <div className="w-full h-[450px] bg-white rounded-xl border overflow-hidden flex items-center justify-center">
+    <img
+      src={selectedImage}
+      alt={product.title}
+      className="max-w-full max-h-full object-contain"
+    />
+  </div>
 
-              <div className="flex gap-3 mt-4">
-                {product.images.map((img, i) => (
-                  <img
-                    key={i}
-                    src={`${API_URL}${img}`}
-                    onClick={() => {
-                      setCurrentIndex(i);
-                      setSelectedImage(`${API_URL}${img}`);
-                    }}
-                    className={`w-16 h-16 rounded-lg cursor-pointer border ${
-                      currentIndex === i
-                        ? "border-black"
-                        : "border-gray-400"
-                    }`}
-                  />
-                ))}
-              </div>
-            </div>
+  <div className="flex gap-3 mt-4 overflow-x-auto pb-2">
+    {product.images.map((img, i) => (
+      <img
+        key={i}
+        src={`${API_URL}${img}`}
+        onClick={() => {
+          setCurrentIndex(i);
+          setSelectedImage(`${API_URL}${img}`);
+        }}
+        className={`w-20 h-20 flex-shrink-0 rounded-lg border bg-white p-1 object-contain cursor-pointer transition ${
+          currentIndex === i
+            ? "border-black ring-2 ring-black"
+            : "border-gray-300 hover:border-gray-500"
+        }`}
+      />
+    ))}
+  </div>
+</div>
 
             {/* DETAILS */}
             <div className="w-full lg:w-1/2 flex flex-col justify-between">
