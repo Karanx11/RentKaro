@@ -4,15 +4,13 @@ import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 
 const CATEGORIES = [
-  "Electronics",
-  "Camera",
-  "Computers",
   "Books",
-  "Tools",
+  "Computers",
+  "Camera",
   "Gaming",
+  "Tools",
   "Camping",
-  "Furniture",
-  "Other",
+  "Others",
 ];
 
 function Sell() {
